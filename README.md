@@ -33,6 +33,13 @@ a good mix!
   Just install the Qt SDK and open `editor/waller.pro`.
 - For now this is **Windows only**. Linux compatibility will come reasonably soon.
 
+## Documentation
+
+The Doxygen-generated API reference lives in [`documentation/`](documentation/index.html) and can be
+viewed online via [htmlpreview](https://htmlpreview.github.io/?https://github.com/Marzac/die/blob/main/documentation/index.html).
+
+To regenerate it yourself, run `doxygen Doxyfile` from the `documentation/` folder.
+
 ## License
 
 This project is **MIT licensed**
