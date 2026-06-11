@@ -6,6 +6,8 @@ You probably know me from my synthesizer work. But I always wanted to be a game 
 
 This repository is my attempt to give the community of hobby developers a basic but fully functional toolkit for building 2.5D games.
 
+![Waller editor screenshot](screenshot.png)
+
 ## What's inside
 
 - **DIE** : the renderer and runtime, in `common/engine`.
