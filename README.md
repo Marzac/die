@@ -8,8 +8,8 @@ This repository is my attempt to give the community of hobby developers a basic 
 
 ## What's inside
 
-- **DIE** (Depth Integration Engine) — the renderer and runtime, in `common/engine`.
-- **Waller** — the map editor, in `editor/`.
+- **DIE** : the renderer and runtime, in `common/engine`.
+- **Waller** : the map editor, in `editor/`.
 This is the real strength of the toolkit: a full Qt-based level editor for building maps for the engine.
 
 ## The renderer
