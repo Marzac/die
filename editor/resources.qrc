@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/Icons">
+        <file alias="tools-node.png">artwork/tools-node.png</file>
+        <file alias="tools-submap.png">artwork/tools-submap.png</file>
+        <file alias="tools-wall.png">artwork/tools-wall.png</file>
+        <file alias="tools-door.png">artwork/tools-door.png</file>
+        <file alias="tools-lift.png">artwork/tools-lift.png</file>
+        <file alias="tools-staircase.png">artwork/tools-staircase.png</file>
+		<file alias="tools-light.png">artwork/tools-light.png</file>
+        <file alias="tools-sprite.png">artwork/tools-sprite.png</file>
+        <file alias="tools-speaker.png">artwork/tools-speaker.png</file>
+		<file alias="tools-stage.png">artwork/tools-stage.png</file>
+		<file alias="tools-settings.png">artwork/tools-settings.png</file>
+		<file alias="tools-origin.png">artwork/tools-origin.png</file>
+	</qresource>
+	
+    <qresource prefix="/Textures">
+        <file alias="default.png">artwork/default.png</file>
+    </qresource>
+    <qresource prefix="/Misc">
+        <file>editor-icon.png</file>
+    </qresource>
+</RCC>

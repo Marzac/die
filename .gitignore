@@ -1,0 +1,8 @@
+.claude
+build*
+dist*
+*-build-debug*
+*-build-release*
+*-build-profile*
+assets
+bins
