@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['speaker_5fflag_5fautoplay_0',['SPEAKER_FLAG_AUTOPLAY',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5ad7c8ae04c6114fb2f8142c50db7bbd0c',1,'mapobjects.h']]],
+  ['speaker_5fflag_5ffree_1',['SPEAKER_FLAG_FREE',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a6cc7d85ef550536a409ef16a35b332b4',1,'mapobjects.h']]],
+  ['speaker_5fflag_5floop_2',['SPEAKER_FLAG_LOOP',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a68f701b1a062767f2814e1344f8a2580',1,'mapobjects.h']]],
+  ['speaker_5fflag_5fomni_3',['SPEAKER_FLAG_OMNI',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a9798cfb91a46af3d1a5e08394c0936ec',1,'mapobjects.h']]],
+  ['speaker_5fflag_5fplaying_4',['SPEAKER_FLAG_PLAYING',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a61f766b0c9a8ebdd5463ea622d805807',1,'mapobjects.h']]],
+  ['speaker_5fflag_5ftoggle_5',['SPEAKER_FLAG_TOGGLE',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a031786236985b8327d634d5d73c4b12a',1,'mapobjects.h']]],
+  ['speaker_5fflag_5ftrigger_6',['SPEAKER_FLAG_TRIGGER',['../mapobjects_8h.html#ac928da8bedb0421ea398c10bcedd66c5a3d6cafda21e835b570350ab2d3f6221a',1,'mapobjects.h']]],
+  ['sprite_5fflag_5fautopan_7',['SPRITE_FLAG_AUTOPAN',['../mapobjects_8h.html#a84a550e9f46221ad40ee6895cfbb0b47a143afc2629a8100a1945ceb9d7ca091f',1,'mapobjects.h']]],
+  ['sprite_5fflag_5fbackculled_8',['SPRITE_FLAG_BACKCULLED',['../mapobjects_8h.html#a84a550e9f46221ad40ee6895cfbb0b47a644dbea418515407536b3432cfd81a31',1,'mapobjects.h']]],
+  ['sprite_5fflag_5ffree_9',['SPRITE_FLAG_FREE',['../mapobjects_8h.html#a84a550e9f46221ad40ee6895cfbb0b47a97caf9acca987184264d9f83dee71974',1,'mapobjects.h']]],
+  ['sprite_5fflag_5finvisible_10',['SPRITE_FLAG_INVISIBLE',['../mapobjects_8h.html#a84a550e9f46221ad40ee6895cfbb0b47ae9d7c7f1f4645a4efa7bc25f14653839',1,'mapobjects.h']]],
+  ['sprite_5fflag_5fshadows_11',['SPRITE_FLAG_SHADOWS',['../mapobjects_8h.html#a84a550e9f46221ad40ee6895cfbb0b47a3cd998c7fe8a6f39666ec218312edd8a',1,'mapobjects.h']]],
+  ['staircase_5fflag_5ffree_12',['STAIRCASE_FLAG_FREE',['../mapobjects_8h.html#a48ed1ea4a457448326855fb961ea9dd6ac0450286487dc4ff40d23fe895bc997d',1,'mapobjects.h']]],
+  ['staircase_5fsurface_5fsides_13',['STAIRCASE_SURFACE_SIDES',['../mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa11dcb57f5e14ab052ce109ba78b91684',1,'mapobjects.h']]],
+  ['staircase_5fsurface_5fstepfall_14',['STAIRCASE_SURFACE_STEPFALL',['../mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa2e2ac613970199ffea05e156912f9224',1,'mapobjects.h']]],
+  ['staircase_5fsurface_5fsteptop_15',['STAIRCASE_SURFACE_STEPTOP',['../mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aaff61943f930f5f26db12cbf1931040ab',1,'mapobjects.h']]],
+  ['staircase_5fsurfaces_5fcount_16',['STAIRCASE_SURFACES_COUNT',['../mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa36c9e1e834ef53adf7b618e3c0174c6b',1,'mapobjects.h']]]
+];
