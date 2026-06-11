@@ -9,12 +9,13 @@ This repository is my attempt to give the community of hobby developers a basic 
 ## What's inside
 
 - **DIE** : the renderer and runtime, in `common/engine`.
-- **Waller** : the map editor, in `editor/`.
-This is the real strength of the toolkit: a full Qt-based level editor for building maps for the engine.
+- **Waller** : the map editor, in `editor/`.  
+
+Waller is the real strength of the toolkit: a full Qt-based level editor for building maps for the engine.
 
 ## The renderer
 
-The renderer is sorta weird. It's software-based and works a bit like a futuristic raycaster,
+The renderer is sorta unique. It's software-based and works a bit like a futuristic raycaster,
 I'm writing a paper about it to describe its inner in more details.
 
 Also, it's not yet fully portable, since a lot of the core rendering code relies on SSE4 arithmetic.
@@ -23,7 +24,8 @@ That said, it shouldn't be too hard to make a portable version with the tools av
 ## A weird codebase
 
 This codebase ranges from pure SSE intrinsics for rasterizing, to fairly advanced C++ with seamless
-multithreading. It's a strange mix, modern and retro tech, what I actually love and hopefully a good mix.
+multithreading. It's a strange mix, of modern and retro tech, what I personally love and hopefully
+a good mix!
 
 ## Building
 
