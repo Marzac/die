@@ -2,9 +2,11 @@
 
 Hello, I'm Fred ;-)
 
-You probably know me from my synthesizer work. But I always wanted to be a game dev, and I'm not getting any younger, so here we are!
+You probably know me from my synthesizer work. But I always wanted to be a game dev, and I'm not getting
+any younger, so here we are!
 
-This repository is my attempt to give the community of hobby developers a basic but fully functional toolkit for building 2.5D games.
+This repository is my attempt to give the community of hobby developers a basic but fully functional toolkit
+for building 2.5D games.
 
 ![Waller editor screenshot](screenshot.png)
 
@@ -31,16 +33,52 @@ a good mix!
 
 ## Building
 
-- Waller (and the engine) is built on **Qt** (Community Edition, **Qt 6** or newer).
-  Just install the Qt SDK and open `editor/waller.pro`.
-- For now this is **Windows only**. Linux compatibility will come reasonably soon.
+Waller (and the engine) is built on **Qt 6** (Community/Open Source Edition), using the `core`, `gui`,
+`widgets` and `spatialaudio` modules, with a C++17, SSE4-capable compiler. All four of these modules
+are available under the **LGPLv3** in the Community/Open Source edition, so they're free to use here
+even though this project itself is MIT licensed.
+
+### Windows
+
+Grab the [Qt Online Installer](https://www.qt.io/download-qt-installer-oss) and install Qt 6 with a
+MinGW (or LLVM-MinGW) kit. Then just open `editor/waller.pro` in Qt Creator, pick that kit, and build.
+
+> If you also have MSYS2 installed, make sure Qt's own MinGW/LLVM-MinGW `bin` folder (e.g.
+> `C:\Qt\Tools\llvm-mingw1706_64\bin`) comes first in your `PATH` — mixing MSYS2's toolchain in will
+> break the link with libstdc++/libc++ ABI mismatches.
+
+### Linux
+
+Install Qt 6 development packages (base, widgets and multimedia/spatial audio) plus a C++ toolchain:
+
+- **Ubuntu / Debian**:
+  ```
+  sudo apt install qt6-base-dev qt6-multimedia-dev qmake6 build-essential
+  ```
+- **Fedora**:
+  ```
+  sudo dnf install qt6-qtbase-devel qt6-qtmultimedia-devel gcc-c++ make
+  ```
+
+These give you everything needed to build from the command line. If you'd rather use the Qt Creator
+IDE, also install `qtcreator` (Ubuntu/Debian) or `qt-creator` (Fedora).
+
+### All platforms
+
+Open `editor/waller.pro` (in Qt Creator, or via `qmake`/`qmake6` followed by `make`/`mingw32-make`),
+pick a kit using GCC, Clang or MinGW, and compile.
+
+Bob's your uncle!
 
 ## Documentation
 
-The Doxygen-generated API reference lives in [`documentation/`](documentation/index.html) and can be
-viewed online via [htmlpreview](https://htmlpreview.github.io/?https://github.com/Marzac/die/blob/main/documentation/index.html).
+[`MANUAL.md`](MANUAL.md) describes how the renderer works: the basic objects (nodes, walls, sprites,
+lights, doors, lifts...), lighting, fog and post effects.
 
-To regenerate it yourself, run `doxygen Doxyfile` from the `documentation/` folder.
+The Doxygen-generated API reference lives in [`docs/`](docs/index.html) and can be viewed online at
+[marzac.github.io/die](https://marzac.github.io/die/).
+
+To regenerate it yourself, run `doxygen Doxyfile` from the `docs/` folder.
 
 ## License
 
