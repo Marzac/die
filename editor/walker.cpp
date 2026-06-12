@@ -55,7 +55,7 @@ void Walker::terminate()
 /*****************************************************************************/
 void Walker::update()
 {
-    gamepad1.update();
+    gamepads[0].update();
     updateMove();
 
     if (audio.audioListener) {
@@ -71,19 +71,19 @@ void Walker::update()
 /*****************************************************************************/
 void Walker::updateMove()
 {
-    pan += speedPan * gamepad1.leftX * R2D;
+    pan += speedPan * gamepads[0].leftX * R2D;
     pan = fmodf(pan, 360.0f);
 
-    pitchTargetPad = gamepad1.rightY * cameraPitch;
+    pitchTargetPad = gamepads[0].rightY * cameraPitch;
     float pitchTarget = pitchTargetPad + pitchTargetMouse;
     tilt = pitchTarget - (pitchTarget - tilt) * 0.8f;
 
     QVector3D runVector(cosf(pan * D2R), 0.0f, sinf(pan * D2R));
-    float thrustRun = speedRun * gamepad1.leftY;
+    float thrustRun = speedRun * gamepads[0].leftY;
     accel = runVector * thrustRun;
 
     QVector3D strafeVector(-runVector.z(), 0.0f, runVector.x());
-    float thrustStrafe = speedStrafe * gamepad1.rightX;
+    float thrustStrafe = speedStrafe * gamepads[0].rightX;
     accel += strafeVector * thrustStrafe;
 
     if ((fabsf(thrustRun) > 0.1f) || (fabsf(thrustStrafe) > 0.1f)) {
