@@ -69,5 +69,36 @@ void Gamepad::feedback(float left, float right)
 }
 
 #else // _WIN32
-#error "gamepad.cpp: only the Windows (XInput) implementation is available for now"
+//#error "gamepad.cpp: only the Windows (XInput) implementation is available for now"
+
+#include <algorithm>
+
+Gamepad gamepad1(0);
+Gamepad gamepad2(1);
+
+/*****************************************************************************/
+Gamepad::Gamepad(int id) :
+    id (id),
+    leftX(0.0f), leftY(0.0f),
+    rightX(0.0f), rightY(0.0f),
+    buttons(0), toggled(0), pressed(0), released(0),
+    detected(false)
+{
+
+}
+
+/*****************************************************************************/
+float Gamepad::filterAxis(int16_t value)
+{
+}
+
+/*****************************************************************************/
+void Gamepad::update()
+{
+}
+
+void Gamepad::feedback(float left, float right)
+{
+}
+
 #endif // _WIN32

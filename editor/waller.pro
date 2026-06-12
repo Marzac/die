@@ -55,24 +55,24 @@ HEADERS += \
     ../common/engine/colors.h \
     ../common/engine/postfx.h \
     ../common/engine/workerpool.h \
-    ../common/engine/gamepad.h \
-    ../common/game/gameobjects.h
+    ../common/engine/gamepad.h
 
 FORMS += \
     mainwindow.ui \
     renderwindow.ui
 
-LIBS += \
+win32:LIBS += \
     -lXinput \
     -lwinmm \
     -lws2_32
+
+linux:LIBS += \
 
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 RESOURCES += \
-    ../common/game/game.qrc \
     resources.qrc
 
 RC_FILE += \
