@@ -67,7 +67,7 @@ void Gamepad::feedback(float left, float right)
     XInputSetState(id, &force);
 }
 
-#else if defined(__unix__) || defined(__unix)
+#elif defined(__unix__) || defined(__unix)
 
 #include <stdio.h>
 #include <string.h>
