@@ -8,7 +8,9 @@ any younger, so here we are!
 This repository is my attempt to give the community of hobby developers a basic but fully functional toolkit
 for building 2.5D games.
 
-![Waller editor screenshot](screenshot.png)
+![Waller editor Windows](screenshot-windows.png)
+
+![Waller editor Linux](screenshot-linux.png)
 
 ## What's inside
 
