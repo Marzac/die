@@ -1028,7 +1028,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     __m128 fogColor = _mm_set1_ps(0);
     if (strip.flags & VSTRIP_FLAG_HIGHLIGHTED) {
         fogFactor = 0.6f;
-        fogColor = unpackColorToVectorSSE4(0x00FFFFFF);
+        fogColor = unpackColorToVectorSSE4(0x00AAAAAA);
 
     }else if (fogFlags & 1) {
         float f = (fogDistanceOffset - strip.dist) * fogDistanceInv;

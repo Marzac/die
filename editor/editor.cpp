@@ -39,16 +39,7 @@ void Editor::init()
 
     editMode = EDIT_MODE_NODES;
 
-    selectedNode = EDIT_UNSELECTED;
-    selectedWall = EDIT_UNSELECTED;
-    selectedSubmap = EDIT_UNSELECTED;
-    selectedDoor = EDIT_UNSELECTED;
-    selectedLift = EDIT_UNSELECTED;
-    selectedStaircase = EDIT_UNSELECTED;
-    selectedSprite = EDIT_UNSELECTED;
-    selectedLight = EDIT_UNSELECTED;
-    selectedSpeaker = EDIT_UNSELECTED;
-    selectedPath = EDIT_UNSELECTED;
+    deselect();
     selectedTextureID = 0;
 
     gridSnap = true;
@@ -94,30 +85,17 @@ void Editor::selectAll()
 
 void Editor::deselect()
 {
-    nodeDeselectAll();
-    wallDeselectAll();
-    submapDeselectAll();
-    doorDeselectAll();
-    liftDeselectAll();
-    staircaseDeselectAll();
-    spriteDeselectAll();
-    lightDeselectAll();
-    speakerDeselectAll();
-    pathDeselectAll();
-}
-
-void Editor::clearSelection()
-{
-    selectedNode      = EDIT_UNSELECTED;
-    selectedWall      = EDIT_UNSELECTED;
-    selectedSubmap    = EDIT_UNSELECTED;
-    selectedDoor      = EDIT_UNSELECTED;
-    selectedLift      = EDIT_UNSELECTED;
-    selectedSprite    = EDIT_UNSELECTED;
+    selectedNode = EDIT_UNSELECTED;
+    selectedWall = EDIT_UNSELECTED;
+    selectedSubmap = EDIT_UNSELECTED;
+    selectedDoor = EDIT_UNSELECTED;
+    selectedLift = EDIT_UNSELECTED;
+    selectedSprite = EDIT_UNSELECTED;
     selectedStaircase = EDIT_UNSELECTED;
-    selectedLight     = EDIT_UNSELECTED;
-    selectedSpeaker   = EDIT_UNSELECTED;
-    selectedPath      = EDIT_UNSELECTED;
+    selectedLight = EDIT_UNSELECTED;
+    selectedSpeaker = EDIT_UNSELECTED;
+    selectedPath = EDIT_UNSELECTED;
+
     nodeDeselectAll();
     wallDeselectAll();
     submapDeselectAll();
@@ -133,7 +111,25 @@ void Editor::clearSelection()
 /*****************************************************************************/
 void Editor::cut()
 {
-// TODO!
+    QList<int> cutNodes;
+    for (int i = 0; i < editedMap->nodes.count(); i++)
+        if (editedMap->nodes[i].selected) cutNodes.append(i);
+
+    copy();
+
+// Remove the copied walls and objects
+    deleteSelected(editedMap->walls);
+    deleteSelected(editedMap->doors);
+    deleteSelected(editedMap->lifts);
+    deleteSelected(editedMap->sprites);
+    deleteSelected(editedMap->staircases);
+    deleteSelected(editedMap->lights);
+
+// Remove the nodes the user selected
+    for (int k = cutNodes.count() - 1; k >= 0; k--)
+        nodeDelete(cutNodes[k]);
+
+    deselect();
 }
 
 void Editor::copy()
@@ -145,6 +141,12 @@ void Editor::copy()
         editedMap->nodes[w.nodeID2].selected = true;
         copyWalls.append(w);
     }
+
+    copyObjects(editedMap->doors, copyDoors);
+    copyObjects(editedMap->lifts, copyLifts);
+    copyObjects(editedMap->sprites, copySprites);
+    copyObjects(editedMap->staircases, copyStaircases);
+    copyObjects(editedMap->lights, copyLights);
 
     copyNodeIDs.clear();
     copyNodes.clear();
@@ -158,8 +160,7 @@ void Editor::copy()
 
 void Editor::paste(VIEW_MODES mode, QVector2D pos)
 {
-    nodeDeselectAll();
-    wallDeselectAll();
+    deselect();
 
     int nodeBase = editedMap->nodes.count();
     if (!copyWalls.isEmpty()) {
@@ -176,8 +177,20 @@ void Editor::paste(VIEW_MODES mode, QVector2D pos)
     }else selectedWall = -1;
 
     if (!copyNodes.isEmpty()) {
-        QVector3D ref = to3D(mode, pos, QVector3D());
-        QVector3D dp = ref - copyNodes.last().pos;
+    // Center the copied data's bounding box on the (grid-snapped) cursor.
+        QVector3D bbMin = copyNodes.first().pos;
+        QVector3D bbMax = bbMin;
+        for (const Node & n: copyNodes) {
+            bbMin.setX(std::min(bbMin.x(), n.pos.x()));
+            bbMin.setY(std::min(bbMin.y(), n.pos.y()));
+            bbMin.setZ(std::min(bbMin.z(), n.pos.z()));
+            bbMax.setX(std::max(bbMax.x(), n.pos.x()));
+            bbMax.setY(std::max(bbMax.y(), n.pos.y()));
+            bbMax.setZ(std::max(bbMax.z(), n.pos.z()));
+        }
+        QVector3D center = (bbMin + bbMax) * 0.5f;
+        QVector3D ref = to3D(mode, pos, center);
+        QVector3D dp = ref - center;
         for (Node n: copyNodes) {
             n.selected = true;
             n.pos += dp;
@@ -185,6 +198,13 @@ void Editor::paste(VIEW_MODES mode, QVector2D pos)
         }
         selectedNode = editedMap->nodes.count() - 1;
     }else selectedNode = -1;
+
+// Node-bound objects, remapped onto the freshly pasted nodes
+    pasteObjects(copyDoors, editedMap->doors, nodeBase, selectedDoor);
+    pasteObjects(copyLifts, editedMap->lifts, nodeBase, selectedLift);
+    pasteObjects(copySprites, editedMap->sprites, nodeBase, selectedSprite);
+    pasteObjects(copyStaircases, editedMap->staircases, nodeBase, selectedStaircase);
+    pasteObjects(copyLights, editedMap->lights, nodeBase, selectedLight);
 }
 
 int Editor::findCopiedNodeID(uint16_t id)
@@ -194,9 +214,51 @@ int Editor::findCopiedNodeID(uint16_t id)
     return -1;
 }
 
+/*****************************************************************************/
+template <typename T>
+void Editor::copyObjects(const QList<T> & items, QList<T> & dst)
+{
+    dst.clear();
+    for (const T & item : items) {
+        if (!item.selected) continue;
+        editedMap->nodes[item.nodeID].selected = true;
+        dst.append(item);
+    }
+}
+
+template <typename T>
+void Editor::pasteObjects(const QList<T> & src, QList<T> & dst, int nodeBase, int & selected)
+{
+    selected = -1;
+    for (T item : src) {
+        int idx = findCopiedNodeID(item.nodeID);
+        if (idx < 0) continue;
+        item.nodeID = nodeBase + idx;
+        item.selected = true;
+        dst.append(item);
+        selected = dst.count() - 1;
+    }
+}
+
+template <typename T>
+void Editor::deleteSelected(QList<T> & items)
+{
+    for (int i = 0; i < items.count(); i++) {
+        if (!items[i].selected) continue;
+        items.removeAt(i--);
+    }
+}
+
+/*****************************************************************************/
 void Editor::align()
 {
-    // TODO!
+    float gs = effectiveGridSize();
+    for (Node & n : editedMap->nodes) {
+        if (!n.selected) continue;
+        n.pos.setX(roundf(n.pos.x() / gs) * gs);
+        n.pos.setY(roundf(n.pos.y() / gs) * gs);
+        n.pos.setZ(roundf(n.pos.z() / gs) * gs);
+    }
 }
 
 /*****************************************************************************/
@@ -1026,7 +1088,7 @@ bool Editor::findInCircle(
     int selectedIndex)
 {
     outId = -1;
-    float rMin = EDITOR_SPRITE_RADIUS / zoom;
+    float rMin = EDITOR_OBJECT_RADIUS / zoom;
     rMin = std::max(rMin, 0.5f * effectiveGridSize());
 
     int count = items.count();

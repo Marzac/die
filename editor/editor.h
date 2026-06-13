@@ -46,11 +46,12 @@ typedef enum {
     VIEW_3D,
 } VIEW_MODES;
 
+/*****************************************************************************/
 constexpr int EDIT_UNSELECTED = -1;
 
-constexpr int EDITOR_NODE_RADIUS   = 8;
-constexpr int EDITOR_WALL_RADIUS   = 16;
-constexpr int EDITOR_SPRITE_RADIUS = 12;
+constexpr int EDITOR_NODE_RADIUS = 8;
+constexpr int EDITOR_WALL_RADIUS = 16;
+constexpr int EDITOR_OBJECT_RADIUS = 12;
 
 /*****************************************************************************/
 class Editor
@@ -86,6 +87,11 @@ public:
     QList<uint16_t> copyNodeIDs;
     QList<Node> copyNodes;
     QList<Wall> copyWalls;
+    QList<Door>      copyDoors;
+    QList<Lift>      copyLifts;
+    QList<Sprite>    copySprites;
+    QList<Staircase> copyStaircases;
+    QList<Light>     copyLights;
 
     bool gridSnap;
     float gridSize;
@@ -103,7 +109,6 @@ public:
 
     void selectAll();
     void deselect();
-    void clearSelection();
     void cut();
     void copy();
 
@@ -201,6 +206,18 @@ public:
 private:
     int findCopiedNodeID(uint16_t id);
     float effectiveGridSize() const;
+
+// Copy / paste / delete of the node-bound objects (door, lift, sprite, ...).
+// Each object carries a single nodeID, so copy also pulls in its node and
+// paste remaps that nodeID onto the freshly pasted nodes.
+    template <typename T>
+    void copyObjects(const QList<T> & items, QList<T> & dst);
+
+    template <typename T>
+    void pasteObjects(const QList<T> & src, QList<T> & dst, int nodeBase, int & selected);
+
+    template <typename T>
+    void deleteSelected(QList<T> & items);
 
     template <typename T, typename Container>
     bool findInCircle(

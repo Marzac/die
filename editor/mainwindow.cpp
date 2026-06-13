@@ -220,7 +220,7 @@ void MainWindow::applyUndoState()
 {
     editor.editedMap->restoreState(undoHistory[undoIndex]);
     editor.editedMap->computeAllWalls();
-    editor.clearSelection();
+    editor.deselect();
 
     updateAllProperties();
     updateSunProperties();
@@ -293,16 +293,22 @@ void MainWindow::contextMenu_show(const QPoint &pos)
         editor.selectAll();
     else if (selectedAction == deselectAction)
         editor.deselect();
-    else if (selectedAction == cutAction)
+    else if (selectedAction == cutAction) {
+        pushUndoState();
         editor.cut();
+    }
     else if (selectedAction == copyAction)
         editor.copy();
-    else if (selectedAction == pasteAction)
-        editor.paste(VIEW_TOP, QVector2D(pos.x(), pos.y()));
+    else if (selectedAction == pasteAction) {
+        pushUndoState();
+        editor.paste(VIEW_TOP, ui->widgetMap1->getCursor());
+    }
     else if (selectedAction == deleteAction)
         on_deleteCurrent();
-    else if (selectedAction == alignAction)
+    else if (selectedAction == alignAction) {
+        pushUndoState();
         editor.align();
+    }
 }
 
 /*****************************************************************************/
@@ -386,7 +392,7 @@ void MainWindow::setEditMode(EDIT_MODES mode)
 
     ui->tabEditorModes->setCurrentIndex(mode);
 
-    editor.clearSelection();
+    editor.deselect();
     updateAllProperties();
 }
 
@@ -2749,7 +2755,7 @@ void MainWindow::on_actionSelectAll_triggered()
 
 void MainWindow::on_actionDeselect_triggered()
 {
-    editor.clearSelection();
+    editor.deselect();
     updateAllProperties();
 }
 
@@ -2778,6 +2784,7 @@ void MainWindow::on_actionDelete_triggered()
 
 void MainWindow::on_actionAlign_triggered()
 {
+    pushUndoState();
     editor.align();
 }
 
