@@ -716,6 +716,7 @@ void Map::passLights(int nodeBase)
         el.nodeID = l.nodeID + nodeBase;
         el.color = color;
         el.strength = l.strength;
+        el.falloff = l.falloff;
         el.still = still;
     }
 }

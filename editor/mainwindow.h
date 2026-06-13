@@ -244,6 +244,7 @@ private slots:
     void on_pushLightColorA_clicked();
     void on_pushLightColorB_clicked();
     void on_scrollLightStrength_valueChanged(int value);
+    void on_spinLightFalloff_valueChanged(double value);
     void on_comboLightAnimation_currentIndexChanged(int index);
     void on_scrollLightSpeed_valueChanged(int value);
     void on_checkLightEnable_toggled(bool checked);

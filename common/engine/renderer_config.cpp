@@ -17,6 +17,23 @@
 
 #include <algorithm>
 
+// Clamp ranges applied to values read from a config file
+namespace {
+    constexpr int FrameResoMin = 64;
+    constexpr int FrameResoMax = 8192;
+    constexpr int GlowmapResoMin = 32;
+    constexpr int GlowmapResoMax = 2048;
+    constexpr float GlowmapAreaMin = 1.0f;
+    constexpr int NodesMin = 16;
+    constexpr int NodesMax = 65536;
+    constexpr int WallsMin = 16;
+    constexpr int WallsMax = 65536;
+    constexpr int TexturesMin = 1;
+    constexpr int TexturesMax = 256;
+    constexpr int LightsMin = 1;
+    constexpr int LightsMax = 4096;
+}
+
 /*****************************************************************************/
 static void skipLine(FILE * file)
 {
@@ -56,11 +73,12 @@ static const char * getKey(FILE * file)
     return key;
 }
 
-// Round up to a power of two (the glowmap sampling relies on bit masks)
+/*****************************************************************************/
+// Round up to a power of two
 static int toPowerOfTwo(int v)
 {
-    int p = 32;
-    while (p < v && p < 2048) p <<= 1;
+    int p = GlowmapResoMin;
+    while (p < v && p < GlowmapResoMax) p <<= 1;
     return p;
 }
 
@@ -79,30 +97,30 @@ void Renderer::configInit()
     texturesAllocated = DefaultTexturesMax;
     lightsAllocated = DefaultLightsMax;
 
-    fovAngle = 80.0f;
-    fovDistanceNear = 1.0f;
-    fovDistanceFar = 8192.0f;
+    fovAngle = DefaultFOVAngle;
+    fovDistanceNear = DefaultFOVDistanceNear;
+    fovDistanceFar = DefaultFOVDistanceFar;
 
-    sunAmbient = 0xDDDDDD;
-    sunRayColor = 0xFFFFDD;
-    sunRayDirection = QVector3D(-0.5f, -0.5f, 0.15f).normalized();
-    sunAmbientStrength = 1.0f;
-    sunRayStrength = 1.0f;
+    sunAmbient = DefaultSunAmbient;
+    sunRayColor = DefaultSunRayColor;
+    sunRayDirection = QVector3D(DefaultSunRayDirX, DefaultSunRayDirY, DefaultSunRayDirZ).normalized();
+    sunAmbientStrength = DefaultSunAmbientStrength;
+    sunRayStrength = DefaultSunRayStrength;
 
-    fogDistanceNear = 0.0f;
-    fogDistanceFar = 128.0f;
-    fogFarColor = 0x000000;
-    fogFlags = 1;
+    fogDistanceNear = DefaultFogDistanceNear;
+    fogDistanceFar = DefaultFogDistanceFar;
+    fogFarColor = DefaultFogFarColor;
+    fogFlags = DefaultFogFlags;
 
-    occlusionLength = 3.0f;
-    occlusionDarken = 0.9f;
+    occlusionLength = DefaultOcclusionLength;
+    occlusionDarken = DefaultOcclusionDarken;
 
-    motionBlurFactor = 45.0f;
-    vignetteInnerRadius = 75.0f;
-    vignetteOuterRadius = 125.0f;
-    gammaKRed = 1.0f;
-    gammaKGreen = 1.0f;
-    gammaKBlue = 1.0f;
+    motionBlurFactor = DefaultMotionBlurFactor;
+    vignetteInnerRadius = DefaultVignetteInnerRadius;
+    vignetteOuterRadius = DefaultVignetteOuterRadius;
+    gammaKRed = DefaultGammaKRed;
+    gammaKGreen = DefaultGammaKGreen;
+    gammaKBlue = DefaultGammaKBlue;
 }
 
 /*****************************************************************************/
@@ -131,14 +149,14 @@ bool Renderer::configLoad(const QString & filename)
         }
 
     // Parse according to key (values clamped to sane ranges)
-        if (strcmp(key, "ScreenResoX") == 0) frameResoX = std::clamp(atoi(valueStr), 64, 8192);
-        else if (strcmp(key, "ScreenResoY") == 0) frameResoY = std::clamp(atoi(valueStr), 64, 8192);
+        if (strcmp(key, "ScreenResoX") == 0) frameResoX = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
+        else if (strcmp(key, "ScreenResoY") == 0) frameResoY = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
         else if (strcmp(key, "GlowmapReso") == 0) glowmapSize = toPowerOfTwo(atoi(valueStr));
-        else if (strcmp(key, "GlowmapArea") == 0) glowmapArea = std::max(1.0f, (float) atof(valueStr));
-        else if (strcmp(key, "NodesMax") == 0) nodesAllocated = std::clamp(atoi(valueStr), 16, 65536);
-        else if (strcmp(key, "WallsMax") == 0) wallsAllocated = std::clamp(atoi(valueStr), 16, 65536);
-        else if (strcmp(key, "TexturesMax") == 0) texturesAllocated = std::clamp(atoi(valueStr), 1, 256);
-        else if (strcmp(key, "LightsMax") == 0) lightsAllocated = std::clamp(atoi(valueStr), 1, 4096);
+        else if (strcmp(key, "GlowmapArea") == 0) glowmapArea = std::max(GlowmapAreaMin, (float) atof(valueStr));
+        else if (strcmp(key, "NodesMax") == 0) nodesAllocated = std::clamp(atoi(valueStr), NodesMin, NodesMax);
+        else if (strcmp(key, "WallsMax") == 0) wallsAllocated = std::clamp(atoi(valueStr), WallsMin, WallsMax);
+        else if (strcmp(key, "TexturesMax") == 0) texturesAllocated = std::clamp(atoi(valueStr), TexturesMin, TexturesMax);
+        else if (strcmp(key, "LightsMax") == 0) lightsAllocated = std::clamp(atoi(valueStr), LightsMin, LightsMax);
 
         else if (strcmp(key, "FOVAngle") == 0) fovAngle = atof(valueStr);
         else if (strcmp(key, "FOVDistanceNear") == 0) fovDistanceNear = atof(valueStr);
@@ -186,8 +204,8 @@ bool Renderer::configSave(const QString & filename)
 
 // ==== Write header ====
     fprintf(file, "# == DIE ENGINE CONFIG == \n");
-    fprintf(file, "# Fred's Lab 2025\n");
-    fprintf(file, "# 28.10.25 - V0.3\n");
+    fprintf(file, "# Fred's Lab 2024-2026\n");
+    fprintf(file, "# 13.06.26 - V1.0\n");
     fprintf(file, "\n");
 
 // ==== Write general settings ====

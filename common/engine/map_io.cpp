@@ -51,8 +51,8 @@ bool Map::save(const QString & filename, bool submap)
     if (!file) return false;
 
     fprintf(file, "# == DIE MAP == \n");
-    fprintf(file, "# Fred's Lab 2026\n");
-    fprintf(file, "# 08.06.26 - V0.5\n");
+    fprintf(file, "# Fred's Lab 2024-2026\n");
+    fprintf(file, "# 13.06.26 - V1.0\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");
@@ -133,9 +133,9 @@ bool Map::save(const QString & filename, bool submap)
 
 // ==== LIGHTS ====
     fprintf(file, "# == LIGHTS ==\n");
-    fprintf(file, "# format: L nodeID, colorA, colorB, strength, speed, anim, tag, flags\n");
+    fprintf(file, "# format: L nodeID, colorA, colorB, strength, falloff, speed, anim, tag, flags\n");
     for (const Light & l : lights) {
-        fprintf(file, "L %04hu, %08x, %08x, %+4.4f, %+4.4f, %04hu, %.31s, %04hx\n", l.nodeID, l.colorA, l.colorB, l.strength, l.speed, l.anim, tags.nameForTag(l.tag), l.flags);
+        fprintf(file, "L %04hu, %08x, %08x, %+4.4f, %+4.4f, %+4.4f, %04hu, %.31s, %04hx\n", l.nodeID, l.colorA, l.colorB, l.strength, l.falloff, l.speed, l.anim, tags.nameForTag(l.tag), l.flags);
     } fprintf(file, "\n");
 
 // ==== SPEAKERS ====
@@ -301,7 +301,7 @@ bool Map::load(const QString & filename)
             Light l;
             memset(&l, 0, sizeof(Light));
             tagStr[0] = 0;
-            fscanf(file, "%hu, %x, %x, %f, %f, %hu, %31[^,], %hx", &l.nodeID, &l.colorA, &l.colorB, &l.strength, &l.speed, &l.anim, tagStr, &l.flags);
+            fscanf(file, "%hu, %x, %x, %f, %f, %f, %hu, %31[^,], %hx", &l.nodeID, &l.colorA, &l.colorB, &l.strength, &l.falloff, &l.speed, &l.anim, tagStr, &l.flags);
             l.tag = tags.findOrAddByName(tagStr);
             if (l.nodeID >= nodes.count()) { lastC = ' '; continue; }
             lights.append(l);

@@ -59,32 +59,73 @@ constexpr float R2D = 180.0f / 3.14159265f;
 class Renderer
 {
 public:
+/// \brief Default engine settings
     static constexpr int DefaultFrameResoX = 960;
     static constexpr int DefaultFrameResoY = 536;
     static constexpr int DefaultGlowmapReso = 256;
     static constexpr float DefaultGlowmapArea = 1024.0f;
-    static constexpr int DefaultNodesMax = 2048;
-    static constexpr int DefaultWallsMax = 1024;
-    static constexpr int DefaultTexturesMax = 32;
+
+    static constexpr int DefaultNodesMax = 4096;
+    static constexpr int DefaultWallsMax = 2048;
+    static constexpr int DefaultTexturesMax = 64;
     static constexpr int DefaultLightsMax = 64;
 
+/// \brief Distance in front of a wall where the glowmap is sampled
     static constexpr float GlowSampleDistance = 1.0f;
-    static constexpr float GlowBleedFactor = 0.25f;
-    static constexpr float LightFallOff = 32.0f;
 
-    static constexpr float HeightMax =  16384.0f;
+/// \brief Bleeding factor of glowmap illumination to simulate color burning
+    static constexpr float GlowBleedFactor = 0.25f;
+
+/// \brief Sharpness of the light falloff curve; edge brightness at the glow
+///        radius is 1 / (1 + GlowFalloffSharpness) (49 -> ~2%, no visible ring)
+    static constexpr float GlowFalloffSharpness = 49.0f;
+
+/// \brief World height (floor / ceiling) limits
     static constexpr float HeightMin = -16384.0f;
+    static constexpr float HeightMax =  16384.0f;
+
+/// \brief Default field of view
+    static constexpr float DefaultFOVAngle = 80.0f;
+    static constexpr float DefaultFOVDistanceNear = 1.0f;
+    static constexpr float DefaultFOVDistanceFar = 8192.0f;
+
+/// \brief Default sun lighting
+    static constexpr uint32_t DefaultSunAmbient = 0xDDDDDD;
+    static constexpr uint32_t DefaultSunRayColor = 0xFFFFDD;
+    static constexpr float DefaultSunRayDirX = -0.5f;
+    static constexpr float DefaultSunRayDirY = -0.5f;
+    static constexpr float DefaultSunRayDirZ =  0.15f;
+    static constexpr float DefaultSunAmbientStrength = 1.0f;
+    static constexpr float DefaultSunRayStrength = 1.0f;
+
+/// \brief Default distance fog
+    static constexpr float DefaultFogDistanceNear = 0.0f;
+    static constexpr float DefaultFogDistanceFar = 128.0f;
+    static constexpr uint32_t DefaultFogFarColor = 0x000000;
+    static constexpr uint16_t DefaultFogFlags = 1;
+
+/// \brief Default ambient occlusion
+    static constexpr float DefaultOcclusionLength = 3.0f;
+    static constexpr float DefaultOcclusionDarken = 0.9f;
+
+/// \brief Default post-fx
+    static constexpr float DefaultMotionBlurFactor = 45.0f;
+    static constexpr float DefaultVignetteInnerRadius = 75.0f;
+    static constexpr float DefaultVignetteOuterRadius = 125.0f;
+    static constexpr float DefaultGammaKRed = 1.0f;
+    static constexpr float DefaultGammaKGreen = 1.0f;
+    static constexpr float DefaultGammaKBlue = 1.0f;
 
     /// \brief Sentinel returned by clickGetWallID when no wall was picked
     static constexpr uint16_t ClickNoWall = 0xFFFF;
 
-    /// \brief Renderer-side node (compact variant, fed by Map::pass)
+    /// \brief Renderer-side node (compact variant)
     typedef struct {
         QVector3D pos;
         uint16_t flags;
     } Node;
 
-    /// \brief Renderer-side wall (compact variant, fed by Map::pass)
+    /// \brief Renderer-side wall (compact variant)
     typedef struct {
         uint16_t nodeID1;
         uint16_t nodeID2;
@@ -108,12 +149,21 @@ public:
         uint32_t block;
     } Texture;
 
-    /// \brief Renderer-side light (compact variant, fed by Map::pass)
+    /// \brief Bounding-box, half-open ([x0,x1) x [z0,z1))
+    typedef struct {
+        int x0, x1;
+        int z0, z1;
+    } BoundingBox;
+
+    /// \brief Renderer-side light (compact variant)
     typedef struct {
         uint16_t nodeID;
         uint32_t color;
         float strength;
+        float falloff;
+        float falloffInv2;
         float x, z;
+        BoundingBox boundingBox;
         __m128 argb;
         bool still;
     } Light;
@@ -310,9 +360,13 @@ private:
     QVector2D sceneCornerBegin, sceneCornerEnd;
     float glowmapArea;
     float glowmapScale;
+    float glowmapInvScale;
     __m128 * glowmap;
     __m128 * glowmapStill;
     __m128 glowBleed;
+
+    QList<BoundingBox> glowmapDirtyBoxes;
+    QList<BoundingBox> glowmapDirtyLast;
 
     float * pitchTable;
     float * panTable;
