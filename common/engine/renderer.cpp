@@ -142,9 +142,9 @@ void Renderer::allocateObjects(int noNodes, int noWalls, int noTextures, int noL
     delete[] textures; textures = nullptr;
     delete[] lights; lights = nullptr;
 
-    if (!(nodes = new (std::nothrow) Node[noNodes])) return;
+    if (!(nodes = new (std::nothrow) Node[noNodes]())) return;
     nodesAllocated = noNodes;
-    if (!(walls = new (std::nothrow) Wall[noWalls])) return;
+    if (!(walls = new (std::nothrow) Wall[noWalls]())) return;
     if (!(segments = new (std::nothrow) Segment[noWalls])) return;
     wallsAllocated = noWalls;
     if (!(textures = new (std::nothrow) Texture[noTextures])) return;
@@ -152,8 +152,6 @@ void Renderer::allocateObjects(int noNodes, int noWalls, int noTextures, int noL
     if (!(lights = new (std::nothrow) Light[noLights])) return;
     lightsAllocated = noLights;
 
-    memset(nodes, 0, sizeof(Node) * noNodes);
-    memset(walls, 0, sizeof(Wall) * noWalls);
     memset(segments, 0, sizeof(Segment) * noWalls);
     memset(textures, 0, sizeof(Texture) * noTextures);
     memset(lights, 0, sizeof(Light) * noLights);
