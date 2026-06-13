@@ -254,7 +254,6 @@ private slots:
     void on_pushTagNew_clicked();
     void on_pushTagDelete_clicked();
     void on_comboTagsList_currentIndexChanged(int index);
-    void on_comboTagsList_lineEdit_returnPressed();
     void on_plainTagName_textChanged();
     void on_plainTagValue_textChanged();
     void on_pushTagsLoad_clicked();
@@ -275,7 +274,6 @@ private slots:
     void on_pushSpeakerDelete_clicked();
 
     void on_comboPathsList_currentIndexChanged(int index);
-    void on_comboPathsList_lineEdit_returnPressed();
     void on_plainPathName_textChanged();
     void on_comboPathTag_currentIndexChanged(int index);
     void on_pushPathNew_clicked();
@@ -348,9 +346,6 @@ private slots:
     void on_scrollMapH_sliderMoved(int position);
     void on_scrollMapV_sliderMoved(int position);
 
-    void on_pushTextureSlice_clicked();
-    void on_pushTextureConcat_clicked();
-
     void on_actionSelectAll_triggered();
     void on_actionDeselect_triggered();
     void on_actionCut_triggered();
@@ -372,6 +367,9 @@ private slots:
     void on_pushRendererGlowmapRebuild_clicked();
 
 private:
+    void on_comboTagsList_lineEdit_returnPressed();
+    void on_comboPathsList_lineEdit_returnPressed();
+
     static constexpr int UNDO_MAX = 50;
     QList<MapState> undoHistory;
     int undoIndex;

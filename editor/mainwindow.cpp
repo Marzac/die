@@ -2528,13 +2528,13 @@ void MainWindow::resizeUI()
 
     int dh = (height() - 41) - 781;
 
-    ui->listNodes->setGeometry(10, 500, 151, 271 + dh);
+    ui->listNodes->setGeometry(10, 500, 151, 266 + dh);
 
-    ui->listPathNodes->setGeometry(10, 210, 151, 491 + dh);
-    ui->pushPathNodeUp->setGeometry(10, 710 + dh, 61, 23);
-    ui->pushPathNodeDown->setGeometry(10, 740 + dh, 61, 23);
-    ui->pushPathNodesAdd->setGeometry(100, 710 + dh, 61, 23);
-    ui->pushPathNodesClear->setGeometry(100, 740 + dh, 61, 23);
+    ui->listPathNodes->setGeometry(10, 210, 151, 486 + dh);
+    ui->pushPathNodeUp->setGeometry(10, 710 + dh, 61, 25);
+    ui->pushPathNodeDown->setGeometry(10, 740 + dh, 61, 25);
+    ui->pushPathNodesAdd->setGeometry(100, 710 + dh, 61, 25);
+    ui->pushPathNodesClear->setGeometry(100, 740 + dh, 61, 25);
 
     int x0 = 220;
     int y0 = 10;
@@ -2638,10 +2638,10 @@ void MainWindow::resizeUI()
     refY += 20;
 
     ui->groupInfos->setGeometry(220, refY, viewPortWidth + 21, 51);
-    ui->groupViewer->setGeometry(refX + 26, 10, 141, 251);
-    ui->groupFOV->setGeometry(refX + 26, 270, 141, 91);
-    ui->groupEditor->setGeometry(refX + 26, 370, 141, 141);
-    ui->pushRendererGlowmapRebuild->setGeometry(refX + 26, 520, 141, 22);
+    ui->groupViewer->setGeometry(refX + 26, 10, 141, 243);
+    ui->groupFOV->setGeometry(refX + 26, 265, 141, 93);
+    ui->groupEditor->setGeometry(refX + 26, 370, 141, 146);
+    ui->pushRendererGlowmapRebuild->setGeometry(refX + 26, 525, 141, 22);
 
     int infoY = height() - 822 + 760;
     ui->labelCopyright->setGeometry(refX + 26, infoY, 141, 16);
@@ -2799,25 +2799,6 @@ void MainWindow::on_pushTextureBrowse_clicked()
     editor.editedMap->textures.load(file);
     editor.selectedTextureID = 0;
     ui->widgetTextureSelector->setScroll(0);
-}
-
-
-void MainWindow::on_pushTextureSlice_clicked()
-{
-    QString path = QDir::currentPath();
-    QString dir = QFileDialog::getExistingDirectory(this, "Chose slice directory", path);
-    if (dir.isEmpty()) return;
-
-    ui->widgetTextureSelector->slice(dir);
-}
-
-void MainWindow::on_pushTextureConcat_clicked()
-{
-    QString path = QDir::currentPath();
-    QString dir = QFileDialog::getExistingDirectory(this, "Chose slice directory", path);
-    if (dir.isEmpty()) return;
-
-    ui->widgetTextureSelector->concat(dir);
 }
 
 /*****************************************************************************/
