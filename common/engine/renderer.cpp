@@ -232,22 +232,22 @@ inline void Renderer::sceneGetCoords(const float x, const float z, float & xs, f
 
 inline void Renderer::worldGetCoords(const float xs, const float zs, float & x, float & z)
 {
-    x = (xs - glowmapSize * 0.5f) / glowmapScale;
-    z = (zs - glowmapSize * 0.5f) / glowmapScale;
+    x = (xs - glowmapSize * 0.5f) * glowmapInvScale;
+    z = (zs - glowmapSize * 0.5f) * glowmapInvScale;
 }
 
 /*****************************************************************************/
 void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 {
-    constexpr float radius = 512.0f;
-    static constexpr float fallOff = 1.0f / (LightFallOff * LightFallOff);
-    const int gmMask = glowmapSize - 1;
-
-// On the dynamic pass, copy this row band from the still glowmap before adding lights
+// Recopy only the dirty regions
     if (!still) {
-        for (int sz = z1; sz < z2; sz++) {
-            int row = (sz & gmMask) * glowmapSize;
-            memcpy(&gm[row], &glowmapStill[row], glowmapSize * sizeof(__m128));
+        for (const BoundingBox & r : glowmapDirtyBoxes) {
+            int szMin = std::max(r.z0, z1);
+            int szMax = std::min(r.z1, z2);
+            for (int sz = szMin; sz < szMax; sz++) {
+                int row = sz * glowmapSize;
+                memcpy(&gm[row + r.x0], &glowmapStill[row + r.x0], (r.x1 - r.x0) * sizeof(__m128));
+            }
         }
     }
 
@@ -255,16 +255,12 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
         const Light & l = lights[j];
         if (l.still != still) continue;
 
-        float sMinX, sMinZ, sMaxX, sMaxZ;
-        sceneGetCoords(l.x - radius, l.z - radius, sMinX, sMinZ);
-        sceneGetCoords(l.x + radius, l.z + radius, sMaxX, sMaxZ);
-
-        int szMin = std::max((int)sMinZ, z1);
-        int szMax = std::min((int)sMaxZ, z2);
+        int szMin = std::max(l.boundingBox.z0, z1);
+        int szMax = std::min(l.boundingBox.z1, z2);
 
         for (int sz = szMin; sz < szMax; sz++) {
-            __m128 * row = &gm[(sz & gmMask) * glowmapSize];
-            for (int sx = (int)sMinX; sx < (int)sMaxX; sx++) {
+            __m128 * row = &gm[sz * glowmapSize];
+            for (int sx = l.boundingBox.x0; sx < l.boundingBox.x1; sx++) {
                 float x, z;
                 worldGetCoords(sx, sz, x, z);
                 float rdx = l.x - x;
@@ -290,9 +286,8 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
                 if (masked) continue;
 
                 float d2 = rdx * rdx + rdz * rdz;
-                float lf = 1.0f / (1.0f + d2 * fallOff);
-                int mx = sx & gmMask;
-                row[mx] = _mm_add_ps(row[mx], _mm_mul_ps(l.argb, _mm_set1_ps(lf)));
+                float lf = 1.0f / (1.0f + GlowFalloffSharpness * d2 * l.falloffInv2);
+                row[sx] = _mm_add_ps(row[sx], _mm_mul_ps(l.argb, _mm_set1_ps(lf)));
             }
         }
     }
@@ -327,11 +322,26 @@ void Renderer::lightsMash()
 // Prepare the lights
     sunAmbientArgb = unpackColorToVectorScaledSSE4(sunAmbient, sunAmbientStrength);
     sunRayColorArgb = unpackColorToVectorScaledSSE4(sunRayColor, sunRayStrength);
+    QList<BoundingBox> dirtyBoxes;
     for (int j = 0; j < lightsCount; j++) {
         Light & l = lights[j];
         l.argb = unpackColorToVectorScaledSSE4(l.color, l.strength * l.strength);
         l.x = nodes[l.nodeID].pos.x();
         l.z = nodes[l.nodeID].pos.z();
+        l.falloffInv2 = 1.0f / (l.falloff * l.falloff);
+
+    // Calculate the computing bounding box
+        float radius = l.falloff;
+        float sMinX, sMinZ, sMaxX, sMaxZ;
+        sceneGetCoords(l.x - radius, l.z - radius, sMinX, sMinZ);
+        sceneGetCoords(l.x + radius, l.z + radius, sMaxX, sMaxZ);
+        l.boundingBox.x0 = std::clamp((int)sMinX, 0, glowmapSize);
+        l.boundingBox.x1 = std::clamp((int)sMaxX, 0, glowmapSize);
+        l.boundingBox.z0 = std::clamp((int)sMinZ, 0, glowmapSize);
+        l.boundingBox.z1 = std::clamp((int)sMaxZ, 0, glowmapSize);
+
+        if (!l.still && l.boundingBox.x0 < l.boundingBox.x1 && l.boundingBox.z0 < l.boundingBox.z1)
+            dirtyBoxes.append(l.boundingBox);
     }
 
 // Compute the glowmaps
@@ -339,6 +349,7 @@ void Renderer::lightsMash()
     const size_t gmBytes = glowmapSize * glowmapSize * sizeof(__m128);
     if (!(flags & RENDERER_FLAG_LIGHTS)) {
         memset(glowmap, 0, gmBytes);
+        glowmapDirtyLast = {{0, glowmapSize, 0, glowmapSize}};
         return;
     }
 
@@ -347,7 +358,13 @@ void Renderer::lightsMash()
         if (flags & RENDERER_FLAG_MULTITHREADING) glowmapConcurrent(glowmapStill, true);
         else glowmapChunk(glowmapStill, true, 0, glowmapSize);
         flags &= ~RENDERER_FLAG_GLOWMAP_REBUILD;
+    // The still glowmap just changed everywhere, so resync the whole dynamic glowmap this frame
+        dirtyBoxes.append({0, glowmapSize, 0, glowmapSize});
     }
+
+// Concatenate the dirty boxes and keep the new one for next frame
+    glowmapDirtyBoxes = glowmapDirtyLast + dirtyBoxes;
+    glowmapDirtyLast = std::move(dirtyBoxes);
 
     if (flags & RENDERER_FLAG_MULTITHREADING) glowmapConcurrent(glowmap, false);
     else glowmapChunk(glowmap, false, 0, glowmapSize);
@@ -406,6 +423,7 @@ void Renderer::wallsMash()
 
 // Glow map scale: fixed area centered at origin
     glowmapScale = glowmapSize / glowmapArea;
+    glowmapInvScale = 1.0f / glowmapScale;
 }
 
 /*****************************************************************************/

@@ -290,6 +290,7 @@ typedef struct {
     uint32_t colorA;
     uint32_t colorB;
     float strength;
+    float falloff;
     float speed;
     uint16_t anim;          ///< one of LIGHT_ANIMS
 

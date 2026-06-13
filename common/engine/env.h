@@ -43,7 +43,6 @@ typedef struct {
 } Fog;
 
 /*****************************************************************************/
-// Field-wise comparisons (structs carry padding, memcmp is not reliable)
 inline bool operator==(const Sun & a, const Sun & b)
 {
     return a.hour == b.hour &&

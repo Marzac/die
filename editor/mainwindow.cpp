@@ -774,6 +774,7 @@ void MainWindow::updateLightProperties()
     if (editor.selectedLight < 0) {
         ui->plainLightID->setPlainText("None");
         ui->scrollLightStrength->setValue(0);
+        ui->spinLightFalloff->setValue(0);
         ui->scrollLightSpeed->setValue(0);
         ui->pushLightColorA->setStyleSheet("background-color: #000");
         ui->pushLightColorB->setStyleSheet("background-color: #000");
@@ -788,6 +789,7 @@ void MainWindow::updateLightProperties()
     ui->plainLightID->setPlainText(QString::number(editor.selectedLight));
 
     ui->scrollLightStrength->setValue((int)(l.strength * 32));
+    ui->spinLightFalloff->setValue(l.falloff);
     ui->scrollLightSpeed->setValue((int)(l.speed * 16));
     ui->pushLightColorA->setStyleSheet("background-color: " + QColor(l.colorA).name());
     ui->pushLightColorB->setStyleSheet("background-color: " + QColor(l.colorB).name());
@@ -1936,6 +1938,18 @@ void MainWindow::on_scrollLightStrength_valueChanged(int value)
         Light & l = editor.editedMap->lights[i];
         if (!l.selected) continue;
         l.strength = value * 0.03125f;
+    }
+    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+}
+
+void MainWindow::on_spinLightFalloff_valueChanged(double value)
+{
+    if (editor.selectedLight < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->lights.count(); i++) {
+        Light & l = editor.editedMap->lights[i];
+        if (!l.selected) continue;
+        l.falloff = (float) value;
     }
     renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
 }

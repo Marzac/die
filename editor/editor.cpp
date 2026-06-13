@@ -837,6 +837,7 @@ bool Editor::lightAdd(int node, int & lId)
     l.colorA = 0xFFFFFF;
     l.colorB = 0x404040;
     l.strength = 4.0f;
+    l.falloff = 64.0f;
     l.speed = 1.0f;
     l.anim = LIGHT_ANIM_COLOR_A;
     l.flags = LIGHT_FLAG_ENABLE;
