@@ -413,7 +413,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>WE Build V0.5 - 08.06.26</string>
+     <string>WE Build V1.0 - 13.06.26</string>
     </property>
     <property name="textFormat">
      <enum>Qt::TextFormat::PlainText</enum>
