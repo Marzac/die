@@ -223,8 +223,7 @@ bool Map::load(const QString & filename)
 
         }else if (c == 'N') {
             lastC = 'N';
-            Node n;
-            memset(&n, 0, sizeof(Node));
+            Node n{};
             float x, y, z;
             tagStr[0] = 0;
             fscanf(file, "%f, %f, %f, %f, %f, %f, %31[^,], %hx\n", &x, &y, &z, &n.metaA, &n.metaB, &n.metaC, tagStr, &n.flags);
@@ -234,8 +233,7 @@ bool Map::load(const QString & filename)
 
         }else if (c == 'W') {
             lastC = 'W';
-            Wall w;
-            memset(&w, 0, sizeof(Wall));
+            Wall w{};
             fscanf(file, "%hu, %hu, %f, %hx\n", &w.nodeID1, &w.nodeID2, &w.height, &w.flags);
             if (w.nodeID1 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID2 >= nodes.count()) { lastC = ' '; continue; }
