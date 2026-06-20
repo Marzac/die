@@ -6,7 +6,7 @@ CONFIG += c++17
 
 win32-msvc* {
     QMAKE_CXXFLAGS_RELEASE *= /O2
-    QMAKE_CXXFLAGS += /W4 /arch:SSE4.1 /MP
+    QMAKE_CXXFLAGS += /W4 /MP
 } else {
     QMAKE_CXXFLAGS_RELEASE *= -O2
     QMAKE_LFLAGS_RELEASE   *= -s

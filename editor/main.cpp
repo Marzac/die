@@ -21,14 +21,24 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#ifdef _MSC_VER
+#include <intrin.h>
+#else
 #include <cpuid.h>
+#endif
 
 /*****************************************************************************/
 inline bool hasSSE41()
 {
+#ifdef _MSC_VER
+    int cpuInfo[4];
+    __cpuid(cpuInfo, 1);
+    return (cpuInfo[2] & (1 << 19)) != 0; // SSE4.1 is bit 19 of ECX
+#else
     uint32_t eax, ebx, ecx, edx;
     __cpuid(1, eax, ebx, ecx, edx);
     return (ecx & (1 << 19)) != 0; // SSE4.1 is bit 19 of ECX
+#endif
 }
 
 /*****************************************************************************/

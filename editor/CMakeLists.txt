@@ -58,7 +58,7 @@ if(WIN32)
 endif()
 
 if(MSVC)
-    target_compile_options(waller PRIVATE /W4 /arch:SSE4.1 /MP /WX-)
+    target_compile_options(waller PRIVATE /W4 /MP /WX-)
     target_compile_options(waller PRIVATE $<$<CONFIG:Release>:/O2>)
 else()
     target_compile_options(waller PRIVATE -msse4 -save-temps -Wall -Wextra)
