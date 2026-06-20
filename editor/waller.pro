@@ -3,9 +3,15 @@ QT += core gui spatialaudio
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
-QMAKE_CXXFLAGS_RELEASE *= -O2
-QMAKE_LFLAGS_RELEASE *= -s
-QMAKE_CXXFLAGS += -msse4 -save-temps -Wall -Wextra
+
+win32-msvc* {
+    QMAKE_CXXFLAGS_RELEASE *= /O2
+    QMAKE_CXXFLAGS += /W4 /arch:SSE4.1 /MP
+} else {
+    QMAKE_CXXFLAGS_RELEASE *= -O2
+    QMAKE_LFLAGS_RELEASE   *= -s
+    QMAKE_CXXFLAGS += -msse4 -save-temps -Wall -Wextra
+}
 
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 

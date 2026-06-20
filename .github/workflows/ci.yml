@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/marzac/die-ci:latest
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Build
+        run: |
+          cmake -B build -S editor -DCMAKE_BUILD_TYPE=Release -G Ninja
+          cmake --build build --parallel
+
+      - name: Package
+        run: |
+          mkdir -p staging
+          cp build/waller staging/
+          cp README.md MANUAL.md LICENSE staging/
+          [ -d maps ] && cp -r maps staging/
+          tar -czf waller-linux.tar.gz -C staging .
+
+      - name: Upload tarball
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: waller-ubuntu
+          path: waller-linux.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - name: Install Qt6
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.*'
+          arch: win64_msvc2022_64
+          modules: 'qtmultimedia'
+          cache: true
+
+      - name: Build
+        run: |
+          cmake -B build -S editor -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release --parallel
+
+      - name: Deploy
+        run: |
+          mkdir deploy
+          copy build\Release\waller.exe deploy\
+          windeployqt6 --no-quick-import --release --no-system-d3d-compiler --no-system-dxc-compiler --no-compiler-runtime --no-opengl-sw --no-translations deploy\waller.exe
+          copy README.md deploy\
+          copy MANUAL.md deploy\
+          copy LICENSE deploy\
+          if (Test-Path maps) { Copy-Item -Recurse maps deploy\ }
+
+      - name: Package
+        run: Compress-Archive -Path deploy\* -DestinationPath waller-windows.zip
+
+      - name: Upload ZIP
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: waller-windows
+          path: waller-windows.zip
+
+  release:
+    needs: [build-linux, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download tarball
+        uses: actions/download-artifact@v4.2.1
+        with:
+          name: waller-ubuntu
+          path: artifacts/
+
+      - name: Download ZIP
+        uses: actions/download-artifact@v4.2.1
+        with:
+          name: waller-windows
+          path: artifacts/
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/*
