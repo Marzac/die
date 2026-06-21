@@ -16,8 +16,7 @@ win32-msvc* {
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 
 INCLUDEPATH += \
-    ../common/engine \
-    ../common/game
+    ../common/engine
 
 SOURCES += \
     main.cpp \
