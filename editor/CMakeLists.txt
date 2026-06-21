@@ -43,7 +43,6 @@ qt_add_executable(waller WIN32 ${SOURCES})
 target_include_directories(waller PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
     ../common/engine
-    ../common/game
 )
 
 target_link_libraries(waller PRIVATE
