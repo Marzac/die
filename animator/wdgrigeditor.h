@@ -51,6 +51,7 @@ private:
     QVector2D getWorldCoordinates(const QVector2D & screen) const;
 
     void drawAxes(QPainter & painter, const QVector2D & org);
+    void drawFlesh(QPainter & painter, const QVector2D & org);
     void drawBones(QPainter & painter, const QVector2D & org);
     void drawJoints(QPainter & painter, const QVector2D & org);
 };

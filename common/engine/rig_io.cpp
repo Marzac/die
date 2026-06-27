@@ -43,11 +43,11 @@ bool Rig::save(const QString & filename)
 
 // ==== BONES ====
     fprintf(file, "# == BONES ==\n");
-    fprintf(file, "# format: B jointID1, jointID2, width, length, offset, imageCount, flags\n");
+    fprintf(file, "# format: B jointID1, jointID2, width, length, offset, minWidth, imageCount, flags\n");
     fprintf(file, "# format: I index, imageID\n");
     for (const Bone & b : bones) {
-        fprintf(file, "B %04hu, %04hu, %+4.4f, %+4.4f, %+4.4f, %02hu, %04hx\n",
-            b.jointID1, b.jointID2, b.width, b.length, b.offset, b.imageCount, b.flags);
+        fprintf(file, "B %04hu, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %02hu, %04hx\n",
+            b.jointID1, b.jointID2, b.width, b.length, b.offset, b.minWidth, b.imageCount, b.flags);
         uint16_t count = b.imageCount > RIG_BONE_IMAGES_MAX ? RIG_BONE_IMAGES_MAX : b.imageCount;
         for (int i = 0; i < count; i++)
             fprintf(file, "\tI %02d, %04hu\n", i, b.images[i]);
@@ -120,8 +120,8 @@ bool Rig::load(const QString & filename)
 
         }else if (c == 'B') {
             Bone b{};
-            fscanf(file, "%hu, %hu, %f, %f, %f, %hu, %hx\n",
-                &b.jointID1, &b.jointID2, &b.width, &b.length, &b.offset, &b.imageCount, &b.flags);
+            fscanf(file, "%hu, %hu, %f, %f, %f, %f, %hu, %hx\n",
+                &b.jointID1, &b.jointID2, &b.width, &b.length, &b.offset, &b.minWidth, &b.imageCount, &b.flags);
             if (b.imageCount > RIG_BONE_IMAGES_MAX) b.imageCount = RIG_BONE_IMAGES_MAX;
             bones.append(b);
 

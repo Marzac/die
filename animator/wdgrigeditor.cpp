@@ -13,13 +13,12 @@
 
 #include "rigger.h"
 #include "mainwindow.h"
+#include "primitives.h"   // D2R
 
 #include <QPainter>
 #include <QMouseEvent>
 
 #include <math.h>
-
-static constexpr float D2R = 3.14159265f / 180.0f;
 
 /*****************************************************************************/
 QPen WdgRigEditor::colorPrincipal = QColor(255, 255, 255);
@@ -60,6 +59,17 @@ void WdgRigEditor::drawAxes(QPainter & painter, const QVector2D & org)
     painter.drawLine(QPointF(0, org.y()), QPointF(width(), org.y()));   // ground
 }
 
+void WdgRigEditor::drawFlesh(QPainter & painter, const QVector2D & org)
+{
+    Frame * cur = rigger.rig.currentFramePtr();
+    if (!cur) return;
+
+// The textured quads are rasterised into their own ARGB layer, then blitted
+    QImage flesh(width(), height(), QImage::Format_ARGB32);
+    rigger.renderFlesh(flesh, org, rigger.zoom(), cur->joints);
+    painter.drawImage(0, 0, flesh);
+}
+
 void WdgRigEditor::drawBones(QPainter & painter, const QVector2D & org)
 {
     Frame * cur = rigger.rig.currentFramePtr();
@@ -75,12 +85,41 @@ void WdgRigEditor::drawBones(QPainter & painter, const QVector2D & org)
         QVector2D p1 = org + rigger.to2D(cur->joints[b.jointID1].pos) * zoom;
         QVector2D p2 = org + rigger.to2D(cur->joints[b.jointID2].pos) * zoom;
 
-        if (i == rigger.selectedBone) painter.setPen(colorPrincipal);
-        else if (b.selected) painter.setPen(colorSelected);
-        else painter.setPen(colorBoneBase);
+    // Bone axis and its perpendicular (default to vertical when degenerate)
+        QVector2D axis = p2 - p1;
+        float len = axis.length();
+        QVector2D dir  = len > 0.0001f ? axis / len : QVector2D(0.0f, -1.0f);
+        QVector2D perp = QVector2D(-dir.y(), dir.x());
 
+    // Quad = joint span + extra length, shifted by offset, spread by width
+        QVector2D mid = (p1 + p2) * 0.5f + dir * (b.offset * zoom);
+        float halfLen = (len + b.length * zoom) * 0.5f;
+        float halfWid = (b.width * zoom) * 0.5f;
+
+        QPointF quad[4] = {
+            (mid - dir * halfLen - perp * halfWid).toPointF(),
+            (mid + dir * halfLen - perp * halfWid).toPointF(),
+            (mid + dir * halfLen + perp * halfWid).toPointF(),
+            (mid - dir * halfLen + perp * halfWid).toPointF(),
+        };
+
+        QColor color = colorBoneBase.color();
+        if (i == rigger.selectedBone) color = colorPrincipal.color();
+        else if (b.selected) color = colorSelected.color();
+
+        QColor fill = color;
+        fill.setAlpha(48);
+
+    // Billboard quad: translucent fill + outline
+        painter.setPen(color);
+        painter.setBrush(fill);
+        painter.drawPolygon(quad, 4);
+
+    // Bone axis (joint-to-joint)
+        painter.setBrush(Qt::NoBrush);
         painter.drawLine(p1.toPointF(), p2.toPointF());
     }
+    painter.setBrush(Qt::NoBrush);
     painter.setRenderHint(QPainter::Antialiasing, false);
 }
 
@@ -121,8 +160,9 @@ void WdgRigEditor::paintEvent(QPaintEvent *)
 
     QVector2D org = origin();
     drawAxes(painter, org);
-    drawBones(painter, org);
-    drawJoints(painter, org);
+    if (rigger.flags & FLAG_DISPLAY_FLESH) drawFlesh(painter, org);
+    if (rigger.flags & FLAG_DISPLAY_BONES) drawBones(painter, org);
+    if (rigger.flags & FLAG_DISPLAY_JOINTS) drawJoints(painter, org);
 
     if (selectRegion) {
         painter.setPen(Qt::white);
@@ -150,29 +190,68 @@ void WdgRigEditor::mousePressEvent(QMouseEvent * event)
     selectRegionStart = true;
     selectRegionC1 = selectRegionC2 = click;
 
-    if (rigger.rigMode != RIG_MODE_JOINTS) return;
-
     bool shift = event->modifiers() & Qt::ShiftModifier;
     QVector2D world = getWorldCoordinates(click);
     pressWorld = world;
 
-    int jId;
-    if (rigger.jointFindInCircle(world, jId)) {
-    // Hit a joint: select it (keep the group when shift / already selected)
-        Frame * cur = rigger.rig.currentFramePtr();
-        bool already = cur && jId < cur->joints.count() && cur->joints[jId].selected;
-        if (!shift && !already) rigger.jointDeselectAll();
-        selectRegionStart = false;
-        rigger.selectedJoint = jId;
-        if (cur && jId < cur->joints.count()) cur->joints[jId].selected = true;
+    if (rigger.mode == RIG_MODE_JOINTS) {
+        int jId;
+        if (rigger.jointFindInCircle(world, jId)) {
+        // Hit a joint: select it (keep the group when shift / already selected)
+            Frame * cur = rigger.rig.currentFramePtr();
+            bool already = cur && jId < cur->joints.count() && cur->joints[jId].selected;
+            if (!shift && !already) rigger.jointDeselectAll();
+            selectRegionStart = false;
+            rigger.selectedJoint = jId;
+            if (cur && jId < cur->joints.count()) cur->joints[jId].selected = true;
 
-    } else {
-    // Missed: clear the selection, a region or a create may follow
-        rigger.selectedJoint = RIG_UNSELECTED;
-        rigger.jointDeselectAll();
+        } else {
+        // Missed: clear the selection, a region or a create may follow
+            rigger.selectedJoint = RIG_UNSELECTED;
+            rigger.jointDeselectAll();
+        }
+
+    } else if (rigger.mode == RIG_MODE_BONES) {
+        int jId;
+        if (rigger.jointFindInCircle(world, jId)) {
+        // Clicking joints chains bones: anchor joint -> clicked joint
+            selectRegionStart = false;
+            if (rigger.selectedJoint != RIG_UNSELECTED && rigger.selectedJoint != jId) {
+                int bId;
+                if (rigger.boneAdd(rigger.selectedJoint, jId, bId)) {
+                    rigger.boneDeselectAll();
+                    rigger.boneSelect(bId);
+                }
+            }
+            rigger.jointDeselectAll();
+            rigger.selectedJoint = jId;     // becomes the next anchor
+            Frame * cur = rigger.rig.currentFramePtr();
+            if (cur && jId < cur->joints.count()) cur->joints[jId].selected = true;
+
+        } else {
+            int bId;
+            if (rigger.boneFindInCircle(world, bId)) {
+            // Hit a bone: select it
+                selectRegionStart = false;
+                if (!shift) rigger.boneDeselectAll();
+                rigger.boneSelect(bId);
+                rigger.jointDeselectAll();
+                rigger.selectedJoint = RIG_UNSELECTED;
+
+            } else {
+            // Missed: clear, a region may follow
+                rigger.boneDeselectAll();
+                rigger.selectedBone = RIG_UNSELECTED;
+                rigger.jointDeselectAll();
+                rigger.selectedJoint = RIG_UNSELECTED;
+            }
+        }
     }
 
-    if (mainWindow) mainWindow->updateJointProperties();
+    if (mainWindow) {
+        mainWindow->updateJointProperties();
+        mainWindow->updateBoneProperties();
+    }
     update();
 }
 
@@ -192,17 +271,19 @@ void WdgRigEditor::mouseMoveEvent(QMouseEvent * event)
     }
 
     if (!(event->buttons() & Qt::LeftButton)) return;
-    if (rigger.rigMode != RIG_MODE_JOINTS) return;
 
     QVector2D click(event->position());
 
-// Press landed on empty space: grow a selection rectangle
+// Press landed on empty space: grow a selection rectangle (joints or bones)
     if (selectRegionStart) {
         selectRegion = true;
         selectRegionC2 = click;
         update();
         return;
     }
+
+// Dragging joints only happens in joint mode
+    if (rigger.mode != RIG_MODE_JOINTS) return;
 
 // Press landed on a joint: drag the selection within the current viewing
 // plane, preserving each joint's depth so it doesn't snap to the axis plane
@@ -219,12 +300,23 @@ void WdgRigEditor::mouseMoveEvent(QMouseEvent * event)
     float vx = world.x();
     QVector3D target(vx * ca - depth * sa, -world.y(), vx * sa + depth * ca);
 
-// Translate every selected joint by the primary's delta (rigid group move)
+// Translate every selected joint by the primary's delta (rigid group move).
+// With editAllFrames the same joint index is shifted across every frame.
     QVector3D delta = target - jp.pos;
-    for (Joint & j : cur->joints) {
-        if (!j.selected) continue;
-        j.pos  += delta;
-        j.apos  = j.pos;
+    for (int idx = 0; idx < cur->joints.count(); idx++) {
+        if (!cur->joints[idx].selected) continue;
+
+        if (rigger.editAllFrames) {
+            for (Animation & a : rigger.rig.animations)
+                for (Frame & f : a.frames) {
+                    if (idx >= f.joints.count()) continue;
+                    f.joints[idx].pos  += delta;
+                    f.joints[idx].apos  = f.joints[idx].pos;
+                }
+        } else {
+            cur->joints[idx].pos  += delta;
+            cur->joints[idx].apos  = cur->joints[idx].pos;
+        }
     }
 
     if (mainWindow) mainWindow->updateJointProperties();
@@ -233,7 +325,9 @@ void WdgRigEditor::mouseMoveEvent(QMouseEvent * event)
 
 void WdgRigEditor::mouseReleaseEvent(QMouseEvent * event)
 {
-    if (mouseLeftWasPressed && rigger.rigMode == RIG_MODE_JOINTS) {
+    bool shift = event->modifiers() & Qt::ShiftModifier;
+
+    if (mouseLeftWasPressed && rigger.mode == RIG_MODE_JOINTS) {
         if (!selectRegion) {
         // A plain click on empty space drops a new joint on the camera plane
             if (rigger.selectedJoint == RIG_UNSELECTED) {
@@ -246,7 +340,6 @@ void WdgRigEditor::mouseReleaseEvent(QMouseEvent * event)
 
         } else {
         // A dragged rectangle selects every joint inside it
-            bool shift = event->modifiers() & Qt::ShiftModifier;
             if (!shift) rigger.jointDeselectAll();
             QVector2D c1 = getWorldCoordinates(selectRegionC1);
             QVector2D c2 = getWorldCoordinates(selectRegionC2);
@@ -255,7 +348,24 @@ void WdgRigEditor::mouseReleaseEvent(QMouseEvent * event)
                 rigger.selectedJoint = jId;
         }
 
-        if (mainWindow) mainWindow->updateJointProperties();
+    } else if (mouseLeftWasPressed && rigger.mode == RIG_MODE_BONES) {
+        if (selectRegion) {
+        // A dragged rectangle selects every bone inside it
+            if (!shift) rigger.boneDeselectAll();
+            QVector2D c1 = getWorldCoordinates(selectRegionC1);
+            QVector2D c2 = getWorldCoordinates(selectRegionC2);
+            int bId;
+            if (rigger.boneFindInRect(c1, c2, bId))
+                rigger.selectedBone = bId;
+            rigger.jointDeselectAll();
+            rigger.selectedJoint = RIG_UNSELECTED;
+        }
+        // a plain click was already resolved on press
+    }
+
+    if (mouseLeftWasPressed && mainWindow) {
+        mainWindow->updateJointProperties();
+        mainWindow->updateBoneProperties();
     }
 
     selectRegion = false;
