@@ -121,6 +121,21 @@ inline uint32_t colorsScaleAccumulateSSE4(uint32_t color1, uint32_t color2, uint
     return _mm_cvtsi128_si32(result);
 }
 
+/**
+    \brief Alpha-blend a packed ARGB source over a destination color
+    \param dst packed 8-bit ARGB background color
+    \param src packed 8-bit ARGB foreground color (its A component drives the blend)
+    \return dst * (1 - srcA) + src * srcA, packed ARGB color
+*/
+inline uint32_t colorsAlphaBlendSSE4(uint32_t dst, uint32_t src)
+{
+// Promote the source alpha from 0..255 to a 0..256 Q8.8 factor so that a
+// fully opaque source (255) maps to 1.0 and leaves no background bleed
+    uint16_t a = (uint16_t) (src >> 24);
+    a += a >> 7;
+    return colorsLinearSSE4(dst, src, a);
+}
+
 /*****************************************************************************/
 /**
     \brief Linearly interpolate between two color vectors

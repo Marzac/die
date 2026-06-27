@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "colors.h"
 #include "postfx.h"
+#include "primitives.h"
 #include "workerpool.h"
 
 #include <QImage>
@@ -31,7 +32,7 @@ constexpr float HeightEpsilon = 0x1p-5f;
 
 /*****************************************************************************/
 Renderer::Renderer() :
-    flags(RENDERER_FLAGS_DEFAULT),
+    flags(FLAGS_DEFAULT),
     nodes(nullptr), nodesCount(0), nodesAllocated(0),
     walls(nullptr), wallsCount(0), wallsAllocated(0),
     textures(nullptr), texturesCount(0), texturesAllocated(0),
@@ -75,12 +76,12 @@ void Renderer::terminate()
 }
 
 /*****************************************************************************/
-void Renderer::setFlags(RENDERER_FLAGS flags)
+void Renderer::setFlags(FLAGS flags)
 {
     this->flags = flags;
 }
 
-void Renderer::checkFlag(RENDERER_FLAGS flag, bool checked)
+void Renderer::checkFlag(FLAGS flag, bool checked)
 {
     flags &= ~(uint32_t) flag;
     if (checked) flags |= flag;
@@ -347,17 +348,17 @@ void Renderer::lightsMash()
 // Compute the glowmaps
     glowBleed = _mm_set1_ps(GlowBleedFactor);
     const size_t gmBytes = glowmapSize * glowmapSize * sizeof(__m128);
-    if (!(flags & RENDERER_FLAG_LIGHTS)) {
+    if (!(flags & Renderer::FLAG_LIGHTS)) {
         memset(glowmap, 0, gmBytes);
         glowmapDirtyLast = {{0, glowmapSize, 0, glowmapSize}};
         return;
     }
 
-    if (flags & RENDERER_FLAG_GLOWMAP_REBUILD) {
+    if (flags & Renderer::FLAG_GLOWMAP_REBUILD) {
         memset(glowmapStill, 0, gmBytes);
-        if (flags & RENDERER_FLAG_MULTITHREADING) glowmapConcurrent(glowmapStill, true);
+        if (flags & Renderer::FLAG_MULTITHREADING) glowmapConcurrent(glowmapStill, true);
         else glowmapChunk(glowmapStill, true, 0, glowmapSize);
-        flags &= ~RENDERER_FLAG_GLOWMAP_REBUILD;
+        flags &= ~Renderer::FLAG_GLOWMAP_REBUILD;
     // The still glowmap just changed everywhere, so resync the whole dynamic glowmap this frame
         dirtyBoxes.append({0, glowmapSize, 0, glowmapSize});
     }
@@ -366,7 +367,7 @@ void Renderer::lightsMash()
     glowmapDirtyBoxes = glowmapDirtyLast + dirtyBoxes;
     glowmapDirtyLast = std::move(dirtyBoxes);
 
-    if (flags & RENDERER_FLAG_MULTITHREADING) glowmapConcurrent(glowmap, false);
+    if (flags & Renderer::FLAG_MULTITHREADING) glowmapConcurrent(glowmap, false);
     else glowmapChunk(glowmap, false, 0, glowmapSize);
 }
 
@@ -374,15 +375,15 @@ void Renderer::lightsMash()
 inline void Renderer::sceneBoundsInit()
 {
     sceneCornerBegin = QVector2D(+32768.0f, +32768.0f);
-    sceneCornerEnd   = QVector2D(-32768.0f, -32768.0f);
+    sceneCornerEnd = QVector2D(-32768.0f, -32768.0f);
 }
 
 inline void Renderer::sceneBoundsRegister(float x, float z)
 {
     if (x < sceneCornerBegin.x()) sceneCornerBegin.setX(x);
-    if (x > sceneCornerEnd.x())   sceneCornerEnd.setX(x);
+    if (x > sceneCornerEnd.x()) sceneCornerEnd.setX(x);
     if (z < sceneCornerBegin.y()) sceneCornerBegin.setY(z);
-    if (z > sceneCornerEnd.y())   sceneCornerEnd.setY(z);
+    if (z > sceneCornerEnd.y()) sceneCornerEnd.setY(z);
 }
 
 /*****************************************************************************/
@@ -476,23 +477,23 @@ void Renderer::render(Viewpoint & vp)
 
 // Render frame
     viewPoint = vp;
-    if (flags & RENDERER_FLAG_MULTITHREADING) renderConcurrent();
+    if (flags & Renderer::FLAG_MULTITHREADING) renderConcurrent();
     else renderChunk(renderStates[0], 0, frameResoX);
 
 // Render post-fx
-    if (flags & RENDERER_FLAG_MOTIONBLUR) {
+    if (flags & Renderer::FLAG_MOTIONBLUR) {
         uint16_t blend = motionBlurFactor * 256.0f * 0.01f;
         motionBlurSSE4(frame, frameLast, blend, frameResoX * frameResoY);
     }
 
-    if (flags & RENDERER_FLAG_VIGNETTE) {
+    if (flags & Renderer::FLAG_VIGNETTE) {
         uint16_t inner = vignetteInnerRadius * frameResoY * 0.005f;
         uint16_t outer = vignetteOuterRadius * frameResoY * 0.005f;
         if (outer <= inner) outer = inner + 1;
         vignetteSSE4(frame, frameResoX, frameResoY, inner, outer);
     }
 
-    if (flags & RENDERER_FLAG_GAMMA) {
+    if (flags & Renderer::FLAG_GAMMA) {
         float ks[3] = {gammaKRed, gammaKGreen, gammaKBlue};
         gammaSSE4(frame, frameResoX, frameResoY, ks);
     }
@@ -652,7 +653,7 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         renderVertical(state, 0, stackBelow, stackAbove, 0, frameResoY);
 
     // Render walls
-        if (flags & RENDERER_FLAG_WALLS) drawVStrips(state);
+        if (flags & Renderer::FLAG_WALLS) drawVStrips(state);
     }
 }
 
@@ -728,7 +729,7 @@ void Renderer::renderVertical(Context & state, int depth,
             if (bot < 0) bot = 0;
 
             if (wBot < mustBelow && wBot > mustAbove) {
-                if (flags & RENDERER_FLAG_SURFACES)
+                if (flags & Renderer::FLAG_SURFACES)
                     surfaceDraw(state, w, WALL_SURFACE_FLOOR, scanTop, bot, wBot);
                 if (stackBelow.length() > 1) stackBelow.removeLast();
                 renderVertical(state, i + 1, stackBelow, stackAbove, bot, scanBot);
@@ -743,7 +744,7 @@ void Renderer::renderVertical(Context & state, int depth,
             if (top > frameResoY) top = frameResoY;
 
             if (wTop > mustAbove && wTop < mustBelow) {
-                if (flags & RENDERER_FLAG_SURFACES)
+                if (flags & Renderer::FLAG_SURFACES)
                     surfaceDraw(state, w, WALL_SURFACE_CEILING, top, scanBot, wTop);
                 if (stackAbove.length() > 1) stackAbove.removeLast();
                 renderVertical(state, i + 1, stackBelow, stackAbove, scanTop, top);
@@ -762,7 +763,7 @@ void Renderer::renderVertical(Context & state, int depth,
         if (strip.yTop > scanTop) {
             int bot = std::min((int)strip.yTop, scanBot);
             if ((wTop > mustAbove) && (strip.flags & VSTRIP_FLAG_HASCEILING)) {
-                if (flags & RENDERER_FLAG_SURFACES)
+                if (flags & Renderer::FLAG_SURFACES)
                     surfaceDraw(state, w, WALL_SURFACE_CEILING, scanTop, bot, wTop);
             } else {
                 float ma = mustAbove;
@@ -784,7 +785,7 @@ void Renderer::renderVertical(Context & state, int depth,
         if (strip.yBot < scanBot) {
             int top = std::max((int)strip.yBot, scanTop);
             if ((wBot < mustBelow) && (strip.flags & VSTRIP_FLAG_HASFLOOR)) {
-                if (flags & RENDERER_FLAG_SURFACES)
+                if (flags & Renderer::FLAG_SURFACES)
                     surfaceDraw(state, w, WALL_SURFACE_FLOOR, top, scanBot, wBot);
             } else {
                 float mb = mustBelow;
@@ -887,7 +888,7 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
     float aoScale = occlusionLength > 0.0f ? occlusionDarken / occlusionLength : 0.0f;
 
     int yAoEnd;
-    if (!(flags & RENDERER_FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_ALPHA))
+    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_ALPHA))
         yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
@@ -1096,8 +1097,8 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         };
 
     // Occlusion boundaries, clamped to rendered range
-        int topAoEnd = (flags & RENDERER_FLAG_AMBIENT_OCCLUSION) ? std::clamp((int)strip.yDarkenTop, scanTop, scanBot) : scanTop;
-        int botAoStart = (flags & RENDERER_FLAG_AMBIENT_OCCLUSION) ? std::clamp((int)strip.yDarkenBot, scanTop, scanBot) : scanBot;
+        int topAoEnd = (flags & Renderer::FLAG_AMBIENT_OCCLUSION) ? std::clamp((int)strip.yDarkenTop, scanTop, scanBot) : scanTop;
+        int botAoStart = (flags & Renderer::FLAG_AMBIENT_OCCLUSION) ? std::clamp((int)strip.yDarkenBot, scanTop, scanBot) : scanBot;
         topAoEnd = std::min(topAoEnd, botAoStart);
 
     // Top gradient: (1-occlusionDarken) at yNoclipTop -> 1.0 at yDarkenTop

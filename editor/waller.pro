@@ -39,6 +39,7 @@ SOURCES += \
     ../common/engine/gamepad.cpp
 
 HEADERS += \
+    ../common/engine/primitives.h \
     globals.h \
     editor.h \
     walker.h \
