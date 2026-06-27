@@ -15,7 +15,7 @@
 #include <QVector3D>
 #include <stdint.h>
 
-static constexpr int RIG_BONE_IMAGES_MAX = 8;
+static constexpr int RIG_BONE_IMAGES_MAX = 4;   ///< Front, Right, Back, Left
 static constexpr int RIG_UNSELECTED      = -1;
 
 /*****************************************************************************/
@@ -40,6 +40,7 @@ typedef enum : uint16_t {
     BONE_FLAG_FREE          = 0x0000,
     BONE_FLAG_INVISIBLE     = 0x0001,
     BONE_FLAG_MIRROR        = 0x0002,   ///< flip the image horizontally (left / right reuse)
+    BONE_FLAG_ROTATE        = 0x0004,   ///< flesh width foreshortens with the view angle
 } BONE_FLAGS;
 
 /**
@@ -52,9 +53,10 @@ typedef struct {
     float width;            ///< quad width across the bone, in world units
     float length;           ///< extra quad length added to the joint span, in world units
     float offset;           ///< quad shift along the bone axis, in world units
+    float minWidth;         ///< floor on the rendered width when BONE_FLAG_ROTATE foreshortens it
 
-    uint16_t images[RIG_BONE_IMAGES_MAX];   ///< per-arc image ids, [0] centred on the front
-    uint16_t imageCount;    ///< number of arcs (1, 2, 4, 8...)
+    uint16_t images[RIG_BONE_IMAGES_MAX];   ///< per-arc image ids: 0 Front, 1 Right, 2 Back, 3 Left
+    uint16_t imageCount;    ///< number of arcs in use, from the front (0..4)
 
     uint16_t flags;
     bool selected;

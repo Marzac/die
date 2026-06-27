@@ -23,15 +23,24 @@ SOURCES += \
     mainwindow.cpp \
     rigger.cpp \
     wdgrigeditor.cpp \
+    wdgtexselector.cpp \
+    wdgframeselector.cpp \
+    wdgtexview.cpp \
     ../common/engine/rig.cpp \
-    ../common/engine/rig_io.cpp
+    ../common/engine/rig_io.cpp \
+    ../common/engine/drawer.cpp
 
 HEADERS += \
     mainwindow.h \
     rigger.h \
     wdgrigeditor.h \
+    wdgtexselector.h \
+    wdgframeselector.h \
+    wdgtexview.h \
     ../common/engine/rig.h \
-    ../common/engine/rigobjects.h
+    ../common/engine/rigobjects.h \
+    ../common/engine/drawer.h \
+    ../common/engine/primitives.h
 
 FORMS += \
     mainwindow.ui

@@ -15,8 +15,12 @@ set(SOURCES
     rigger.cpp
     mainwindow.cpp
     wdgrigeditor.cpp
+    wdgtexselector.cpp
+    wdgframeselector.cpp
+    wdgtexview.cpp
     ../common/engine/rig.cpp
     ../common/engine/rig_io.cpp
+    ../common/engine/drawer.cpp
     mainwindow.ui
 )
 
