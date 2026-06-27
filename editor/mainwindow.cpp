@@ -226,7 +226,7 @@ void MainWindow::applyUndoState()
     updateSunProperties();
     updateFogProperties();
     updateUndoActions();
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::updateUndoActions()
@@ -886,16 +886,16 @@ void MainWindow::updateEditorProperties()
 
 void MainWindow::updateEngineProperties()
 {
-    RENDERER_FLAGS flags = renderer.getFlags();
-    setCheckboxStateSilently(ui->checkRendererMultithreadingEnable, flags & RENDERER_FLAG_MULTITHREADING);
-    setCheckboxStateSilently(ui->checkRendererWallsEnable, flags & RENDERER_FLAG_WALLS);
-    setCheckboxStateSilently(ui->checkRendererSurfacesEnable, flags & RENDERER_FLAG_SURFACES);
-    setCheckboxStateSilently(ui->checkRendererLightsEnable, flags & RENDERER_FLAG_LIGHTS);
-    setCheckboxStateSilently(ui->checkRendererOcclusionEnable, flags & RENDERER_FLAG_AMBIENT_OCCLUSION);
-    setCheckboxStateSilently(ui->checkRendererMotionblur, flags & RENDERER_FLAG_MOTIONBLUR);
-    setCheckboxStateSilently(ui->checkRendererVignetting, flags & RENDERER_FLAG_VIGNETTE);
-    setCheckboxStateSilently(ui->checkRendererAlphaFeatures, flags & RENDERER_FLAG_ALPHA_FEATURES);
-    setCheckboxStateSilently(ui->checkRendererGamma, flags & RENDERER_FLAG_GAMMA);
+    Renderer::FLAGS flags = renderer.getFlags();
+    setCheckboxStateSilently(ui->checkRendererMultithreadingEnable, flags & Renderer::FLAG_MULTITHREADING);
+    setCheckboxStateSilently(ui->checkRendererWallsEnable, flags & Renderer::FLAG_WALLS);
+    setCheckboxStateSilently(ui->checkRendererSurfacesEnable, flags & Renderer::FLAG_SURFACES);
+    setCheckboxStateSilently(ui->checkRendererLightsEnable, flags & Renderer::FLAG_LIGHTS);
+    setCheckboxStateSilently(ui->checkRendererOcclusionEnable, flags & Renderer::FLAG_AMBIENT_OCCLUSION);
+    setCheckboxStateSilently(ui->checkRendererMotionblur, flags & Renderer::FLAG_MOTIONBLUR);
+    setCheckboxStateSilently(ui->checkRendererVignetting, flags & Renderer::FLAG_VIGNETTE);
+    setCheckboxStateSilently(ui->checkRendererAlphaFeatures, flags & Renderer::FLAG_ALPHA_FEATURES);
+    setCheckboxStateSilently(ui->checkRendererGamma, flags & Renderer::FLAG_GAMMA);
 
     ui->scrollRendererMotionblurPercent->blockSignals(true);
     ui->scrollRendererMotionblurPercent->setValue((int)renderer.motionBlurFactor);
@@ -1078,7 +1078,7 @@ void MainWindow::on_pushNodeAddLight_clicked()
         return;
     setEditMode(EDIT_MODE_LIGHTS);
     editor.selectedLight = lId;
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
     updateLightProperties();
 }
 
@@ -1450,7 +1450,7 @@ void MainWindow::on_checkSpriteShadows_toggled(bool checked)
     Sprite & b = editor.editedMap->sprites[editor.selectedSprite];
     b.flags &= ~SPRITE_FLAG_SHADOWS;
     if (checked) b.flags |= SPRITE_FLAG_SHADOWS;
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_checkSpriteAutopan_toggled(bool checked)
@@ -1915,7 +1915,7 @@ void MainWindow::on_pushLightColorA_clicked()
         if (!l.selected) continue;
         l.colorA = color;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_pushLightColorB_clicked()
@@ -1933,7 +1933,7 @@ void MainWindow::on_pushLightColorB_clicked()
         if (!l.selected) continue;
         l.colorB = color;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_scrollLightStrength_valueChanged(int value)
@@ -1945,7 +1945,7 @@ void MainWindow::on_scrollLightStrength_valueChanged(int value)
         if (!l.selected) continue;
         l.strength = value * 0.03125f;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_spinLightFalloff_valueChanged(double value)
@@ -1957,7 +1957,7 @@ void MainWindow::on_spinLightFalloff_valueChanged(double value)
         if (!l.selected) continue;
         l.falloff = (float) value;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_comboLightAnimation_currentIndexChanged(int index)
@@ -1969,7 +1969,7 @@ void MainWindow::on_comboLightAnimation_currentIndexChanged(int index)
         if (!l.selected) continue;
         l.anim = index;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_scrollLightSpeed_valueChanged(int value)
@@ -1994,7 +1994,7 @@ void MainWindow::on_checkLightEnable_toggled(bool checked)
         l.flags &= ~LIGHT_FLAG_ENABLE;
         if (checked) l.flags |= LIGHT_FLAG_ENABLE;
     }
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void MainWindow::on_comboLightTag_currentIndexChanged(int index)
@@ -2013,7 +2013,7 @@ void MainWindow::on_pushLightDelete_clicked()
         editor.lightDelete(i--);
     }
     editor.selectedLight = EDIT_UNSELECTED;
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
     updateLightProperties();
 }
 
@@ -2692,7 +2692,7 @@ void MainWindow::on_actionNew_triggered()
 {
     renderer.init();
     editor.rootMap.init();
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 
     undoDebounceTimer->stop();
     undoHistory.clear();
@@ -2713,7 +2713,7 @@ void MainWindow::on_actionLoad_map_triggered()
     updateFogProperties();
     updateTagProperties();
     refreshTagCombos();
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 
     undoDebounceTimer->stop();
     undoHistory.clear();
@@ -2825,42 +2825,42 @@ void MainWindow::on_checkEditorWallSelector_toggled(bool checked)
 
 void MainWindow::on_checkRendererMultithreadingEnable_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_MULTITHREADING, checked);
+    renderer.checkFlag(Renderer::FLAG_MULTITHREADING, checked);
 }
 
 void MainWindow::on_checkRendererWallsEnable_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_WALLS, checked);
+    renderer.checkFlag(Renderer::FLAG_WALLS, checked);
 }
 
 void MainWindow::on_checkRendererSurfacesEnable_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_SURFACES, checked);
+    renderer.checkFlag(Renderer::FLAG_SURFACES, checked);
 }
 
 void MainWindow::on_checkRendererOcclusionEnable_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_AMBIENT_OCCLUSION, checked);
+    renderer.checkFlag(Renderer::FLAG_AMBIENT_OCCLUSION, checked);
 }
 
 void MainWindow::on_checkRendererLightsEnable_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_LIGHTS, checked);
+    renderer.checkFlag(Renderer::FLAG_LIGHTS, checked);
 }
 
 void MainWindow::on_checkRendererMotionblur_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_MOTIONBLUR, checked);
+    renderer.checkFlag(Renderer::FLAG_MOTIONBLUR, checked);
 }
 
 void MainWindow::on_checkRendererVignetting_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_VIGNETTE, checked);
+    renderer.checkFlag(Renderer::FLAG_VIGNETTE, checked);
 }
 
 void MainWindow::on_checkRendererAlphaFeatures_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_ALPHA_FEATURES, checked);
+    renderer.checkFlag(Renderer::FLAG_ALPHA_FEATURES, checked);
 }
 
 void MainWindow::on_spinRendererOcclusionLength_valueChanged(double arg1)
@@ -2891,7 +2891,7 @@ void MainWindow::on_scrollRendererVignettingOuter_valueChanged(int value)
 
 void MainWindow::on_checkRendererGamma_toggled(bool checked)
 {
-    renderer.checkFlag(RENDERER_FLAG_GAMMA, checked);
+    renderer.checkFlag(Renderer::FLAG_GAMMA, checked);
 }
 
 void MainWindow::on_scrollRendererGammaKRed_valueChanged(int value)
@@ -3102,7 +3102,7 @@ void MainWindow::on_comboGlowmapSize_currentIndexChanged(int index)
 
 void MainWindow::on_pushRendererGlowmapRebuild_clicked()
 {
-    renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 /*****************************************************************************/

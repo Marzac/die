@@ -659,7 +659,7 @@ void WdgMapEditor::mouseMoveDrag(QMouseEvent *event)
     }else if (editor.editMode == EDIT_MODE_LIGHTS) {
         if (dragNodeItems<Light>(editor.editedMap->lights, editor.selectedLight,
             [](const Light & l){ return l.nodeID; })) {
-            renderer.flags |= RENDERER_FLAG_GLOWMAP_REBUILD;
+            renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
             mainWindow->updateLightProperties();
         }
 

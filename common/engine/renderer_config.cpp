@@ -85,7 +85,7 @@ static int toPowerOfTwo(int v)
 /*****************************************************************************/
 void Renderer::configInit()
 {
-    flags = RENDERER_FLAGS_DEFAULT;
+    flags = FLAGS_DEFAULT;
 
     frameResoX = DefaultFrameResoX;
     frameResoY = DefaultFrameResoY;
@@ -173,21 +173,21 @@ bool Renderer::configLoad(const QString & filename)
         else if (strcmp(key, "GammaKBlue") == 0) gammaKBlue = atof(valueStr);
 
         else if (strcmp(key, "Walls") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_WALLS; else flags &= ~RENDERER_FLAG_WALLS;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_WALLS; else flags &= ~Renderer::FLAG_WALLS;
         } else if (strcmp(key, "Surfaces") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_SURFACES; else flags &= ~RENDERER_FLAG_SURFACES;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_SURFACES; else flags &= ~Renderer::FLAG_SURFACES;
         } else if (strcmp(key, "Lights") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_LIGHTS; else flags &= ~RENDERER_FLAG_LIGHTS;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_LIGHTS; else flags &= ~Renderer::FLAG_LIGHTS;
         } else if (strcmp(key, "AmbientOcclusion") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_AMBIENT_OCCLUSION; else flags &= ~RENDERER_FLAG_AMBIENT_OCCLUSION;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_AMBIENT_OCCLUSION; else flags &= ~Renderer::FLAG_AMBIENT_OCCLUSION;
         } else if (strcmp(key, "MotionBlur") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_MOTIONBLUR; else flags &= ~RENDERER_FLAG_MOTIONBLUR;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_MOTIONBLUR; else flags &= ~Renderer::FLAG_MOTIONBLUR;
         } else if (strcmp(key, "Vignette") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_VIGNETTE; else flags &= ~RENDERER_FLAG_VIGNETTE;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_VIGNETTE; else flags &= ~Renderer::FLAG_VIGNETTE;
         } else if (strcmp(key, "Gamma") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_GAMMA; else flags &= ~RENDERER_FLAG_GAMMA;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_GAMMA; else flags &= ~Renderer::FLAG_GAMMA;
         } else if (strcmp(key, "Multithreading") == 0) {
-            if (atoi(valueStr)) flags |= RENDERER_FLAG_MULTITHREADING; else flags &= ~RENDERER_FLAG_MULTITHREADING;
+            if (atoi(valueStr)) flags |= Renderer::FLAG_MULTITHREADING; else flags &= ~Renderer::FLAG_MULTITHREADING;
         }
 
         skipLine(file);
@@ -245,14 +245,14 @@ bool Renderer::configSave(const QString & filename)
 
 // ==== Write render flag bits ====
     fprintf(file, "# ==== Render flags ====\n");
-    fprintf(file, "Walls = %d\n",            (flags & RENDERER_FLAG_WALLS) ? 1 : 0);
-    fprintf(file, "Surfaces = %d\n",         (flags & RENDERER_FLAG_SURFACES) ? 1 : 0);
-    fprintf(file, "Lights = %d\n",           (flags & RENDERER_FLAG_LIGHTS) ? 1 : 0);
-    fprintf(file, "AmbientOcclusion = %d\n", (flags & RENDERER_FLAG_AMBIENT_OCCLUSION) ? 1 : 0);
-    fprintf(file, "MotionBlur = %d\n",       (flags & RENDERER_FLAG_MOTIONBLUR) ? 1 : 0);
-    fprintf(file, "Vignette = %d\n",         (flags & RENDERER_FLAG_VIGNETTE) ? 1 : 0);
-    fprintf(file, "Gamma = %d\n",            (flags & RENDERER_FLAG_GAMMA) ? 1 : 0);
-    fprintf(file, "Multithreading = %d\n",   (flags & RENDERER_FLAG_MULTITHREADING) ? 1 : 0);
+    fprintf(file, "Walls = %d\n",            (flags & Renderer::FLAG_WALLS) ? 1 : 0);
+    fprintf(file, "Surfaces = %d\n",         (flags & Renderer::FLAG_SURFACES) ? 1 : 0);
+    fprintf(file, "Lights = %d\n",           (flags & Renderer::FLAG_LIGHTS) ? 1 : 0);
+    fprintf(file, "AmbientOcclusion = %d\n", (flags & Renderer::FLAG_AMBIENT_OCCLUSION) ? 1 : 0);
+    fprintf(file, "MotionBlur = %d\n",       (flags & Renderer::FLAG_MOTIONBLUR) ? 1 : 0);
+    fprintf(file, "Vignette = %d\n",         (flags & Renderer::FLAG_VIGNETTE) ? 1 : 0);
+    fprintf(file, "Gamma = %d\n",            (flags & Renderer::FLAG_GAMMA) ? 1 : 0);
+    fprintf(file, "Multithreading = %d\n",   (flags & Renderer::FLAG_MULTITHREADING) ? 1 : 0);
     fprintf(file, "\n");
 
     fclose(file);

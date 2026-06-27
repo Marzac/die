@@ -14,9 +14,8 @@
 
 #include "mapobjects.h"
 #include "workerpool.h"
+#include "primitives.h"
 
-#include <QVector2D>
-#include <QVector3D>
 #include <QImage>
 #include <QList>
 
@@ -24,36 +23,6 @@
 #include <stdint.h>
 
 #include <smmintrin.h>
-
-/*****************************************************************************/
-typedef enum : uint32_t {
-    RENDERER_FLAG_WALLS                   = 0x0001,
-    RENDERER_FLAG_SURFACES                = 0x0002,
-    RENDERER_FLAG_LIGHTS                  = 0x0004,
-    RENDERER_FLAG_AMBIENT_OCCLUSION       = 0x0008,
-    RENDERER_FLAG_GLOWMAP_REBUILD         = 0x0010,
-    RENDERER_FLAG_MOTIONBLUR              = 0x0100,
-    RENDERER_FLAG_VIGNETTE                = 0x0200,
-    RENDERER_FLAG_GAMMA                   = 0x0400,
-    RENDERER_FLAG_MULTITHREADING          = 0x1000,
-    RENDERER_FLAG_ALPHA_FEATURES          = 0x2000,
-    RENDERER_FLAGS_DEFAULT                = RENDERER_FLAG_WALLS | RENDERER_FLAG_SURFACES | RENDERER_FLAG_LIGHTS | RENDERER_FLAG_AMBIENT_OCCLUSION | RENDERER_FLAG_GAMMA,
-} RENDERER_FLAGS;
-
-/*****************************************************************************/
-/**
-    \brief Camera position and orientation
-*/
-typedef struct {
-    QVector3D pos;
-    QVector3D offset;
-    float pan;
-    float tilt;
-} Viewpoint;
-
-/*****************************************************************************/
-constexpr float D2R = 3.14159265f / 180.0f;
-constexpr float R2D = 180.0f / 3.14159265f;
 
 /*****************************************************************************/
 class Renderer
@@ -119,6 +88,21 @@ public:
     /// \brief Sentinel returned by clickGetWallID when no wall was picked
     static constexpr uint16_t ClickNoWall = 0xFFFF;
 
+    /// \brief Renderer enable/disable flags
+    typedef enum : uint32_t {
+        FLAG_WALLS              = 0x0001,
+        FLAG_SURFACES           = 0x0002,
+        FLAG_LIGHTS             = 0x0004,
+        FLAG_AMBIENT_OCCLUSION  = 0x0008,
+        FLAG_GLOWMAP_REBUILD    = 0x0010,
+        FLAG_MOTIONBLUR         = 0x0100,
+        FLAG_VIGNETTE           = 0x0200,
+        FLAG_GAMMA              = 0x0400,
+        FLAG_MULTITHREADING     = 0x1000,
+        FLAG_ALPHA_FEATURES     = 0x2000,
+        FLAGS_DEFAULT           = FLAG_WALLS | FLAG_SURFACES | FLAG_LIGHTS | FLAG_AMBIENT_OCCLUSION | FLAG_GAMMA,
+    } FLAGS;
+
     /// \brief Renderer-side node (compact variant)
     typedef struct {
         QVector3D pos;
@@ -139,15 +123,6 @@ public:
         uint32_t rayFront;
         uint32_t rayBack;
     } Wall;
-
-    /// \brief Renderer-side texture strip (column of square tiles)
-    typedef struct {
-        uint32_t * pixels;
-        uint16_t size;
-        uint16_t count;
-        uint16_t mask;
-        uint32_t block;
-    } Texture;
 
     /// \brief Bounding-box, half-open ([x0,x1) x [z0,z1))
     typedef struct {
@@ -182,12 +157,12 @@ public:
     /// \brief Frame rendered by the last render() call
     QImage * getImage() const {return image;}
 
-    /// \brief Replace the whole RENDERER_FLAGS bitmask
-    void setFlags(RENDERER_FLAGS flags);
+    /// \brief Replace the whole FLAGS bitmask
+    void setFlags(FLAGS flags);
 
     /// \brief Set or clear a single renderer flag
-    void checkFlag(RENDERER_FLAGS flag, bool checked);
-    RENDERER_FLAGS getFlags() const {return (RENDERER_FLAGS) flags;}
+    void checkFlag(FLAGS flag, bool checked);
+    FLAGS getFlags() const {return (FLAGS) flags;}
 
     /// \brief Request a glowmap resize (applied at the start of the next render)
     void setGlowmapSize(int size);
@@ -214,7 +189,7 @@ public:
     uint16_t clickGetWallID() const {return clickWallID;}
 
 // Shared render state (written by Map::pass and Env::pass)
-    uint32_t flags;             ///< active RENDERER_FLAGS bitmask
+    uint32_t flags;             ///< active FLAGS bitmask
 
 // Field of view
     float fovAngle;             ///< horizontal FOV, in degrees

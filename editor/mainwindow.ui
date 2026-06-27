@@ -560,11 +560,11 @@
      <enum>QTabWidget::TabShape::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>10</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="nodes">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-node.png</normaloff>:/Icons/tools-node.png</iconset>
      </attribute>
      <attribute name="title">
@@ -949,7 +949,7 @@
        <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
       </property>
      </widget>
-     <widget class="QLabel" name="labelNodeAttach_2">
+     <widget class="QLabel" name="labelNodesList">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -965,7 +965,7 @@
     </widget>
     <widget class="QWidget" name="walls">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-wall.png</normaloff>:/Icons/tools-wall.png</iconset>
      </attribute>
      <attribute name="title">
@@ -1396,7 +1396,7 @@
     </widget>
     <widget class="QWidget" name="submaps">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-submap.png</normaloff>:/Icons/tools-submap.png</iconset>
      </attribute>
      <attribute name="title">
@@ -1625,7 +1625,7 @@
     </widget>
     <widget class="QWidget" name="staircases">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-staircase.png</normaloff>:/Icons/tools-staircase.png</iconset>
      </attribute>
      <attribute name="title">
@@ -1954,7 +1954,7 @@
     </widget>
     <widget class="QWidget" name="doors">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-door.png</normaloff>:/Icons/tools-door.png</iconset>
      </attribute>
      <attribute name="title">
@@ -2491,7 +2491,7 @@
     </widget>
     <widget class="QWidget" name="lifts">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-lift.png</normaloff>:/Icons/tools-lift.png</iconset>
      </attribute>
      <attribute name="title">
@@ -3038,7 +3038,7 @@
     </widget>
     <widget class="QWidget" name="sprites">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-sprite.png</normaloff>:/Icons/tools-sprite.png</iconset>
      </attribute>
      <attribute name="title">
@@ -3347,7 +3347,7 @@
     </widget>
     <widget class="QWidget" name="lights">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-light.png</normaloff>:/Icons/tools-light.png</iconset>
      </attribute>
      <attribute name="title">
@@ -3653,7 +3653,7 @@
     </widget>
     <widget class="QWidget" name="speakers">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-speaker.png</normaloff>:/Icons/tools-speaker.png</iconset>
      </attribute>
      <attribute name="title">
@@ -4477,7 +4477,7 @@
     </widget>
     <widget class="QWidget" name="stage">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-stage.png</normaloff>:/Icons/tools-stage.png</iconset>
      </attribute>
      <attribute name="title">
@@ -4708,7 +4708,7 @@
     </widget>
     <widget class="QWidget" name="config">
      <attribute name="icon">
-      <iconset resource="resources.qrc">
+      <iconset>
        <normaloff>:/Icons/tools-settings.png</normaloff>:/Icons/tools-settings.png</iconset>
      </attribute>
      <attribute name="title">
@@ -5257,7 +5257,7 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="resources.qrc">
+     <iconset>
       <normaloff>:/Icons/tools-origin.png</normaloff>:/Icons/tools-origin.png</iconset>
     </property>
    </widget>
@@ -5460,7 +5460,7 @@
      <x>0</x>
      <y>0</y>
      <width>1140</width>
-     <height>23</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -5505,7 +5505,7 @@
   </widget>
   <action name="actionNew">
    <property name="text">
-    <string>New</string>
+    <string>New map</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
@@ -5651,8 +5651,6 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
