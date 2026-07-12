@@ -40,6 +40,14 @@ typedef struct {
 } Node;
 
 /*****************************************************************************/
+typedef enum : uint16_t {
+    SURFACE_FLAG_REGULAR    = 0x0000,
+    SURFACE_FLAG_ALPHA      = 0x0004,
+    SURFACE_FLAG_NO_LIGHT   = 0x0008,
+    SURFACE_FLAG_NO_GLOW    = 0x0010,
+    SURFACE_FLAG_NO_FOG     = 0x0020,
+} SURFACE_FLAGS;
+
 /**
     \brief Texture mapping of one face of a map object
 */
@@ -65,7 +73,6 @@ typedef enum : uint16_t {
     WALL_FLAG_FREE          = 0x0000,
     WALL_FLAG_INVISIBLE     = 0x0001,
     WALL_FLAG_BACKCULLED    = 0x0002,
-    WALL_FLAG_ALPHA         = 0x0004,
     WALL_FLAG_NO_SHADOW     = 0x0008,
     WALL_FLAG_FLOOR_FRONT   = 0x0010,
     WALL_FLAG_FLOOR_BACK    = 0x0020,
@@ -127,7 +134,6 @@ typedef enum : uint16_t {
 
 typedef enum : uint16_t {
     DOOR_FLAG_FREE          = 0x0000,
-    DOOR_FLAG_ALPHA         = 0x0004,
     DOOR_FLAG_OPENING       = 0x1000,
     DOOR_FLAG_CLOSING       = 0x2000,
     DOOR_FLAG_SHAKING       = 0x4000,
@@ -178,7 +184,6 @@ typedef enum : uint16_t {
 
 typedef enum : uint16_t {
     LIFT_FLAG_FREE       = 0x0000,
-    LIFT_FLAG_ALPHA      = 0x0004,
     LIFT_FLAG_HALTABLE   = 0x0010,
     LIFT_FLAG_CONTINUOUS = 0x0020,
     LIFT_FLAG_RETURN     = 0x0040,

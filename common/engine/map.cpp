@@ -536,7 +536,7 @@ void Map::passSprites(int textureBase, const QVector3D & camPos)
         ew.surfaces[WALL_SURFACE_FRONT] = surf;
         ew.surfaces[WALL_SURFACE_BACK] = surf;
 
-        ew.flags = WALL_FLAG_ALPHA;
+        ew.flags = WALL_FLAG_FREE;
         if (s.flags & SPRITE_FLAG_BACKCULLED) ew.flags |= WALL_FLAG_BACKCULLED;
         if (!(s.flags & SPRITE_FLAG_SHADOWS)) ew.flags |= WALL_FLAG_NO_SHADOW;
 

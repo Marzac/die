@@ -9,17 +9,17 @@
     texture strip selector widget
 */
 
-#ifndef WDG_TEX_SELECTOR_H
-#define WDG_TEX_SELECTOR_H
+#ifndef WDG_TEXTURE_SELECTOR_H
+#define WDG_TEXTURE_SELECTOR_H
 
 #include <QWidget>
 
-class WdgTexSelector : public QWidget
+class WdgTextureSelector : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit WdgTexSelector(QWidget *parent = nullptr);
+    explicit WdgTextureSelector(QWidget *parent = nullptr);
     void setScroll(int scroll);
     int getScroll() {return scroll;}
 
@@ -38,4 +38,4 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 };
 
-#endif // WDG_TEX_SELECTOR_H
+#endif // WDG_TEXTURE_SELECTOR_H

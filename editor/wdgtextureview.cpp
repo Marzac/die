@@ -9,28 +9,28 @@
     texture preview widget
 */
 
-#include "wdgtexview.h"
+#include "wdgtextureview.h"
 
 #include "editor.h"
 
 #include <QPainter>
 
 /*****************************************************************************/
-WdgTexView::WdgTexView(QWidget *parent) :
+WdgTextureView::WdgTextureView(QWidget *parent) :
     QWidget(parent),
     id(0)
 {
 }
 
 /*****************************************************************************/
-void WdgTexView::setID(uint16_t id)
+void WdgTextureView::setID(uint16_t id)
 {
     this->id = id;
     update();
 }
 
 /*****************************************************************************/
-void WdgTexView::paintEvent(QPaintEvent *)
+void WdgTextureView::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);

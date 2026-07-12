@@ -249,7 +249,6 @@ private:
     typedef enum : uint16_t {
         VSTRIP_FLAG_FREE        = 0x0000,
         VSTRIP_FLAG_INVISIBLE   = 0x0001,
-        VSTRIP_FLAG_ALPHA       = 0x0004,
         VSTRIP_FLAG_HASCEILING  = 0x0100,
         VSTRIP_FLAG_HASFLOOR    = 0x0200,
         VSTRIP_FLAG_SEETHROUGH  = 0x0400,

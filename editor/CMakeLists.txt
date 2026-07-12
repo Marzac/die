@@ -18,8 +18,10 @@ set(SOURCES
     renderwindow.cpp
     wdgmapeditor.cpp
     wdgmapview.cpp
-    wdgtexselector.cpp
-    wdgtexview.cpp
+    wdgsurfaceedit.cpp
+    wdgtextureselector.cpp
+    wdgtextureview.cpp
+    wdgutilities.cpp
     ../common/engine/renderer.cpp
     ../common/engine/renderer_config.cpp
     ../common/engine/audio.cpp
@@ -38,7 +40,9 @@ if(WIN32)
     list(APPEND SOURCES editor.rc)
 endif()
 
-qt_add_executable(waller WIN32 ${SOURCES})
+qt_add_executable(waller WIN32 ${SOURCES}
+    wdgsurfaceedit.h wdgsurfaceedit.ui
+    wdgutilities.h)
 
 target_include_directories(waller PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}

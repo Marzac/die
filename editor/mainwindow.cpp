@@ -18,6 +18,8 @@
 #include "walker.h"
 #include "tags.h"
 
+#include "wdgutilities.h"
+
 #include <QDir>
 #include <QFileInfo>
 #include <QLineEdit>
@@ -423,34 +425,13 @@ void MainWindow::updateViewMode()
 void MainWindow::setTexture(uint16_t texId)
 {
     switch(editor.editMode) {
-    case EDIT_MODE_WALLS: ui->spinWallTexture->setValue(texId); break;
-    case EDIT_MODE_DOORS: ui->spinDoorTexture->setValue(texId); break;
-    case EDIT_MODE_LIFTS: ui->spinLiftTexture->setValue(texId); break;
+    case EDIT_MODE_WALLS: ui->wdgWallSurface->setTextureID(texId); break;
+    case EDIT_MODE_DOORS: ui->wdgDoorSurface->setTextureID(texId); break;
+    case EDIT_MODE_LIFTS: ui->wdgLiftSurface->setTextureID(texId); break;
     case EDIT_MODE_SPRITES: ui->spinSpriteTexture->setValue(texId); break;
-    case EDIT_MODE_STAIRCASES: ui->spinStaircaseTexture->setValue(texId); break;
+    case EDIT_MODE_STAIRCASES: ui->wdgStaircaseSurface->setTextureID(texId); break;
     default: break;
     }
-}
-
-/*****************************************************************************/
-void MainWindow::setSpinValueSilently(QAbstractSpinBox* box, double value)
-{
-    if (auto* doubleSpin = qobject_cast<QDoubleSpinBox*>(box)) {
-        doubleSpin->blockSignals(true);
-        doubleSpin->setValue(value);
-        doubleSpin->blockSignals(false);
-
-    } else if (auto* intSpin = qobject_cast<QSpinBox*>(box)) {
-        intSpin->blockSignals(true);
-        intSpin->setValue(static_cast<int>(value));
-        intSpin->blockSignals(false);
-    }
-}
-void MainWindow::setCheckboxStateSilently(QCheckBox* box, bool checked)
-{
-    box->blockSignals(true);
-    box->setChecked(checked);
-    box->blockSignals(false);
 }
 
 /*****************************************************************************/
@@ -520,17 +501,11 @@ void MainWindow::updateWallProperties()
         setSpinValueSilently(ui->spinWallHeight, 0.0);
         setCheckboxStateSilently(ui->checkWallInvisible, false);
         setCheckboxStateSilently(ui->checkWallBackculled, false);
-        setCheckboxStateSilently(ui->checkWallAlpha, false);
         setCheckboxStateSilently(ui->checkWallCeilingFront, false);
         setCheckboxStateSilently(ui->checkWallCeilingBack, false);
         setCheckboxStateSilently(ui->checkWallFloorFront, false);
         setCheckboxStateSilently(ui->checkWallFloorBack, false);
-        setSpinValueSilently(ui->spinWallTexture, 0);
-        ui->widgetWallTexture->setID(0);
-        setSpinValueSilently(ui->spinWallScaleX, 0.0);
-        setSpinValueSilently(ui->spinWallScaleY, 0.0);
-        setSpinValueSilently(ui->spinWallShiftX, 0.0);
-        setSpinValueSilently(ui->spinWallShiftY, 0.0);
+        ui->wdgWallSurface->setSurface(nullptr);
         return;
     }
 
@@ -540,7 +515,6 @@ void MainWindow::updateWallProperties()
     setSpinValueSilently(ui->spinWallHeight, w.height);
     setCheckboxStateSilently(ui->checkWallInvisible, w.flags & WALL_FLAG_INVISIBLE);
     setCheckboxStateSilently(ui->checkWallBackculled, w.flags & WALL_FLAG_BACKCULLED);
-    setCheckboxStateSilently(ui->checkWallAlpha, w.flags & WALL_FLAG_ALPHA);
     setCheckboxStateSilently(ui->checkWallCeilingFront, w.flags & WALL_FLAG_CEILING_FRONT);
     setCheckboxStateSilently(ui->checkWallCeilingBack, w.flags & WALL_FLAG_CEILING_BACK);
     setCheckboxStateSilently(ui->checkWallFloorFront, w.flags & WALL_FLAG_FLOOR_FRONT);
@@ -554,14 +528,7 @@ void MainWindow::updateWallTexture()
     Wall & w = editor.editedMap->walls[editor.selectedWall];
 
     int type = ui->comboWallTexture->currentIndex();
-    Surface & s = w.surfaces[type];
-
-    setSpinValueSilently(ui->spinWallTexture, s.id);
-    ui->widgetWallTexture->setID(s.id);
-    setSpinValueSilently(ui->spinWallScaleX, s.scaleX);
-    setSpinValueSilently(ui->spinWallScaleY, s.scaleY);
-    setSpinValueSilently(ui->spinWallShiftX, s.shiftX);
-    setSpinValueSilently(ui->spinWallShiftY, s.shiftY);
+    ui->wdgWallSurface->setSurface(&w.surfaces[type]);
 }
 
 void MainWindow::updateSubmapProperties()
@@ -601,7 +568,6 @@ void MainWindow::updateDoorProperties()
         ui->spinDoorAngle->setValue(0.0);
         ui->spinDoorSwing->setValue(0.0);
         ui->spinDoorTime->setValue(0.0);
-        ui->checkDoorAlpha->setChecked(false);
         ui->checkDoorLocked->setChecked(false);
         return;
     }
@@ -619,7 +585,6 @@ void MainWindow::updateDoorProperties()
     ui->spinDoorAngle->setValue(d.angle);
     ui->spinDoorSwing->setValue(d.swing);
     ui->spinDoorTime->setValue(d.time);
-    ui->checkDoorAlpha->setChecked(d.flags & DOOR_FLAG_ALPHA);
     ui->checkDoorLocked->setChecked(d.flags & DOOR_FLAG_LOCKED);
 
     updateDoorTexture();
@@ -627,16 +592,11 @@ void MainWindow::updateDoorProperties()
 
 void MainWindow::updateDoorTexture()
 {
-    if (editor.selectedDoor < 0) return;
+    if (editor.selectedDoor < 0) { ui->wdgDoorSurface->setSurface(nullptr); return; }
     Door & d = editor.editedMap->doors[editor.selectedDoor];
 
     int type = ui->comboDoorTexture->currentIndex();
-    Surface & s = d.surfaces[type];
-
-    ui->spinDoorTexture->setValue(s.id);
-    ui->widgetDoorTexture->setID(s.id);
-    ui->spinDoorScaleX->setValue(s.scaleX);
-    ui->spinDoorScaleY->setValue(s.scaleY);
+    ui->wdgDoorSurface->setSurface(&d.surfaces[type]);
 }
 
 void MainWindow::updateLiftProperties()
@@ -652,7 +612,6 @@ void MainWindow::updateLiftProperties()
         setSpinValueSilently(ui->spinLiftTime, 0.0);
         ui->comboLiftMode->setCurrentIndex(0);
         ui->comboLiftEasing->setCurrentIndex(0);
-        setCheckboxStateSilently(ui->checkLiftAlpha, false);
         setCheckboxStateSilently(ui->checkLiftLocked, false);
         setCheckboxStateSilently(ui->checkLiftHaltable, false);
         setCheckboxStateSilently(ui->checkLiftContinuous, false);
@@ -671,7 +630,6 @@ void MainWindow::updateLiftProperties()
     setSpinValueSilently(ui->spinLiftTime, e.time);
     ui->comboLiftMode->setCurrentIndex(e.mode);
     ui->comboLiftEasing->setCurrentIndex(e.easing);
-    setCheckboxStateSilently(ui->checkLiftAlpha, e.flags & LIFT_FLAG_ALPHA);
     setCheckboxStateSilently(ui->checkLiftLocked, e.flags & LIFT_FLAG_LOCKED);
     setCheckboxStateSilently(ui->checkLiftHaltable, e.flags & LIFT_FLAG_HALTABLE);
     setCheckboxStateSilently(ui->checkLiftContinuous, e.flags & LIFT_FLAG_CONTINUOUS);
@@ -682,16 +640,11 @@ void MainWindow::updateLiftProperties()
 
 void MainWindow::updateLiftTexture()
 {
-    if (editor.selectedLift < 0) return;
+    if (editor.selectedLift < 0) { ui->wdgLiftSurface->setSurface(nullptr); return; }
     Lift & e = editor.editedMap->lifts[editor.selectedLift];
 
     int type = ui->comboLiftTexture->currentIndex();
-    Surface & s = e.surfaces[type];
-
-    ui->spinLiftTexture->setValue(s.id);
-    ui->widgetLiftTexture->setID(s.id);
-    ui->spinLiftScaleX->setValue(s.scaleX);
-    ui->spinLiftScaleY->setValue(s.scaleY);
+    ui->wdgLiftSurface->setSurface(&e.surfaces[type]);
 }
 
 void MainWindow::updateSpriteProperties()
@@ -763,16 +716,11 @@ void MainWindow::updateStaircaseProperties()
 
 void MainWindow::updateStaircaseTexture()
 {
-    if (editor.selectedStaircase < 0) return;
+    if (editor.selectedStaircase < 0) { ui->wdgStaircaseSurface->setSurface(nullptr); return; }
     Staircase & h = editor.editedMap->staircases[editor.selectedStaircase];
 
     int type = ui->comboStaircaseTexture->currentIndex();
-    Surface & s = h.surfaces[type];
-
-    ui->spinStaircaseTexture->setValue(s.id);
-    ui->widgetStaircaseTexture->setID(s.id);
-    ui->spinStaircaseScaleX->setValue(s.scaleX);
-    ui->spinStaircaseScaleY->setValue(s.scaleY);
+    ui->wdgStaircaseSurface->setSurface(&h.surfaces[type]);
 }
 
 void MainWindow::updateLightProperties()
@@ -1138,7 +1086,7 @@ void MainWindow::on_comboWallTexture_currentIndexChanged(int)
     updateWallTexture();
 }
 
-void MainWindow::on_spinWallTexture_valueChanged(int arg1)
+void MainWindow::on_wdgWallSurface_surfaceChanged(const Surface & surface)
 {
     if (editor.selectedWall < 0) return;
     scheduleUndoPush();
@@ -1147,60 +1095,7 @@ void MainWindow::on_spinWallTexture_valueChanged(int arg1)
     for (int i = 0; i < editor.editedMap->walls.count(); i++) {
         Wall & w = editor.editedMap->walls[i];
         if (!w.selected) continue;
-        w.surfaces[type].id = arg1;
-    }
-    ui->widgetWallTexture->setID(arg1);
-}
-
-void MainWindow::on_spinWallScaleX_valueChanged(double arg1)
-{
-    if (editor.selectedWall < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboWallTexture->currentIndex();
-
-    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
-        Wall & w = editor.editedMap->walls[i];
-        if (!w.selected) continue;
-        w.surfaces[type].scaleX = arg1;
-    }
-}
-
-void MainWindow::on_spinWallScaleY_valueChanged(double arg1)
-{
-    if (editor.selectedWall < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboWallTexture->currentIndex();
-
-    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
-        Wall & w = editor.editedMap->walls[i];
-        if (!w.selected) continue;
-        w.surfaces[type].scaleY = arg1;
-    }
-}
-
-void MainWindow::on_spinWallShiftX_valueChanged(double arg1)
-{
-    if (editor.selectedWall < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboWallTexture->currentIndex();
-
-    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
-        Wall & w = editor.editedMap->walls[i];
-        if (!w.selected) continue;
-        w.surfaces[type].shiftX = arg1;
-    }
-}
-
-void MainWindow::on_spinWallShiftY_valueChanged(double arg1)
-{
-    if (editor.selectedWall < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboWallTexture->currentIndex();
-
-    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
-        Wall & w = editor.editedMap->walls[i];
-        if (!w.selected) continue;
-        w.surfaces[type].shiftY = arg1;
+        w.surfaces[type] = surface;
     }
 }
 
@@ -1213,18 +1108,6 @@ void MainWindow::on_checkWallInvisible_toggled(bool checked)
         if (!w.selected) continue;
         w.flags &= ~WALL_FLAG_INVISIBLE;
         if (checked) w.flags |= WALL_FLAG_INVISIBLE;
-    }
-}
-
-void MainWindow::on_checkWallAlpha_toggled(bool checked)
-{
-    if (editor.selectedWall < 0) return;
-    scheduleUndoPush();
-    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
-        Wall & w = editor.editedMap->walls[i];
-        if (!w.selected) continue;
-        w.flags &= ~WALL_FLAG_ALPHA;
-        if (checked) w.flags |= WALL_FLAG_ALPHA;
     }
 }
 
@@ -1557,15 +1440,6 @@ void MainWindow::on_spinDoorTime_valueChanged(double arg1)
     d.time = arg1;
 }
 
-void MainWindow::on_checkDoorAlpha_toggled(bool checked)
-{
-    if (editor.selectedDoor < 0) return;
-    scheduleUndoPush();
-    Door & d = editor.editedMap->doors[editor.selectedDoor];
-    d.flags &= ~DOOR_FLAG_ALPHA;
-    if (checked) d.flags |= DOOR_FLAG_ALPHA;
-}
-
 void MainWindow::on_checkDoorLocked_toggled(bool checked)
 {
     if (editor.selectedDoor < 0) return;
@@ -1590,32 +1464,12 @@ void MainWindow::on_comboDoorTexture_currentIndexChanged(int)
     updateDoorTexture();
 }
 
-void MainWindow::on_spinDoorTexture_valueChanged(int arg1)
+void MainWindow::on_wdgDoorSurface_surfaceChanged(const Surface & surface)
 {
     if (editor.selectedDoor < 0) return;
     scheduleUndoPush();
-    Door & d = editor.editedMap->doors[editor.selectedDoor];
     int type = ui->comboDoorTexture->currentIndex();
-    d.surfaces[type].id = arg1;
-    ui->widgetDoorTexture->setID(arg1);
-}
-
-void MainWindow::on_spinDoorScaleX_valueChanged(double arg1)
-{
-    if (editor.selectedDoor < 0) return;
-    scheduleUndoPush();
-    Door & d = editor.editedMap->doors[editor.selectedDoor];
-    int type = ui->comboDoorTexture->currentIndex();
-    d.surfaces[type].scaleX = arg1;
-}
-
-void MainWindow::on_spinDoorScaleY_valueChanged(double arg1)
-{
-    if (editor.selectedDoor < 0) return;
-    scheduleUndoPush();
-    Door & d = editor.editedMap->doors[editor.selectedDoor];
-    int type = ui->comboDoorTexture->currentIndex();
-    d.surfaces[type].scaleY = arg1;
+    editor.editedMap->doors[editor.selectedDoor].surfaces[type] = surface;
 }
 
 void MainWindow::on_pushDoorOpen_clicked()
@@ -1707,15 +1561,6 @@ void MainWindow::on_comboLiftMode_currentIndexChanged(int index)
     editor.editedMap->lifts[editor.selectedLift].mode = index;
 }
 
-void MainWindow::on_checkLiftAlpha_toggled(bool checked)
-{
-    if (editor.selectedLift < 0) return;
-    scheduleUndoPush();
-    Lift & e = editor.editedMap->lifts[editor.selectedLift];
-    e.flags &= ~LIFT_FLAG_ALPHA;
-    if (checked) e.flags |= LIFT_FLAG_ALPHA;
-}
-
 void MainWindow::on_checkLiftLocked_toggled(bool checked)
 {
     if (editor.selectedLift < 0) return;
@@ -1764,29 +1609,12 @@ void MainWindow::on_comboLiftTexture_currentIndexChanged(int)
     updateLiftTexture();
 }
 
-void MainWindow::on_spinLiftTexture_valueChanged(int arg1)
+void MainWindow::on_wdgLiftSurface_surfaceChanged(const Surface & surface)
 {
     if (editor.selectedLift < 0) return;
     scheduleUndoPush();
     int type = ui->comboLiftTexture->currentIndex();
-    editor.editedMap->lifts[editor.selectedLift].surfaces[type].id = arg1;
-    ui->widgetLiftTexture->setID(arg1);
-}
-
-void MainWindow::on_spinLiftScaleX_valueChanged(double arg1)
-{
-    if (editor.selectedLift < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboLiftTexture->currentIndex();
-    editor.editedMap->lifts[editor.selectedLift].surfaces[type].scaleX = arg1;
-}
-
-void MainWindow::on_spinLiftScaleY_valueChanged(double arg1)
-{
-    if (editor.selectedLift < 0) return;
-    scheduleUndoPush();
-    int type = ui->comboLiftTexture->currentIndex();
-    editor.editedMap->lifts[editor.selectedLift].surfaces[type].scaleY = arg1;
+    editor.editedMap->lifts[editor.selectedLift].surfaces[type] = surface;
 }
 
 void MainWindow::on_pushLiftStart_clicked()
@@ -1859,32 +1687,12 @@ void MainWindow::on_comboStaircaseTexture_currentIndexChanged(int)
     updateStaircaseTexture();
 }
 
-void MainWindow::on_spinStaircaseTexture_valueChanged(int arg1)
+void MainWindow::on_wdgStaircaseSurface_surfaceChanged(const Surface & surface)
 {
     if (editor.selectedStaircase < 0) return;
     scheduleUndoPush();
-    Staircase & h = editor.editedMap->staircases[editor.selectedStaircase];
     int type = ui->comboStaircaseTexture->currentIndex();
-    h.surfaces[type].id = arg1;
-    ui->widgetStaircaseTexture->setID(arg1);
-}
-
-void MainWindow::on_spinStaircaseScaleX_valueChanged(double arg1)
-{
-    if (editor.selectedStaircase < 0) return;
-    scheduleUndoPush();
-    Staircase & h = editor.editedMap->staircases[editor.selectedStaircase];
-    int type = ui->comboStaircaseTexture->currentIndex();
-    h.surfaces[type].scaleX = arg1;
-}
-
-void MainWindow::on_spinStaircaseScaleY_valueChanged(double arg1)
-{
-    if (editor.selectedStaircase < 0) return;
-    scheduleUndoPush();
-    Staircase & h = editor.editedMap->staircases[editor.selectedStaircase];
-    int type = ui->comboStaircaseTexture->currentIndex();
-    h.surfaces[type].scaleY = arg1;
+    editor.editedMap->staircases[editor.selectedStaircase].surfaces[type] = surface;
 }
 
 void MainWindow::on_pushStaircaseDelete_clicked()
