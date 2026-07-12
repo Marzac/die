@@ -9,18 +9,18 @@
     texture preview widget
 */
 
-#ifndef WDG_TEXVIEW_H
-#define WDG_TEXVIEW_H
+#ifndef WDG_TEXTURE_VIEW_H
+#define WDG_TEXTURE_VIEW_H
 
 #include <QWidget>
 #include <stdint.h>
 
-class WdgTexView : public QWidget
+class WdgTextureView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit WdgTexView(QWidget *parent = nullptr);
+    explicit WdgTextureView(QWidget *parent = nullptr);
 
     void setID(uint16_t id);
 
@@ -31,4 +31,4 @@ protected:
     void paintEvent(QPaintEvent * event) override;
 };
 
-#endif // WDG_TEXVIEW_H
+#endif // WDG_TEXTURE_VIEW_H

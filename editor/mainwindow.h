@@ -92,9 +92,6 @@ private:
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
 
-    void setSpinValueSilently(QAbstractSpinBox* box, double value);
-    void setCheckboxStateSilently(QCheckBox* box, bool checked);
-
     void createShortcuts();
     void createContextMenu();
 
@@ -152,13 +149,8 @@ private slots:
 
     void on_spinWallHeight_valueChanged(double arg1);
     void on_comboWallTexture_currentIndexChanged(int index);
-    void on_spinWallTexture_valueChanged(int arg1);
-    void on_spinWallScaleX_valueChanged(double arg1);
-    void on_spinWallScaleY_valueChanged(double arg1);
-    void on_spinWallShiftX_valueChanged(double arg1);
-    void on_spinWallShiftY_valueChanged(double arg1);
+    void on_wdgWallSurface_surfaceChanged(const Surface & surface);
     void on_checkWallInvisible_toggled(bool checked);
-    void on_checkWallAlpha_toggled(bool checked);
     void on_checkWallBackculled_toggled(bool checked);
     void on_checkWallCeilingFront_toggled(bool checked);
     void on_checkWallCeilingBack_toggled(bool checked);
@@ -183,13 +175,10 @@ private slots:
     void on_spinDoorAngle_valueChanged(double arg1);
     void on_spinDoorSwing_valueChanged(double arg1);
     void on_spinDoorTime_valueChanged(double arg1);
-    void on_checkDoorAlpha_toggled(bool checked);
     void on_checkDoorLocked_toggled(bool checked);
     void on_comboDoorEasing_currentIndexChanged(int index);
     void on_comboDoorTexture_currentIndexChanged(int index);
-    void on_spinDoorTexture_valueChanged(int arg1);
-    void on_spinDoorScaleX_valueChanged(double arg1);
-    void on_spinDoorScaleY_valueChanged(double arg1);
+    void on_wdgDoorSurface_surfaceChanged(const Surface & surface);
     void on_pushDoorOpen_clicked();
     void on_pushDoorClose_clicked();
     void on_pushDoorShake_clicked();
@@ -203,16 +192,13 @@ private slots:
     void on_spinLiftTravel_valueChanged(double arg1);
     void on_spinLiftTime_valueChanged(double arg1);
     void on_comboLiftMode_currentIndexChanged(int index);
-    void on_checkLiftAlpha_toggled(bool checked);
     void on_checkLiftLocked_toggled(bool checked);
     void on_checkLiftHaltable_toggled(bool checked);
     void on_checkLiftContinuous_toggled(bool checked);
     void on_checkLiftReturn_toggled(bool checked);
     void on_comboLiftEasing_currentIndexChanged(int index);
     void on_comboLiftTexture_currentIndexChanged(int index);
-    void on_spinLiftTexture_valueChanged(int arg1);
-    void on_spinLiftScaleX_valueChanged(double arg1);
-    void on_spinLiftScaleY_valueChanged(double arg1);
+    void on_wdgLiftSurface_surfaceChanged(const Surface & surface);
     void on_pushLiftStart_clicked();
     void on_pushLiftStop_clicked();
     void on_pushLiftDelete_clicked();
@@ -236,9 +222,7 @@ private slots:
     void on_spinStaircaseLength_valueChanged(double arg1);
     void on_spinStaircaseSteps_valueChanged(int arg1);
     void on_comboStaircaseTexture_currentIndexChanged(int index);
-    void on_spinStaircaseTexture_valueChanged(int arg1);
-    void on_spinStaircaseScaleX_valueChanged(double arg1);
-    void on_spinStaircaseScaleY_valueChanged(double arg1);
+    void on_wdgStaircaseSurface_surfaceChanged(const Surface & surface);
     void on_pushStaircaseDelete_clicked();
 
     void on_pushLightColorA_clicked();

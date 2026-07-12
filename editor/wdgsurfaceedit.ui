@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WdgSurfaceEdit</class>
+ <widget class="QWidget" name="WdgSurfaceEdit">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>168</width>
+    <height>340</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QDoubleSpinBox" name="spinShiftY">
+   <property name="geometry">
+    <rect>
+     <x>69</x>
+     <y>220</y>
+     <width>91</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>4</number>
+   </property>
+   <property name="minimum">
+    <double>-1024.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>1024.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.062500000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelShiftX">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>190</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Shift X:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelScaleX">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>130</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Scale X:</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelScaleY">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>160</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Scale Y:</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinShiftX">
+   <property name="geometry">
+    <rect>
+     <x>69</x>
+     <y>190</y>
+     <width>91</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>4</number>
+   </property>
+   <property name="minimum">
+    <double>-1024.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>1024.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.062500000000000</double>
+   </property>
+  </widget>
+  <widget class="QLabel" name="labelShiftY">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>220</y>
+     <width>61</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Shift Y:</string>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinScaleY">
+   <property name="geometry">
+    <rect>
+     <x>69</x>
+     <y>160</y>
+     <width>91</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>4</number>
+   </property>
+   <property name="minimum">
+    <double>-1024.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>1024.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.062500000000000</double>
+   </property>
+  </widget>
+  <widget class="QDoubleSpinBox" name="spinScaleX">
+   <property name="geometry">
+    <rect>
+     <x>69</x>
+     <y>130</y>
+     <width>91</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="decimals">
+    <number>4</number>
+   </property>
+   <property name="minimum">
+    <double>-1024.000000000000000</double>
+   </property>
+   <property name="maximum">
+    <double>1024.000000000000000</double>
+   </property>
+   <property name="singleStep">
+    <double>0.062500000000000</double>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="spinID">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>100</y>
+     <width>151</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="minimum">
+    <number>0</number>
+   </property>
+   <property name="maximum">
+    <number>1024</number>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkAlpha">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>250</y>
+     <width>91</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>alpha</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkNoLight">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>270</y>
+     <width>91</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>no light</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkNoGlow">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>290</y>
+     <width>91</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>no glow</string>
+   </property>
+  </widget>
+  <widget class="WdgTextureView" name="widgetTexture" native="true">
+   <property name="geometry">
+    <rect>
+     <x>48</x>
+     <y>12</y>
+     <width>72</width>
+     <height>72</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkNoFog">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>310</y>
+     <width>91</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>no fog</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>WdgTextureView</class>
+   <extends>QWidget</extends>
+   <header>wdgtextureview.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

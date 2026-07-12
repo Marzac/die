@@ -23,12 +23,16 @@
 #include <stdint.h>
 #include <math.h>
 #include <string.h>
+#include <type_traits>
 
 /*****************************************************************************/
 Renderer renderer;
 WorkerPool renderWorkers;
 
 constexpr float HeightEpsilon = 0x1p-5f;
+
+static const __m128 fullWhite = unpackColorToVectorSSE4(0x00FFFFFF);
+static const __m128 fullBlack = unpackColorToVectorSSE4(0x00000000);
 
 /*****************************************************************************/
 Renderer::Renderer() :
@@ -606,7 +610,6 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         // Translate the wall flags into strip flags
             strip.flags = VSTRIP_FLAG_FREE;
             if (w.flags & WALL_FLAG_INVISIBLE) strip.flags |= VSTRIP_FLAG_INVISIBLE;
-            if (w.flags & WALL_FLAG_ALPHA) strip.flags |= VSTRIP_FLAG_ALPHA;
             if (w.flags & WALL_FLAG_HIGHLIGHTED) strip.flags |= VSTRIP_FLAG_HIGHLIGHTED;
 
             if (strip.back) {
@@ -617,7 +620,9 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
                 if (w.flags & WALL_FLAG_FLOOR_FRONT) strip.flags |= VSTRIP_FLAG_HASFLOOR;
             }
 
-            if (w.flags & (WALL_FLAG_INVISIBLE | WALL_FLAG_ALPHA))
+            if (w.flags & WALL_FLAG_INVISIBLE)
+                strip.flags |= VSTRIP_FLAG_SEETHROUGH;
+            else if (w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA)
                 strip.flags |= VSTRIP_FLAG_SEETHROUGH;
 
             if (strip.back && (w.flags & WALL_FLAG_BACKCULLED))
@@ -876,8 +881,12 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
     float grx = state.casterRx * glowmapScale;
     float grz = state.casterRz * glowmapScale;
 
+    bool noLight = s.flags & SURFACE_FLAG_NO_LIGHT;
+    bool noGlow = s.flags & SURFACE_FLAG_NO_GLOW;
+    bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
+
     __m128 ray = unpackColorToVectorSSE4(below ? floorRay : ceilingRay);
-    __m128 ill = _mm_add_ps(sunAmbientArgb, ray);
+    __m128 ill = noLight ? fullWhite : _mm_add_ps(sunAmbientArgb, ray);
     __m128 fog = unpackColorToVectorSSE4(fogFarColor);
 
 // Compute AO zone boundary in screen space.
@@ -888,7 +897,7 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
     float aoScale = occlusionLength > 0.0f ? occlusionDarken / occlusionLength : 0.0f;
 
     int yAoEnd;
-    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_ALPHA))
+    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_NO_SHADOW))
         yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
@@ -902,56 +911,77 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
 
     uint32_t * ptr32 = &frame[state.casterX + frameResoX * yStart];
 
-// Lambda: one surface pixel with AO darkening (adjacentStart - adjacent) / occlusionLength, no clamping needed
-    auto drawAmbientOcclusion = [&](float adjacent) {
-        int u = ox + rx * adjacent;
-        int v = oz + rz * adjacent;
-        uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
-        __m128 v4 = unpackColorToVectorSSE4(co);
-        float gx = gox + grx * adjacent;
-        float gz = goz + grz * adjacent;
-        __m128 glow = _mm_add_ps(sampleGlowmap(gx, gz), ill);
-        float aoFactor = (1.0f - occlusionDarken) + (adjacentStart - adjacent) * aoScale;
-        v4 = _mm_mul_ps(v4, _mm_set1_ps(aoFactor));
-        __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, glowBleed));
-        if (fogFlags & 1) {
-            float ff = std::clamp((fogDistanceOffset - adjacent) * fogDistanceInv, 0.0f, 1.0f);
-            *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fog, 1.0f - ff * ff));
-        } else {
-            *ptr32 = packVectorToColorSSE4(lit);
+    bool applyFog = (fogFlags & 1) && !noFog;
+    auto renderZones = [&](auto noGlowTag, auto applyFogTag) {
+        constexpr bool NoGlow = noGlowTag.value;
+        constexpr bool ApplyFog = applyFogTag.value;
+
+    // Lambda: glow contribution for one pixel
+        auto sampleGlow = [&](float adjacent) -> __m128 {
+            if constexpr (NoGlow) {
+                return fullBlack;
+            } else {
+                float gx = gox + grx * adjacent;
+                float gz = goz + grz * adjacent;
+                return sampleGlowmap(gx, gz);
+            }
+        };
+
+    // Lambda: write the lit pixel, blending fog in
+        auto shade = [&](__m128 lit, float adjacent) {
+            if constexpr (ApplyFog) {
+                float ff = std::clamp((fogDistanceOffset - adjacent) * fogDistanceInv, 0.0f, 1.0f);
+                *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fog, 1.0f - ff * ff));
+            } else {
+                *ptr32 = packVectorToColorSSE4(lit);
+            }
+        };
+
+    // Lambda: one surface pixel with AO darkening (adjacentStart - adjacent) / occlusionLength, no clamping needed
+        auto drawAmbientOcclusion = [&](float adjacent) {
+            int u = ox + rx * adjacent;
+            int v = oz + rz * adjacent;
+            uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
+            __m128 v4 = unpackColorToVectorSSE4(co);
+            __m128 glow = _mm_add_ps(sampleGlow(adjacent), ill);
+            float aoFactor = (1.0f - occlusionDarken) + (adjacentStart - adjacent) * aoScale;
+            v4 = _mm_mul_ps(v4, _mm_set1_ps(aoFactor));
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, glowBleed));
+            shade(lit, adjacent);
+            ptr32 += frameResoX * yInc;
+        };
+
+    // Lambda: one surface pixel with no AO overhead (hot path)
+        auto drawPlain = [&](float adjacent) {
+            int u = ox + rx * adjacent;
+            int v = oz + rz * adjacent;
+            uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
+            __m128 v4 = unpackColorToVectorSSE4(co);
+            __m128 glow = _mm_add_ps(sampleGlow(adjacent), ill);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, glowBleed));
+            shade(lit, adjacent);
+            ptr32 += frameResoX * yInc;
+        };
+
+    // Ambient occlusion zone: wall-base edge
+        for (int y = yStart; y != yAoEnd; y += yInc) {
+            float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
+            drawAmbientOcclusion(adjacent);
         }
-        ptr32 += frameResoX * yInc;
+
+    // Plain zone
+        for (int y = yAoEnd; y != yEnd; y += yInc) {
+            float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
+            drawPlain(adjacent);
+        }
     };
 
-// Lambda: one surface pixel with no AO overhead (hot path)
-    auto drawPlain = [&](float adjacent) {
-        int u = ox + rx * adjacent;
-        int v = oz + rz * adjacent;
-        uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
-        __m128 v4 = unpackColorToVectorSSE4(co);
-        float gx = gox + grx * adjacent;
-        float gz = goz + grz * adjacent;
-        __m128 glow = _mm_add_ps(sampleGlowmap(gx, gz), ill);
-        __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, glowBleed));
-        if (fogFlags & 1) {
-            float ff = std::clamp((fogDistanceOffset - adjacent) * fogDistanceInv, 0.0f, 1.0f);
-            *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fog, 1.0f - ff * ff));
-        } else {
-            *ptr32 = packVectorToColorSSE4(lit);
-        }
-        ptr32 += frameResoX * yInc;
-    };
-
-// Ambient occlusion zone: wall-base edge
-    for (int y = yStart; y != yAoEnd; y += yInc) {
-        float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
-        drawAmbientOcclusion(adjacent);
-    }
-
-// Plain zone
-    for (int y = yAoEnd; y != yEnd; y += yInc) {
-        float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
-        drawPlain(adjacent);
+    if (noGlow) {
+        if (applyFog) renderZones(std::true_type{}, std::true_type{});
+        else renderZones(std::true_type{}, std::false_type{});
+    } else {
+        if (applyFog) renderZones(std::false_type{}, std::true_type{});
+        else renderZones(std::false_type{}, std::false_type{});
     }
 }
 
@@ -1024,6 +1054,10 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     int32_t v2 = (int32_t) (((strip.vBot + s.shiftY) * sy) * 0x1p16f);
     int32_t dv = (v2 - v1) / (((int32_t) strip.yBot) - scanTop);
 
+    bool noLight = s.flags & SURFACE_FLAG_NO_LIGHT;
+    bool noGlow = s.flags & SURFACE_FLAG_NO_GLOW;
+    bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
+
 // Compute fog influence
     float fogFactor = 0.0f;
     __m128 fogColor = _mm_set1_ps(0);
@@ -1031,7 +1065,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         fogFactor = 0.6f;
         fogColor = unpackColorToVectorSSE4(0x00AAAAAA);
 
-    }else if (fogFlags & 1) {
+    }else if (fogFlags && !noFog) {
         float f = (fogDistanceOffset - strip.dist) * fogDistanceInv;
         float d = std::clamp(f, 0.0f, 1.0f);
         fogFactor = 1.0f - d * d;
@@ -1040,17 +1074,21 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
 
 // Compute lights
     __m128 ray = unpackColorToVectorSSE4(strip.back ? w.rayBack : w.rayFront);
+    __m128 sun = noLight ? fullWhite : _mm_add_ps(sunAmbientArgb, ray);
 
-    Segment & seg = segments[strip.wallId];
-    float bx = seg.bx + strip.k * seg.dx;
-    float bz = seg.bz + strip.k * seg.dz;
-    float gx = bx * glowmapScale + glowmapSize * 0.5f;
-    float gz = bz * glowmapScale + glowmapSize * 0.5f;
-    float gside = strip.back ? -GlowSampleDistance : GlowSampleDistance;
-    gx += seg.dz * seg.invLen * gside;
-    gz -= seg.dx * seg.invLen * gside;
-    __m128 gm = sampleGlowmap(gx, gz);
-    __m128 glow = _mm_add_ps(_mm_add_ps(sunAmbientArgb, ray), gm);
+    __m128 gm = fullBlack;
+    if (!noGlow) {
+        Segment & seg = segments[strip.wallId];
+        float bx = seg.bx + strip.k * seg.dx;
+        float bz = seg.bz + strip.k * seg.dz;
+        float gx = bx * glowmapScale + glowmapSize * 0.5f;
+        float gz = bz * glowmapScale + glowmapSize * 0.5f;
+        float gside = strip.back ? -GlowSampleDistance : GlowSampleDistance;
+        gx += seg.dz * seg.invLen * gside;
+        gz -= seg.dx * seg.invLen * gside;
+        gm = sampleGlowmap(gx, gz);
+    }
+    __m128 glow = _mm_add_ps(sun, gm);
 
 // Configure the pointers
     int32_t u = (strip.u + s.shiftX) * sx;
@@ -1060,7 +1098,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     uint32_t * ptr32 = &frame[state.casterX + frameResoX * scanTop];
 
 // Render a wall
-    if (strip.flags & VSTRIP_FLAG_ALPHA) {
+    if (s.flags & SURFACE_FLAG_ALPHA) {
     // Lambda: alpha-masked strip / no ambient occlusion, transparent pixels skipped
         auto drawAlpha = [&]() {
             uint32_t co = tex[(v1 >> 16) & t.mask];

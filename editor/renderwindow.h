@@ -14,9 +14,7 @@
 
 #include <QWidget>
 
-namespace Ui {
-class RenderWindow;
-}
+namespace Ui {class RenderWindow;}
 
 class RenderWindow : public QWidget
 {

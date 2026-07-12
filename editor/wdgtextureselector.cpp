@@ -9,7 +9,7 @@
     texture strip selector widget
 */
 
-#include "wdgtexselector.h"
+#include "wdgtextureselector.h"
 
 #include "globals.h"
 #include "editor.h"
@@ -22,14 +22,14 @@
 #include <stdint.h>
 
 /*****************************************************************************/
-WdgTexSelector::WdgTexSelector(QWidget *parent) :
+WdgTextureSelector::WdgTextureSelector(QWidget *parent) :
     QWidget(parent),
     scroll(0)
 {
 }
 
 /*****************************************************************************/
-void WdgTexSelector::paintEvent(QPaintEvent *)
+void WdgTextureSelector::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setPen(QPen(Qt::black));
@@ -71,7 +71,7 @@ void WdgTexSelector::paintEvent(QPaintEvent *)
 }
 
 /*****************************************************************************/
-void WdgTexSelector::mousePressEvent(QMouseEvent *event)
+void WdgTextureSelector::mousePressEvent(QMouseEvent *event)
 {
     QImage & strip = editor.editedMap->textures;
 
@@ -92,14 +92,14 @@ void WdgTexSelector::mousePressEvent(QMouseEvent *event)
 }
 
 /*****************************************************************************/
-void WdgTexSelector::setScroll(int scroll)
+void WdgTextureSelector::setScroll(int scroll)
 {
     this->scroll = scroll;
     update();
 }
 
 /*****************************************************************************/
-void WdgTexSelector::wheelEvent(QWheelEvent *event)
+void WdgTextureSelector::wheelEvent(QWheelEvent *event)
 {
     QPoint degrees = event->angleDelta();
     if (degrees.y() > 0) scroll -= 25;
@@ -111,7 +111,7 @@ void WdgTexSelector::wheelEvent(QWheelEvent *event)
 
 /*****************************************************************************/
 // Export every tile as a 3x3 mosaik (concat() takes the centre tile back)
-void WdgTexSelector::slice(const QString & path)
+void WdgTextureSelector::slice(const QString & path)
 {
     QImage & strip = editor.editedMap->textures;
     int size = strip.width();
@@ -138,7 +138,7 @@ void WdgTexSelector::slice(const QString & path)
 }
 
 // Rebuild the strip from 3x3 mosaik PNGs, the inverse of slice()
-void WdgTexSelector::concat(const QString & path)
+void WdgTextureSelector::concat(const QString & path)
 {
     QDir dir(path);
     QStringList nameFilters = {"*.png"};

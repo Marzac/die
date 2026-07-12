@@ -26,8 +26,8 @@ SOURCES += \
     renderwindow.cpp \
     wdgmapeditor.cpp \
     wdgmapview.cpp \
-    wdgtexselector.cpp \
-    wdgtexview.cpp \
+    wdgsurfaceedit.cpp \
+    wdgtextureselector.cpp \
     ../common/engine/renderer.cpp \
     ../common/engine/renderer_config.cpp \
     ../common/engine/audio.cpp \
@@ -36,10 +36,11 @@ SOURCES += \
     ../common/engine/tags.cpp \
     ../common/engine/env.cpp \
     ../common/engine/workerpool.cpp \
-    ../common/engine/gamepad.cpp
+    ../common/engine/gamepad.cpp \
+    wdgtextureview.cpp \
+    wdgutilities.cpp
 
 HEADERS += \
-    ../common/engine/primitives.h \
     globals.h \
     editor.h \
     walker.h \
@@ -47,8 +48,9 @@ HEADERS += \
     renderwindow.h \
     wdgmapeditor.h \
     wdgmapview.h \
-    wdgtexselector.h \
-    wdgtexview.h \
+    wdgsurfaceedit.h \
+    wdgtextureselector.h \
+    ../common/engine/primitives.h \
     ../common/engine/renderer.h \
     ../common/engine/audio.h \
     ../common/engine/map.h \
@@ -60,11 +62,14 @@ HEADERS += \
     ../common/engine/colors.h \
     ../common/engine/postfx.h \
     ../common/engine/workerpool.h \
-    ../common/engine/gamepad.h
+    ../common/engine/gamepad.h \
+    wdgtextureview.h \
+    wdgutilities.h
 
 FORMS += \
     mainwindow.ui \
-    renderwindow.ui
+    renderwindow.ui \
+    wdgsurfaceedit.ui
 
 win32:LIBS += \
     -lXinput \
