@@ -456,14 +456,15 @@ void Map::passLifts(int textureBase)
         float hl = l.length * 0.5f;
 
         float offset = applyEasing(l.easing, l.pan) * l.travel;
-        QVector3D base = nref.pos;
+        QVector3D move = {};
         switch (l.mode) {
-            case LIFT_MODE_Y_AXIS: base += QVector3D(0.0f, offset, 0.0f); break;
-            case LIFT_MODE_X_AXIS: base += QVector3D(offset, 0.0f, 0.0f); break;
-            case LIFT_MODE_Z_AXIS: base += QVector3D(0.0f, 0.0f, offset); break;
+            case LIFT_MODE_Y_AXIS: move = QVector3D(0.0f, offset, 0.0f); break;
+            case LIFT_MODE_X_AXIS: move = QVector3D(offset, 0.0f, 0.0f); break;
+            case LIFT_MODE_Z_AXIS: move = QVector3D(0.0f, 0.0f, offset); break;
             default: break;
         }
 
+        QVector3D base = nref.pos + move;
         base += QVector3D(0.0f, GEO_EPSILON, 0.0f);
         renderer.nodes[renderer.nodesCount + 0].pos = getAbsCoords(base + QVector3D(-hw, 0.0f, -hl));
         renderer.nodes[renderer.nodesCount + 1].pos = getAbsCoords(base + QVector3D(+hw, 0.0f, -hl));
@@ -474,13 +475,15 @@ void Map::passLifts(int textureBase)
             auto & ew = renderer.walls[renderer.wallsCount + j];
             ew.nodeID1 = renderer.nodesCount + j;
             ew.nodeID2 = renderer.nodesCount + ((j + 1) & 3);
-            ew.height  = (l.thick - 2.0f * GEO_EPSILON) * scale;
+            ew.height = (l.thick - 2.0f * GEO_EPSILON) * scale;
+            ew.offset = -origin - move;
 
             ew.textureID = textureBase;
-            ew.surfaces[WALL_SURFACE_FRONT]   = l.surfaces[LIFT_SURFACE_SIDES];
-            ew.surfaces[WALL_SURFACE_BACK]    = l.surfaces[LIFT_SURFACE_SIDES];
-            ew.surfaces[WALL_SURFACE_FLOOR]   = l.surfaces[LIFT_SURFACE_BOTTOM];
+            ew.surfaces[WALL_SURFACE_FRONT] = l.surfaces[LIFT_SURFACE_SIDES];
+            ew.surfaces[WALL_SURFACE_BACK] = l.surfaces[LIFT_SURFACE_SIDES];
+            ew.surfaces[WALL_SURFACE_FLOOR] = l.surfaces[LIFT_SURFACE_BOTTOM];
             ew.surfaces[WALL_SURFACE_CEILING] = l.surfaces[LIFT_SURFACE_TOP];
+
             ew.flags = WALL_FLAG_FLOOR_BACK | WALL_FLAG_CEILING_BACK;
         }
 
