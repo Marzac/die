@@ -280,6 +280,17 @@ private:
         float slope;
     } Cap;
 
+    /// \brief Fixed-size stack of caps, copied by value into each recursion (no heap)
+    static constexpr int CapStackMax = 16;
+    struct CapStack {
+        Cap caps[CapStackMax];
+        int count;
+
+        bool push(const Cap & cap) {if (count >= CapStackMax) return false; caps[count++] = cap; return true;}
+        void pop() {count--;}
+        const Cap & top() const {return caps[count - 1];}
+    };
+
     typedef struct {
         QVector3D casterPos;
         int casterColumn;
@@ -370,7 +381,7 @@ private:
     void texturesMash();
 
     void findFloorCeilings(Context & state);
-    void renderVertical(Context & state, int depth, QList<Cap> stackBelow, QList<Cap> stackAbove, int scanTop, int scanBot);
+    void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
