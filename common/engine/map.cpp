@@ -378,6 +378,10 @@ void Map::passWalls(int nodeBase, int textureBase)
         ew.nodeID1 = w.nodeID1 + nodeBase;
         ew.nodeID2 = w.nodeID2 + nodeBase;
         ew.height = w.height * scale;
+        ew.floorFrontDrop = w.floorFrontDrop;
+        ew.floorBackDrop = w.floorBackDrop;
+        ew.ceilingFrontDrop = w.ceilingFrontDrop;
+        ew.ceilingBackDrop = w.ceilingBackDrop;
         ew.offset = -origin;
 
         ew.textureID = textureBase;
@@ -427,6 +431,8 @@ void Map::passDoors(int textureBase)
             ew.nodeID1 = renderer.nodesCount + j;
             ew.nodeID2 = renderer.nodesCount + ((j + 1) & 3);
             ew.height  = (d.height - 2.0f * GEO_EPSILON) * scale;
+            ew.floorFrontDrop = ew.floorBackDrop = 0.0f;
+            ew.ceilingFrontDrop = ew.ceilingBackDrop = 0.0f;
 
             ew.textureID = textureBase;
             ew.surfaces[WALL_SURFACE_FRONT] = d.surfaces[DOOR_SURFACE_FRONT];
@@ -476,6 +482,8 @@ void Map::passLifts(int textureBase)
             ew.nodeID1 = renderer.nodesCount + j;
             ew.nodeID2 = renderer.nodesCount + ((j + 1) & 3);
             ew.height = (l.thick - 2.0f * GEO_EPSILON) * scale;
+            ew.floorFrontDrop = ew.floorBackDrop = 0.0f;
+            ew.ceilingFrontDrop = ew.ceilingBackDrop = 0.0f;
             ew.offset = -origin - move;
 
             ew.textureID = textureBase;
@@ -526,6 +534,8 @@ void Map::passSprites(int textureBase, const QVector3D & camPos)
         ew.nodeID1 = renderer.nodesCount + 0;
         ew.nodeID2 = renderer.nodesCount + 1;
         ew.height = (s.height - 2.0f * GEO_EPSILON) * scale;
+        ew.floorFrontDrop = ew.floorBackDrop = 0.0f;
+        ew.ceilingFrontDrop = ew.ceilingBackDrop = 0.0f;
         ew.offset = -origin;
         ew.textureID = textureBase;
 
@@ -600,6 +610,10 @@ void Map::passStaircases(int textureBase)
             float height = ((float)(s + 1) * stepHeight) * scale;
             ewl.height = height;
             ewr.height = height;
+            ewl.floorFrontDrop = ewl.floorBackDrop = 0.0f;
+            ewl.ceilingFrontDrop = ewl.ceilingBackDrop = 0.0f;
+            ewr.floorFrontDrop = ewr.floorBackDrop = 0.0f;
+            ewr.ceilingFrontDrop = ewr.ceilingBackDrop = 0.0f;
 
             ewl.textureID = textureBase;
             ewl.surfaces[WALL_SURFACE_FRONT] = h.surfaces[STAIRCASE_SURFACE_SIDES];
@@ -620,6 +634,8 @@ void Map::passStaircases(int textureBase)
         ewBack.nodeID1 = floorBase + h.steps*2 + 0;
         ewBack.nodeID2 = floorBase + h.steps*2 + 1;
         ewBack.height = cmpHeight * scale;
+        ewBack.floorFrontDrop = ewBack.floorBackDrop = 0.0f;
+        ewBack.ceilingFrontDrop = ewBack.ceilingBackDrop = 0.0f;
         ewBack.textureID = textureBase;
         ewBack.surfaces[WALL_SURFACE_FRONT] = h.surfaces[STAIRCASE_SURFACE_SIDES];
         ewBack.surfaces[WALL_SURFACE_CEILING] = h.surfaces[STAIRCASE_SURFACE_STEPTOP];
@@ -643,6 +659,8 @@ void Map::passStaircases(int textureBase)
             ew.nodeID1 = fallBase + s*2 + 1;  // right (normal faces toward base)
             ew.nodeID2 = fallBase + s*2 + 0;  // left
             ew.height  = stepHeight * scale;
+            ew.floorFrontDrop = ew.floorBackDrop = 0.0f;
+            ew.ceilingFrontDrop = ew.ceilingBackDrop = 0.0f;
 
             ew.textureID = textureBase;
             ew.surfaces[WALL_SURFACE_FRONT] = h.surfaces[STAIRCASE_SURFACE_STEPFALL];

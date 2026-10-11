@@ -28,35 +28,31 @@
 class Renderer
 {
 public:
-/// \brief Default engine settings
+/// \brief Default frame settings
     static constexpr int DefaultFrameResoX = 960;
     static constexpr int DefaultFrameResoY = 536;
-    static constexpr int DefaultGlowmapReso = 256;
-    static constexpr float DefaultGlowmapArea = 1024.0f;
-
-    static constexpr int DefaultNodesMax = 4096;
-    static constexpr int DefaultWallsMax = 2048;
-    static constexpr int DefaultTexturesMax = 64;
-    static constexpr int DefaultLightsMax = 64;
-
-/// \brief Distance in front of a wall where the glowmap is sampled
-    static constexpr float GlowSampleDistance = 1.0f;
-
-/// \brief Bleeding factor of glowmap illumination to simulate color burning
-    static constexpr float GlowBleedFactor = 0.25f;
-
-/// \brief Sharpness of the light falloff curve; edge brightness at the glow
-///        radius is 1 / (1 + GlowFalloffSharpness) (49 -> ~2%, no visible ring)
-    static constexpr float GlowFalloffSharpness = 49.0f;
-
-/// \brief World height (floor / ceiling) limits
-    static constexpr float HeightMin = -16384.0f;
-    static constexpr float HeightMax =  16384.0f;
 
 /// \brief Default field of view
     static constexpr float DefaultFOVAngle = 80.0f;
     static constexpr float DefaultFOVDistanceNear = 1.0f;
     static constexpr float DefaultFOVDistanceFar = 8192.0f;
+
+/// \brief Default glowmap settings
+    static constexpr int DefaultGlowmapReso = 256;
+    static constexpr float DefaultGlowmapArea = 1024.0f;
+    static constexpr float GlowSampleDistance = 1.0f;
+    static constexpr float GlowBleedFactor = 0.25f;
+    static constexpr float GlowFalloffSharpness = 49.0f;
+
+ /// \brief Default collection sizes
+    static constexpr int DefaultNodesMax = 4096;
+    static constexpr int DefaultWallsMax = 2048;
+    static constexpr int DefaultTexturesMax = 64;
+    static constexpr int DefaultLightsMax = 64;
+
+/// \brief World height (floor / ceiling) limits
+    static constexpr float HeightMin = -16384.0f;
+    static constexpr float HeightMax =  16384.0f;
 
 /// \brief Default sun lighting
     static constexpr uint32_t DefaultSunAmbient = 0xDDDDDD;
@@ -114,6 +110,10 @@ public:
         uint16_t nodeID1;
         uint16_t nodeID2;
         float height;
+        float floorFrontDrop;
+        float floorBackDrop;
+        float ceilingFrontDrop;
+        float ceilingBackDrop;
 
         QVector3D offset;
         Surface surfaces[WALL_SURFACES_COUNT];
@@ -126,8 +126,8 @@ public:
 
     /// \brief Bounding-box, half-open ([x0,x1) x [z0,z1))
     typedef struct {
-        int x0, x1;
-        int z0, z1;
+        int beginX, beginZ;
+        int endX, endZ;
     } BoundingBox;
 
     /// \brief Renderer-side light (compact variant)
@@ -165,15 +165,15 @@ public:
     FLAGS getFlags() const {return (FLAGS) flags;}
 
     /// \brief Request a glowmap resize (applied at the start of the next render)
-    void setGlowmapSize(int size);
-    int getGlowmapSize() const {return glowmapSize;}
+    void setGlowmapReso(int reso);
+    int getGlowmapReso() const {return glowmapReso;}
 
     /// \brief Set the world area covered by the glowmap, in world units
     void setGlowmapArea(float area);
     float getGlowmapArea() const {return glowmapArea;}
 
     /// \brief Request a frame resize (applied at the start of the next render)
-    void setFramesReso(int width, int height);
+    void setFramesReso(int resoX, int resoY);
     int getFrameResoX() const {return frameResoX;}
     int getFrameResoY() const {return frameResoY;}
 
@@ -221,7 +221,7 @@ public:
     float gammaKGreen;          ///< green smoothstep tone gain
     float gammaKBlue;           ///< blue smoothstep tone gain
 
-// Object pools, repopulated by Map::pass before each render
+// Object pools
     Node * nodes;
     int nodesCount;
     int nodesAllocated;
@@ -238,7 +238,6 @@ public:
     int lightsCount;
     int lightsAllocated;
 
-// Floor / ceiling heights under the camera, updated by the last render
     float lastFloor;
     float lastCeiling;
 
@@ -264,6 +263,8 @@ private:
         float yNoclipBot;
         float yDarkenTop;
         float yDarkenBot;
+        float hTop;
+        float hBot;
         float vTop;
         float vBot;
         float u;
@@ -273,14 +274,21 @@ private:
         uint16_t flags;
     } Strip;
 
+    /// \brief Floor/ceiling plane along the ray: h(d) = h0 + slope * d (h0 at the camera)
+    typedef struct {
+        float h0;
+        float slope;
+    } Cap;
+
     typedef struct {
         QVector3D casterPos;
-        int casterX;
-        float casterRx;
-        float casterRz;
+        int casterColumn;
+        float casterRayX;
+        float casterRayZ;
         float casterPC;
         float casterHorizon;
         float casterVShift;
+        float casterProjection;
 
         Strip vStrips[StripsMax];
         uint16_t vStripsMap[StripsMax];
@@ -290,17 +298,18 @@ private:
         Strip vStripsClipped[StripsMax];
         int vStripsClippedCount;
 
-        float currentCeiling;
-        float currentFloor;
+        Cap ceiling;
+        Cap floor;
     } Context;
+
     Context renderStates[WorkerPool::WorkersMax];
 
     int frameResoX;
     int frameResoY;
-    int glowmapSize;
-    std::atomic<int> pendingFrameWidth;
-    std::atomic<int> pendingFrameHeight;
-    std::atomic<int> pendingGlowmapSize;
+    int glowmapReso;
+    std::atomic<int> pendingFrameResoX;
+    std::atomic<int> pendingFrameResoY;
+    std::atomic<int> pendingGlowmapReso;
     Viewpoint viewPoint;
 
     QImage * image;
@@ -309,9 +318,9 @@ private:
     bool framesAllocated;
 
     typedef struct {
-        float bx, bz;
-        float ex, ez;
-        float dx, dz;
+        float beginX, beginZ;
+        float endX, endZ;
+        float deltaX, deltaZ;
         float length;
         float invLen;
     } Segment;
@@ -342,7 +351,6 @@ private:
     QList<BoundingBox> glowmapDirtyBoxes;
     QList<BoundingBox> glowmapDirtyLast;
 
-    float * pitchTable;
     float * panTable;
 
     void allocateObjects(int noNodes, int noWalls, int noTextures, int noLights);
@@ -362,12 +370,14 @@ private:
     void texturesMash();
 
     void findFloorCeilings(Context & state);
-    void renderVertical(Context & state, int depth, QList<float> stackBelow, QList<float> stackAbove, int scanTop, int scanBot);
+    void renderVertical(Context & state, int depth, QList<Cap> stackBelow, QList<Cap> stackAbove, int scanTop, int scanBot);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
     void vstripDraw(Context & state, const Strip & strip);
-    void surfaceDraw(Context & state, const Wall & w, uint16_t sID, int scanTop, int scanBot, float height);
+    void surfaceDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
+    Cap capFloorHeight(const Context & state, const Strip & strip, bool back);
+    Cap capCeilingHeight(const Context & state, const Strip & strip, bool back);
 
     void buildTables();
 

@@ -23,6 +23,7 @@
 #include <QList>
 #include <QShortcut>
 #include <QTimer>
+#include <QElapsedTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -46,6 +47,14 @@ public:
     QTimer * renderTimer;
     QTimer * uiTimer;
     RenderWindow * renderWindow;
+
+// Render metrics, reported once per second
+    QElapsedTimer metricsClock;
+    qint64 metricsSum = 0;
+    qint64 metricsMin = 0;
+    qint64 metricsMax = 0;
+    int metricsFrames = 0;
+    void updateRenderMetrics(qint64 ns);
 
     void setEditMode(EDIT_MODES mode);
     void setTexture(uint16_t texId);
@@ -148,6 +157,10 @@ private slots:
     void on_pushNodeDelete_clicked();
 
     void on_spinWallHeight_valueChanged(double arg1);
+    void on_spinWallFloorFrontDrop_valueChanged(double arg1);
+    void on_spinWallFloorBackDrop_valueChanged(double arg1);
+    void on_spinWallCeilingFrontDrop_valueChanged(double arg1);
+    void on_spinWallCeilingBackDrop_valueChanged(double arg1);
     void on_comboWallTexture_currentIndexChanged(int index);
     void on_wdgWallSurface_surfaceChanged(const Surface & surface);
     void on_checkWallInvisible_toggled(bool checked);

@@ -75,7 +75,8 @@ private:
 
     static QPen colorGlowMap;
 
-    static QBrush brushWallAnchor;
+    static QBrush brushAnchorBase;
+    static QBrush brushAnchorSelected;
 
     static QImage pictoSubmap;
     static QImage pictoDoor;
