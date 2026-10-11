@@ -28,6 +28,7 @@
 #include <QColorDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QDebug>
 
 #include <stdint.h>
 #include <math.h>
@@ -320,9 +321,39 @@ void MainWindow::timerRender_tick()
     editor.editedMap->update();
     editor.env.pass();
     editor.editedMap->pass(editor.viewPoint.pos);
+
+    QElapsedTimer renderClock;
+    renderClock.start();
     renderer.render(editor.viewPoint);
+    updateRenderMetrics(renderClock.nsecsElapsed());
+
     ui->widgetMap4->repaint();
     if (renderWindow) renderWindow->repaint();
+}
+
+void MainWindow::updateRenderMetrics(qint64 ns)
+{
+    if (!metricsClock.isValid()) metricsClock.start();
+    if (!metricsFrames || ns < metricsMin) metricsMin = ns;
+    if (!metricsFrames || ns > metricsMax) metricsMax = ns;
+    metricsSum += ns;
+    metricsFrames++;
+
+    if (metricsClock.elapsed() < 1000) return;
+
+// Report the average / min / max render time (ms) over the last second
+    /*
+    QString report = QString("Render %1 ms (min %2, max %3), %4 frames")
+        .arg(metricsSum * 1e-6 / metricsFrames, 0, 'f', 3)
+        .arg(metricsMin * 1e-6, 0, 'f', 3)
+        .arg(metricsMax * 1e-6, 0, 'f', 3)
+        .arg(metricsFrames);
+    qDebug().noquote() << report;
+    if (renderWindow) renderWindow->setWindowTitle("Waller : " + report);
+*/
+    metricsSum = 0;
+    metricsFrames = 0;
+    metricsClock.restart();
 }
 
 void MainWindow::timerUI_tick()
@@ -499,6 +530,10 @@ void MainWindow::updateWallProperties()
         ui->plainWallID->setPlainText("None");
 
         setSpinValueSilently(ui->spinWallHeight, 0.0);
+        setSpinValueSilently(ui->spinWallFloorFrontDrop, 0.0);
+        setSpinValueSilently(ui->spinWallFloorBackDrop, 0.0);
+        setSpinValueSilently(ui->spinWallCeilingFrontDrop, 0.0);
+        setSpinValueSilently(ui->spinWallCeilingBackDrop, 0.0);
         setCheckboxStateSilently(ui->checkWallInvisible, false);
         setCheckboxStateSilently(ui->checkWallBackculled, false);
         setCheckboxStateSilently(ui->checkWallCeilingFront, false);
@@ -513,6 +548,10 @@ void MainWindow::updateWallProperties()
     ui->plainWallID->setPlainText(QString::number(editor.selectedWall));
 
     setSpinValueSilently(ui->spinWallHeight, w.height);
+    setSpinValueSilently(ui->spinWallFloorFrontDrop, w.floorFrontDrop);
+    setSpinValueSilently(ui->spinWallFloorBackDrop, w.floorBackDrop);
+    setSpinValueSilently(ui->spinWallCeilingFrontDrop, w.ceilingFrontDrop);
+    setSpinValueSilently(ui->spinWallCeilingBackDrop, w.ceilingBackDrop);
     setCheckboxStateSilently(ui->checkWallInvisible, w.flags & WALL_FLAG_INVISIBLE);
     setCheckboxStateSilently(ui->checkWallBackculled, w.flags & WALL_FLAG_BACKCULLED);
     setCheckboxStateSilently(ui->checkWallCeilingFront, w.flags & WALL_FLAG_CEILING_FRONT);
@@ -873,7 +912,7 @@ void MainWindow::updateEngineProperties()
     ui->scrollRendererOcclusionDarken->setValue((int)(renderer.occlusionDarken * 100.0f));
     ui->scrollRendererOcclusionDarken->blockSignals(false);
 
-    int currentSize = renderer.getGlowmapSize();
+    int currentSize = renderer.getGlowmapReso();
     for (int i = 0; i < glowmapCount; i++) {
         if (glowmapSizes[i] == currentSize) {
             ui->comboGlowmapSize->blockSignals(true);
@@ -1078,6 +1117,50 @@ void MainWindow::on_spinWallHeight_valueChanged(double arg1)
         Wall & w = editor.editedMap->walls[i];
         if (!w.selected) continue;
         w.height = arg1;
+    }
+}
+
+void MainWindow::on_spinWallFloorFrontDrop_valueChanged(double arg1)
+{
+    if (editor.selectedWall < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
+        Wall & w = editor.editedMap->walls[i];
+        if (!w.selected) continue;
+        w.floorFrontDrop = arg1;
+    }
+}
+
+void MainWindow::on_spinWallFloorBackDrop_valueChanged(double arg1)
+{
+    if (editor.selectedWall < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
+        Wall & w = editor.editedMap->walls[i];
+        if (!w.selected) continue;
+        w.floorBackDrop = arg1;
+    }
+}
+
+void MainWindow::on_spinWallCeilingFrontDrop_valueChanged(double arg1)
+{
+    if (editor.selectedWall < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
+        Wall & w = editor.editedMap->walls[i];
+        if (!w.selected) continue;
+        w.ceilingFrontDrop = arg1;
+    }
+}
+
+void MainWindow::on_spinWallCeilingBackDrop_valueChanged(double arg1)
+{
+    if (editor.selectedWall < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
+        Wall & w = editor.editedMap->walls[i];
+        if (!w.selected) continue;
+        w.ceilingBackDrop = arg1;
     }
 }
 
@@ -2905,7 +2988,7 @@ void MainWindow::on_comboGlowmapArea_currentIndexChanged(int index)
 void MainWindow::on_comboGlowmapSize_currentIndexChanged(int index)
 {
     if (index < 0 || index >= glowmapCount) return;
-    renderer.setGlowmapSize(glowmapSizes[index]);
+    renderer.setGlowmapReso(glowmapSizes[index]);
 }
 
 void MainWindow::on_pushRendererGlowmapRebuild_clicked()

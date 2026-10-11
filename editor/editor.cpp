@@ -500,20 +500,22 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
             Wall & w = editedMap->walls[index];
             Node & n1 = editedMap->nodes[w.nodeID1];
             Node & n2 = editedMap->nodes[w.nodeID2];
-            float wBot = n1.pos.y();
-            float wTop = wBot + w.height;
-
             QVector2D n1p = to2D(mode, n1.pos);
             QVector2D n2p = to2D(mode, n2.pos);
-            n1p.setY(-wTop);
-            n2p.setY(-wBot);
 
-            QVector2D d1 = n1p - pos;
-            QVector2D d2 = n2p - pos;
-            if (d1.x() * d2.x() > 0.0f) continue;
-            if (d1.y() * d2.y() > 0.0f) continue;
+        // Edge-on walls are picked from another view
+            float dx = n2p.x() - n1p.x();
+            if (dx == 0.0f) continue;
+            float t = (pos.x() - n1p.x()) / dx;
+            if (t < 0.0f || t > 1.0f) continue;
 
-            QVector2D np = (n1p + n2p) * 0.5f;
+        // Wall span at the cursor column (screen Y points down)
+            float yBot = n1p.y() + (n2p.y() - n1p.y()) * t;
+            float yTop = yBot - w.height;
+            if (pos.y() > yBot || pos.y() < yTop) continue;
+
+            QVector2D hp(0.0f, -w.height);
+            QVector2D np = (n1p + n2p + hp) * 0.5f;
             float r = np.distanceToPoint(pos);
             if (r > rMin) continue;
 
@@ -533,18 +535,31 @@ bool Editor::wallFindInRect(VIEW_MODES mode, QVector2D c1, QVector2D c2, int & w
     for (int i = 0; i < editedMap->walls.count(); i++) {
         Wall & w = editedMap->walls[i];
         Node & n1 = editedMap->nodes[w.nodeID1];
-        QVector2D np1 = to2D(mode, n1.pos);
-        QVector2D n1d1 = c1 - np1;
-        QVector2D n1d2 = c2 - np1;
-        if (n1d1.x() * n1d2.x() > 0.0f) continue;
-        if (n1d1.y() * n1d2.y() > 0.0f) continue;
-
         Node & n2 = editedMap->nodes[w.nodeID2];
+        QVector2D np1 = to2D(mode, n1.pos);
         QVector2D np2 = to2D(mode, n2.pos);
-        QVector2D n2d1 = c1 - np2;
-        QVector2D n2d2 = c2 - np2;
-        if (n2d1.x() * n2d2.x() > 0.0f) continue;
-        if (n2d1.y() * n2d2.y() > 0.0f) continue;
+
+        if (mode == VIEW_TOP) {
+        // Both nodes inside the rectangle
+            QVector2D n1d1 = c1 - np1;
+            QVector2D n1d2 = c2 - np1;
+            if (n1d1.x() * n1d2.x() > 0.0f) continue;
+            if (n1d1.y() * n1d2.y() > 0.0f) continue;
+
+            QVector2D n2d1 = c1 - np2;
+            QVector2D n2d2 = c2 - np2;
+            if (n2d1.x() * n2d2.x() > 0.0f) continue;
+            if (n2d1.y() * n2d2.y() > 0.0f) continue;
+
+        }else{
+        // Wall anchor (center of the projected wall) inside the rectangle
+            QVector2D hp(0.0f, -w.height);
+            QVector2D ap = (np1 + np2 + hp) * 0.5f;
+            QVector2D ad1 = c1 - ap;
+            QVector2D ad2 = c2 - ap;
+            if (ad1.x() * ad2.x() > 0.0f) continue;
+            if (ad1.y() * ad2.y() > 0.0f) continue;
+        }
 
         w.selected = true;
         wId = i;

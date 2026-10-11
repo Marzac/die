@@ -29,7 +29,7 @@
 Renderer renderer;
 WorkerPool renderWorkers;
 
-constexpr float HeightEpsilon = 0x1p-5f;
+constexpr float epsilon = 0x1p-6f;
 
 static const __m128 fullWhite = unpackColorToVectorSSE4(0x00FFFFFF);
 static const __m128 fullBlack = unpackColorToVectorSSE4(0x00000000);
@@ -41,12 +41,12 @@ Renderer::Renderer() :
     walls(nullptr), wallsCount(0), wallsAllocated(0),
     textures(nullptr), texturesCount(0), texturesAllocated(0),
     lights(nullptr), lightsCount(0), lightsAllocated(0),
-    pendingFrameWidth(0), pendingFrameHeight(0), pendingGlowmapSize(0),
+    pendingFrameResoX(0), pendingFrameResoY(0), pendingGlowmapReso(0),
     image(nullptr), frame(nullptr), frameLast(nullptr),
     framesAllocated(false),
     segments(nullptr),
     glowmap(nullptr), glowmapStill(nullptr),
-    pitchTable(nullptr), panTable(nullptr)
+    panTable(nullptr)
 {
 }
 
@@ -57,7 +57,7 @@ void Renderer::init()
     configLoad("die.ini");
 
     allocateFrames(frameResoX, frameResoY);
-    allocateGlowmap(glowmapSize);
+    allocateGlowmap(glowmapReso);
     allocateObjects(nodesAllocated, wallsAllocated, texturesAllocated, lightsAllocated);
 
     clickX = clickY = 0;
@@ -92,10 +92,10 @@ void Renderer::checkFlag(FLAGS flag, bool checked)
 }
 
 /*****************************************************************************/
-void Renderer::setGlowmapSize(int size)
+void Renderer::setGlowmapReso(int size)
 {
     if (!size) return;
-    pendingGlowmapSize = size;
+    pendingGlowmapReso = size;
 }
 
 void Renderer::setGlowmapArea(float area)
@@ -108,8 +108,8 @@ void Renderer::setFramesReso(int width, int height)
 {
     if (!width) return;
     if (!height) return;
-    pendingFrameWidth = width;
-    pendingFrameHeight = height;
+    pendingFrameResoX = width;
+    pendingFrameResoY = height;
 }
 
 void Renderer::setFOVAngle(float angle)
@@ -168,8 +168,6 @@ void Renderer::allocateFrames(int width, int height)
 
     if (!allocatePixelBuffer(frameLast, width, height)) return;
 
-    delete[] pitchTable;
-    if (!(pitchTable = new (std::nothrow) float[height * 2])) return;
     delete[] panTable;
     if (!(panTable = new (std::nothrow) float[width])) return;
 
@@ -186,7 +184,7 @@ void Renderer::allocateFrames(int width, int height)
 
 void Renderer::allocateGlowmap(int size)
 {
-    glowmapSize = 0;
+    glowmapReso = 0;
     delete[] glowmap;
     delete[] glowmapStill;
     glowmap = nullptr;
@@ -194,7 +192,7 @@ void Renderer::allocateGlowmap(int size)
     if (!(glowmap = new (std::nothrow) __m128[size * size])) return;
     if (!(glowmapStill = new (std::nothrow) __m128[size * size])) {delete[] glowmap; glowmap = nullptr; return;}
     memset(glowmapStill, 0, size * size * sizeof(__m128));
-    glowmapSize = size;
+    glowmapReso = size;
 }
 
 bool Renderer::allocatePixelBuffer(uint32_t *& pixels, int width, int height)
@@ -212,7 +210,6 @@ void Renderer::deallocate()
 
     if (frameLast) {free(frameLast); frameLast = nullptr;}
 
-    delete[] pitchTable; pitchTable = nullptr;
     delete[] panTable; panTable = nullptr;
     delete[] glowmap; glowmap = nullptr;
     delete[] glowmapStill; glowmapStill = nullptr;
@@ -231,14 +228,14 @@ void Renderer::clickRegister(int x, int y)
 /*****************************************************************************/
 inline void Renderer::sceneGetCoords(const float x, const float z, float & xs, float & zs)
 {
-    xs = x * glowmapScale + glowmapSize * 0.5f;
-    zs = z * glowmapScale + glowmapSize * 0.5f;
+    xs = x * glowmapScale + glowmapReso * 0.5f;
+    zs = z * glowmapScale + glowmapReso * 0.5f;
 }
 
 inline void Renderer::worldGetCoords(const float xs, const float zs, float & x, float & z)
 {
-    x = (xs - glowmapSize * 0.5f) * glowmapInvScale;
-    z = (zs - glowmapSize * 0.5f) * glowmapInvScale;
+    x = (xs - glowmapReso * 0.5f) * glowmapInvScale;
+    z = (zs - glowmapReso * 0.5f) * glowmapInvScale;
 }
 
 /*****************************************************************************/
@@ -247,11 +244,11 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 // Recopy only the dirty regions
     if (!still) {
         for (const BoundingBox & r : glowmapDirtyBoxes) {
-            int szMin = std::max(r.z0, z1);
-            int szMax = std::min(r.z1, z2);
+            int szMin = std::max(r.beginZ, z1);
+            int szMax = std::min(r.endZ, z2);
             for (int sz = szMin; sz < szMax; sz++) {
-                int row = sz * glowmapSize;
-                memcpy(&gm[row + r.x0], &glowmapStill[row + r.x0], (r.x1 - r.x0) * sizeof(__m128));
+                int row = sz * glowmapReso;
+                memcpy(&gm[row + r.beginX], &glowmapStill[row + r.beginX], (r.endX - r.beginX) * sizeof(__m128));
             }
         }
     }
@@ -260,12 +257,12 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
         const Light & l = lights[j];
         if (l.still != still) continue;
 
-        int szMin = std::max(l.boundingBox.z0, z1);
-        int szMax = std::min(l.boundingBox.z1, z2);
+        int szMin = std::max(l.boundingBox.beginZ, z1);
+        int szMax = std::min(l.boundingBox.endZ, z2);
 
         for (int sz = szMin; sz < szMax; sz++) {
-            __m128 * row = &gm[sz * glowmapSize];
-            for (int sx = l.boundingBox.x0; sx < l.boundingBox.x1; sx++) {
+            __m128 * row = &gm[sz * glowmapReso];
+            for (int sx = l.boundingBox.beginX; sx < l.boundingBox.endX; sx++) {
                 float x, z;
                 worldGetCoords(sx, sz, x, z);
                 float rdx = l.x - x;
@@ -275,14 +272,16 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
                 for (int i = 0; i < wallsCount; i++) {
                     const Wall & w = walls[i];
                     if (w.flags & WALL_FLAG_NO_SHADOW) continue;
+
                     const Segment & s = segments[i];
-                    float div = rdx * s.dz - rdz * s.dx;
-                    if (fabs(div) < 1e-6f) continue;
+                    float div = rdx * s.deltaZ - rdz * s.deltaX;
+                    if (fabs(div) < epsilon) continue;
                     if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
+
                     float scale = 1.0f / div;
-                    float t = ((s.bx - x) * s.dz - (s.bz - z) * s.dx) * scale;
+                    float t = ((s.beginX - x) * s.deltaZ - (s.beginZ - z) * s.deltaX) * scale;
                     if (t < 0.0f || t > 1.0f) continue;
-                    float u = ((s.bx - x) * rdz - (s.bz - z) * rdx) * scale;
+                    float u = ((s.beginX - x) * rdz - (s.beginZ - z) * rdx) * scale;
                     if (u < 0.0f || u > 1.0f) continue;
                     masked = true;
                     break;
@@ -302,11 +301,11 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 void Renderer::glowmapConcurrent(__m128 * gm, bool still)
 {
     int threads = renderWorkers.workerCount();
-    int band = glowmapSize / threads;
+    int band = glowmapReso / threads;
 
     for (int i = 0; i < threads; i++) {
         int z1 = i * band;
-        int z2 = (i == threads - 1) ? glowmapSize : z1 + band;
+        int z2 = (i == threads - 1) ? glowmapReso : z1 + band;
         renderWorkers.enqueue([this, gm, still, z1, z2]() {
             glowmapChunk(gm, still, z1, z2);
         });
@@ -329,42 +328,44 @@ void Renderer::lightsMash()
     sunRayColorArgb = unpackColorToVectorScaledSSE4(sunRayColor, sunRayStrength);
     QList<BoundingBox> dirtyBoxes;
     for (int j = 0; j < lightsCount; j++) {
+    // Compute base color and falloff
         Light & l = lights[j];
         l.argb = unpackColorToVectorScaledSSE4(l.color, l.strength * l.strength);
         l.x = nodes[l.nodeID].pos.x();
         l.z = nodes[l.nodeID].pos.z();
         l.falloffInv2 = 1.0f / (l.falloff * l.falloff);
 
-    // Calculate the computing bounding box
+    // Calculate the bounding box of influence
         float radius = l.falloff;
         float sMinX, sMinZ, sMaxX, sMaxZ;
         sceneGetCoords(l.x - radius, l.z - radius, sMinX, sMinZ);
         sceneGetCoords(l.x + radius, l.z + radius, sMaxX, sMaxZ);
-        l.boundingBox.x0 = std::clamp((int)sMinX, 0, glowmapSize);
-        l.boundingBox.x1 = std::clamp((int)sMaxX, 0, glowmapSize);
-        l.boundingBox.z0 = std::clamp((int)sMinZ, 0, glowmapSize);
-        l.boundingBox.z1 = std::clamp((int)sMaxZ, 0, glowmapSize);
+        l.boundingBox.beginX = std::clamp((int)sMinX, 0, glowmapReso);
+        l.boundingBox.endX = std::clamp((int)sMaxX, 0, glowmapReso);
+        l.boundingBox.beginZ = std::clamp((int)sMinZ, 0, glowmapReso);
+        l.boundingBox.endZ = std::clamp((int)sMaxZ, 0, glowmapReso);
 
-        if (!l.still && l.boundingBox.x0 < l.boundingBox.x1 && l.boundingBox.z0 < l.boundingBox.z1)
+        if (!l.still && l.boundingBox.beginX < l.boundingBox.endX && l.boundingBox.beginZ < l.boundingBox.endZ)
             dirtyBoxes.append(l.boundingBox);
     }
 
 // Compute the glowmaps
     glowBleed = _mm_set1_ps(GlowBleedFactor);
-    const size_t gmBytes = glowmapSize * glowmapSize * sizeof(__m128);
+    const size_t gmSize = glowmapReso * glowmapReso * sizeof(__m128);
     if (!(flags & Renderer::FLAG_LIGHTS)) {
-        memset(glowmap, 0, gmBytes);
-        glowmapDirtyLast = {{0, glowmapSize, 0, glowmapSize}};
+        memset(glowmap, 0, gmSize);
+        glowmapDirtyLast = {{0, glowmapReso, 0, glowmapReso}};
         return;
     }
 
+ //
     if (flags & Renderer::FLAG_GLOWMAP_REBUILD) {
-        memset(glowmapStill, 0, gmBytes);
-        if (flags & Renderer::FLAG_MULTITHREADING) glowmapConcurrent(glowmapStill, true);
-        else glowmapChunk(glowmapStill, true, 0, glowmapSize);
+        memset(glowmapStill, 0, gmSize);
+        if (flags & Renderer::FLAG_MULTITHREADING)
+            glowmapConcurrent(glowmapStill, true);
+        else glowmapChunk(glowmapStill, true, 0, glowmapReso);
         flags &= ~Renderer::FLAG_GLOWMAP_REBUILD;
-    // The still glowmap just changed everywhere, so resync the whole dynamic glowmap this frame
-        dirtyBoxes.append({0, glowmapSize, 0, glowmapSize});
+        dirtyBoxes.append({0, glowmapReso, 0, glowmapReso});
     }
 
 // Concatenate the dirty boxes and keep the new one for next frame
@@ -372,7 +373,7 @@ void Renderer::lightsMash()
     glowmapDirtyLast = std::move(dirtyBoxes);
 
     if (flags & Renderer::FLAG_MULTITHREADING) glowmapConcurrent(glowmap, false);
-    else glowmapChunk(glowmap, false, 0, glowmapSize);
+    else glowmapChunk(glowmap, false, 0, glowmapReso);
 }
 
 /*****************************************************************************/
@@ -401,24 +402,24 @@ void Renderer::wallsMash()
         Segment & s = segments[i];
 
     // Cache coordinates
-        s.bx = nodes[w.nodeID1].pos.x();
-        s.bz = nodes[w.nodeID1].pos.z();
-        sceneBoundsRegister(s.bx, s.bz);
-        s.ex = nodes[w.nodeID2].pos.x();
-        s.ez = nodes[w.nodeID2].pos.z();
-        sceneBoundsRegister(s.ex, s.ez);
+        s.beginX = nodes[w.nodeID1].pos.x();
+        s.beginZ = nodes[w.nodeID1].pos.z();
+        sceneBoundsRegister(s.beginX, s.beginZ);
+        s.endX = nodes[w.nodeID2].pos.x();
+        s.endZ = nodes[w.nodeID2].pos.z();
+        sceneBoundsRegister(s.endX, s.endZ);
 
     // Prepare the segment
         float ex = nodes[w.nodeID2].pos.x();
         float ez = nodes[w.nodeID2].pos.z();
-        s.dx = ex - s.bx;
-        s.dz = ez - s.bz;
-        s.length = sqrtf(s.dx * s.dx + s.dz * s.dz);
+        s.deltaX = ex - s.beginX;
+        s.deltaZ = ez - s.beginZ;
+        s.length = sqrtf(s.deltaX * s.deltaX + s.deltaZ * s.deltaZ);
         if (s.length == 0.0f) {w.flags = WALL_FLAG_FREE; continue;}
         s.invLen = 1.0f / s.length;
 
     // Compute lighting
-        QVector2D normal(s.dz * s.invLen, -s.dx * s.invLen);
+        QVector2D normal(s.deltaZ * s.invLen, -s.deltaX * s.invLen);
         float ps = QVector2D::dotProduct(normal, dir);
         uint8_t f = (uint8_t) (std::clamp(ps * sunRayStrength, 0.0f, 1.0f) * 255.0f);
         w.rayFront = colorsScaleSSE4(sunRayColor, (uint16_t)f << 8);
@@ -427,7 +428,7 @@ void Renderer::wallsMash()
     }
 
 // Glow map scale: fixed area centered at origin
-    glowmapScale = glowmapSize / glowmapArea;
+    glowmapScale = glowmapReso / glowmapArea;
     glowmapInvScale = 1.0f / glowmapScale;
 }
 
@@ -457,18 +458,18 @@ void Renderer::fogSunMash()
 /*****************************************************************************/
 void Renderer::render(Viewpoint & vp)
 {
-    int pw = pendingFrameWidth.exchange(0);
-    int ph = pendingFrameHeight.exchange(0);
+    int pw = pendingFrameResoX.exchange(0);
+    int ph = pendingFrameResoY.exchange(0);
     if (pw && ph) allocateFrames(pw, ph);
 
-    int pg = pendingGlowmapSize.exchange(0);
+    int pg = pendingGlowmapReso.exchange(0);
     if (pg) allocateGlowmap(pg);
 
     if (!framesAllocated) return;
     if (!nodesAllocated) return;
     if (!wallsAllocated) return;
     if (!texturesAllocated) return;
-    if (!glowmapSize) return;
+    if (!glowmapReso) return;
 
 // Clear the frames
     memset(frame, 0, frameResoX * frameResoY * sizeof(uint32_t));
@@ -529,10 +530,11 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
     const float angle = fovAngle * D2R;
     const float proj = frameResoY / tanf(angle * 0.5f);
 
-// Clamp the shift: pitchTable only covers 2x the frame height
+// Clamp the shift to half the frame height
     state.casterVShift = frameResoY * viewPoint.tilt / angle;
     state.casterVShift = std::clamp(state.casterVShift, -0.5f * frameResoY, 0.5f * frameResoY);
     state.casterHorizon = frameResoY * 0.5f + state.casterVShift;
+    state.casterProjection = proj;
     state.casterPos = viewPoint.pos + viewPoint.offset;
 
 // Create the strips map
@@ -540,18 +542,18 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         state.vStripsMap[i] = i;
 
 // Render each column
-    for (state.casterX = x1; state.casterX < x2; state.casterX++) {
-        float pan = panTable[state.casterX];
-        state.casterRx = cosf(pan + viewPoint.pan);
-        state.casterRz = sinf(pan + viewPoint.pan);
+    for (state.casterColumn = x1; state.casterColumn < x2; state.casterColumn++) {
+        float pan = panTable[state.casterColumn];
+        state.casterRayX = cosf(pan + viewPoint.pan);
+        state.casterRayZ = sinf(pan + viewPoint.pan);
         state.casterPC = 1.0f / cosf(pan);
 
     // Compute wall strips
         state.vStripsCount = 0;
         float casterX = state.casterPos.x();
         float casterZ = state.casterPos.z();
-        float invRayX = state.casterRx != 0.0f ? 1.0f / state.casterRx : 32768.0f;
-        float invRayZ = state.casterRz != 0.0f ? 1.0f / state.casterRz : 32768.0f;
+        float invRayX = state.casterRayX != 0.0f ? 1.0f / state.casterRayX : 32768.0f;
+        float invRayZ = state.casterRayZ != 0.0f ? 1.0f / state.casterRayZ : 32768.0f;
 
         for (int i = 0; i < wallsCount; i++) {
             Segment & s = segments[i];
@@ -559,25 +561,25 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
             float k = 0.0f;
 
         // Find intersection with wall
-            if (state.casterRx * state.casterRx > state.casterRz * state.casterRz) {
-                float ratio = state.casterRz * invRayX;
-                float delta = s.dx * ratio - s.dz;
+            if (state.casterRayX * state.casterRayX > state.casterRayZ * state.casterRayZ) {
+                float ratio = state.casterRayZ * invRayX;
+                float delta = s.deltaX * ratio - s.deltaZ;
                 if (delta == 0.0f) continue;
-                float kd = (s.bz - casterZ) - (s.bx - casterX) * ratio;
+                float kd = (s.beginZ - casterZ) - (s.beginX - casterX) * ratio;
                 if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
                 else {if (kd > 0.0f || kd < delta) continue;}
                 k = kd / delta;
-                z = ((s.bx - casterX) + k * s.dx) * invRayX;
+                z = ((s.beginX - casterX) + k * s.deltaX) * invRayX;
 
             }else{
-                float ratio = state.casterRx * invRayZ;
-                float delta = s.dz * ratio - s.dx;
+                float ratio = state.casterRayX * invRayZ;
+                float delta = s.deltaZ * ratio - s.deltaX;
                 if (delta == 0.0f) continue;
-                float kd = (s.bx - casterX) - (s.bz - casterZ) * ratio;
+                float kd = (s.beginX - casterX) - (s.beginZ - casterZ) * ratio;
                 if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
                 else {if (kd > 0.0f || kd < delta) continue;}
                 k = kd / delta;
-                z = ((s.bz - casterZ) + k * s.dz) * invRayZ;
+                z = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
             }
 
         // Clipping the intersection
@@ -587,7 +589,9 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         // Find wall height
             Wall & w = walls[i];
             float div = (state.casterPC * proj) / z;
-            float bot = nodes[w.nodeID1].pos.y();
+            float bot1 = nodes[w.nodeID1].pos.y();
+            float bot2 = nodes[w.nodeID2].pos.y();
+            float bot = bot1 + (bot2 - bot1) * k;
             float top = bot + w.height;
 
         // Create a strip object
@@ -600,12 +604,14 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
             strip.yNoclipBot  = strip.yBot;
             strip.yDarkenTop  = strip.yTop + occlusionLength * div;
             strip.yDarkenBot  = strip.yBot - occlusionLength * div;
+            strip.hTop = top;
+            strip.hBot = bot;
             strip.vTop = top - bot;
             strip.vBot = 0.0f;
             strip.u = k * s.length;
             strip.dist = z;
             strip.wallId = i;
-            strip.back = (state.casterRx * s.dz - state.casterRz * s.dx) > 0.0f;
+            strip.back = (state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) > 0.0f;
 
         // Translate the wall flags into strip flags
             strip.flags = VSTRIP_FLAG_FREE;
@@ -646,15 +652,17 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         findFloorCeilings(state);
 
     // Track the floor / ceiling under the camera (center column only)
-        if (state.casterX == frameResoX / 2) {
-            lastCeiling = state.currentCeiling;
-            lastFloor = state.currentFloor;
+        if (state.casterColumn == frameResoX / 2) {
+            lastCeiling = state.ceiling.h0;
+            lastFloor = state.floor.h0;
         }
 
-        QList<float> stackBelow;
-        stackBelow.append(state.currentCeiling + 0.125f);
-        QList<float> stackAbove;
-        stackAbove.append(state.currentFloor - 0.125f);
+        QList<Cap> stackBelow;
+        stackBelow.append({HeightMax, 0.0f});
+        stackBelow.append({state.ceiling.h0 + epsilon, state.ceiling.slope});
+        QList<Cap> stackAbove;
+        stackAbove.append({HeightMin, 0.0f});
+        stackAbove.append({state.floor.h0 - epsilon, state.floor.slope});
         renderVertical(state, 0, stackBelow, stackAbove, 0, frameResoY);
 
     // Render walls
@@ -671,87 +679,97 @@ void Renderer::findFloorCeilings(Context & state)
     float secondLastFloor = HeightMin;
 
 // Walk from the furthest wall to the closest
-    QList<float> heights;
+    QList<Cap> caps;
     for (int s = strips - 1; s >= 0; s--) {
         Strip & strip = state.vStrips[state.vStripsMap[s]];
-        Wall & w = walls[strip.wallId];
-        float wBot = nodes[w.nodeID1].pos.y();
-        float wTop = wBot + w.height;
+        float wBot = strip.hBot;
+        float wTop = strip.hTop;
 
-    // Mask out heights covered
-        for (int i = heights.size() - 1; i >= 0; i--) {
-            float h = heights[i];
-            if (h >= wBot - HeightEpsilon && h <= wTop + HeightEpsilon)
-                heights.removeAt(i);
+    // Mask out surfaces covered, compared at the wall distance
+        for (int i = caps.size() - 1; i >= 0; i--) {
+            float h = caps[i].h0 + strip.dist * caps[i].slope;
+            if (h >= wBot - epsilon && h <= wTop + epsilon)
+                caps.removeAt(i);
         }
 
     // Add the ceiling / floor surfaces
-        if (strip.flags & VSTRIP_FLAG_HASCEILING) heights.append(wTop);
-        if (strip.flags & VSTRIP_FLAG_HASFLOOR) heights.append(wBot);
+        if (strip.flags & VSTRIP_FLAG_HASCEILING)
+            caps.append(capCeilingHeight(state, strip, strip.back));
+        if (strip.flags & VSTRIP_FLAG_HASFLOOR)
+            caps.append(capFloorHeight(state, strip, strip.back));
 
     // Closest height above = ceiling, below = floor
         continue;
-        if (s != 1) continue;
-        for (float h : heights) {
-            if (h > camY && h < secondLastCeiling) secondLastCeiling = h;
-            if (h < camY && h > secondLastFloor) secondLastFloor = h;
-        }
     }
 
-// Check the last levels
-    state.currentCeiling = HeightMax;
-    state.currentFloor = HeightMin;
-    for (float h : heights) {
-        if (h > camY && h < state.currentCeiling) state.currentCeiling = h;
-        if (h < camY && h > state.currentFloor) state.currentFloor = h;
+// Check the last levels, compared under the camera
+    state.ceiling = {HeightMax, 0.0f};
+    state.floor = {HeightMin, 0.0f};
+    for (const Cap & l : caps) {
+        if (l.h0 > camY && l.h0 < state.ceiling.h0) state.ceiling = l;
+        if (l.h0 < camY && l.h0 > state.floor.h0) state.floor = l;
     }
-    if (state.currentCeiling == HeightMax) state.currentCeiling = secondLastCeiling;
-    if (state.currentFloor == HeightMin) state.currentFloor = secondLastFloor;
+    if (state.ceiling.h0 == HeightMax) state.ceiling = {secondLastCeiling, 0.0f};
+    if (state.floor.h0 == HeightMin) state.floor = {secondLastFloor, 0.0f};
 }
-
+/*
+if (s != 1) continue;
+for (const Cap & l : caps) {
+    if (l.h0 > camY && l.h0 < secondLastCeiling) secondLastCeiling = l.h0;
+    if (l.h0 < camY && l.h0 > secondLastFloor) secondLastFloor = l.h0;
+}
+*/
 /*****************************************************************************/
 void Renderer::renderVertical(Context & state, int depth,
-                            QList<float> stackBelow, QList<float> stackAbove,
+                            QList<Cap> stackBelow, QList<Cap> stackAbove,
                             int scanTop, int scanBot)
 {
+    float camY = state.casterPos.y();
     for (int i = depth; i < state.vStripsCount; i++) {
         Strip & strip = state.vStrips[state.vStripsMap[i]];
         Wall & w = walls[strip.wallId];
 
-        float wBot = nodes[w.nodeID1].pos.y();
-        float wTop = wBot + w.height;
-        float mustBelow = stackBelow.last();
-        float mustAbove = stackAbove.last();
+    // Window bounds, compared at the wall distance
+        float wBot = strip.hBot;
+        float wTop = strip.hTop;
+        Cap capBelow = stackBelow.last();
+        Cap capAbove = stackAbove.last();
+        float mustBelow = capBelow.h0 + capBelow.slope * strip.dist;
+        float mustAbove = capAbove.h0 + capAbove.slope * strip.dist;
 
     // Case 0: Clip walls
         if (wTop < mustAbove) continue;
         if (wBot > mustBelow) continue;
 
-    // Case 1: Floor surface above the horizon line
-        if (strip.yBot < state.casterHorizon && (strip.flags & VSTRIP_FLAG_HASFLOOR)) {
+    // Case 1: Floor surface seen from below
+        if ((strip.flags & VSTRIP_FLAG_HASFLOOR) &&
+            camY < capFloorHeight(state, strip, strip.back).h0) {
             int bot = std::min((int)strip.yBot, scanBot);
             if (bot < scanTop) bot = scanTop;
             if (bot < 0) bot = 0;
 
             if (wBot < mustBelow && wBot > mustAbove) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, w, WALL_SURFACE_FLOOR, scanTop, bot, wBot);
-                if (stackBelow.length() > 1) stackBelow.removeLast();
+                    surfaceDraw(state, strip, WALL_SURFACE_FLOOR, scanTop, bot);
+            // Pop the bound only if this wall is where its plane ends
+                if (stackBelow.length() > 1 && mustBelow - wBot <= 2.0f * epsilon) stackBelow.removeLast();
                 renderVertical(state, i + 1, stackBelow, stackAbove, bot, scanBot);
                 return;
             }
         }
 
-    // Case 2: Ceiling surface below the horizon line
-        if (strip.yTop > state.casterHorizon && (strip.flags & VSTRIP_FLAG_HASCEILING)) {
+    // Case 2: Ceiling surface seen from above
+        if ((strip.flags & VSTRIP_FLAG_HASCEILING) &&
+            camY > capCeilingHeight(state, strip, strip.back).h0) {
             int top = std::max((int)strip.yTop, scanTop);
             if (top > scanBot) top = scanBot;
             if (top > frameResoY) top = frameResoY;
 
             if (wTop > mustAbove && wTop < mustBelow) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, w, WALL_SURFACE_CEILING, top, scanBot, wTop);
-                if (stackAbove.length() > 1) stackAbove.removeLast();
+                    surfaceDraw(state, strip, WALL_SURFACE_CEILING, top, scanBot);
+            // Pop the bound only if this wall is where its plane ends
+                if (stackAbove.length() > 1 && wTop - mustAbove <= 2.0f * epsilon) stackAbove.removeLast();
                 renderVertical(state, i + 1, stackBelow, stackAbove, scanTop, top);
                 return;
             }
@@ -760,8 +778,24 @@ void Renderer::renderVertical(Context & state, int depth,
     // Case 3: Wall fully covers the active scan window
         if (strip.yTop < scanTop && strip.yBot > scanBot) {
             vstripAdd(state, strip, scanTop, scanBot);
-            if (strip.flags & VSTRIP_FLAG_SEETHROUGH) continue;
-            else return;
+            if (!(strip.flags & VSTRIP_FLAG_SEETHROUGH)) return;
+        // Through the wall, the rays pass below the top edge and above the bottom edge
+        // Back ceiling / floor: the rays stay on that side of their plane, keep its slope
+            if (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK)) {
+                if (wTop < mustBelow) {
+                    Cap mb = capCeilingHeight(state, strip, !strip.back);
+                    mb.h0 += epsilon;
+                    stackBelow.append(mb);
+                }
+            }
+            if (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK)) {
+                if (wBot > mustAbove) {
+                    Cap ma = capFloorHeight(state, strip, !strip.back);
+                    ma.h0 -= epsilon;
+                    stackAbove.append(ma);
+                }
+            }
+            continue;
         }
 
     // Case 4.a: Render area above the wall
@@ -769,20 +803,27 @@ void Renderer::renderVertical(Context & state, int depth,
             int bot = std::min((int)strip.yTop, scanBot);
             if ((wTop > mustAbove) && (strip.flags & VSTRIP_FLAG_HASCEILING)) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, w, WALL_SURFACE_CEILING, scanTop, bot, wTop);
+                    surfaceDraw(state, strip, WALL_SURFACE_CEILING, scanTop, bot);
             } else {
-                float ma = mustAbove;
+            // Wall top edge: the rays rise past it, a constant is enough
+            // Back ceiling: a surface beyond the wall, keep its slope
+                bool push = false;
+                Cap ma = capAbove;
                 if (strip.yTop <= state.casterHorizon) {
-                    ma = std::max(ma, wTop + HeightEpsilon);
-                } else if (w.flags & WALL_FLAG_CEILING_BACK) {
-                    if (wTop > ma)
-                        ma = wTop - HeightEpsilon;
+                    if (wTop + epsilon > mustAbove) {
+                        ma = {wTop + epsilon, 0.0f};
+                        push = true;
+                    }
+                } else if (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK)) {
+                    if (wTop > mustAbove) {
+                        ma = capCeilingHeight(state, strip, !strip.back);
+                        ma.h0 -= epsilon;
+                        push = true;
+                    }
                 }
-                if (ma != mustAbove) stackAbove.append(ma);
-                //stackAbove.append(ma);
+                if (push) stackAbove.append(ma);
                 renderVertical(state, i + 1, stackBelow, stackAbove, scanTop, bot);
-                //stackAbove.removeLast();
-                if (ma != mustAbove) stackAbove.removeLast();
+                if (push) stackAbove.removeLast();
             }
         }
 
@@ -791,20 +832,27 @@ void Renderer::renderVertical(Context & state, int depth,
             int top = std::max((int)strip.yBot, scanTop);
             if ((wBot < mustBelow) && (strip.flags & VSTRIP_FLAG_HASFLOOR)) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, w, WALL_SURFACE_FLOOR, top, scanBot, wBot);
+                    surfaceDraw(state, strip, WALL_SURFACE_FLOOR, top, scanBot);
             } else {
-                float mb = mustBelow;
+            // Wall bottom edge: the rays sink past it, a constant is enough
+            // Back floor: a surface beyond the wall, keep its slope
+                bool push = false;
+                Cap mb = capBelow;
                 if (strip.yBot >= state.casterHorizon) {
-                    mb = std::min(mb, wBot - HeightEpsilon);
-                } else if (w.flags & WALL_FLAG_FLOOR_BACK) {
-                    if (wBot < mb)
-                        mb = wBot + HeightEpsilon;
+                    if (wBot - epsilon < mustBelow) {
+                        mb = {wBot - epsilon, 0.0f};
+                        push = true;
+                    }
+                } else if (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK)) {
+                    if (wBot < mustBelow) {
+                        mb = capFloorHeight(state, strip, !strip.back);
+                        mb.h0 += epsilon;
+                        push = true;
+                    }
                 }
-                if (mb != mustBelow) stackBelow.append(mb);
-                //stackBelow.append(mb);
+                if (push) stackBelow.append(mb);
                 renderVertical(state, i + 1, stackBelow, stackAbove, top, scanBot);
-                //stackBelow.removeLast();
-                if (mb != mustBelow) stackBelow.removeLast();
+                if (push) stackBelow.removeLast();
             }
         }
 
@@ -815,8 +863,22 @@ void Renderer::renderVertical(Context & state, int depth,
         if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
             scanTop = std::max((int)strip.yTop, scanTop);
             scanBot = std::min((int)strip.yBot, scanBot);
-            //stackBelow.append(wTop);
-            //stackAbove.append(wBot);
+        // Through the wall, the rays pass below the top edge and above the bottom edge
+        // Back ceiling / floor: the rays stay on that side of their plane, keep its slope
+            if (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK)) {
+                if (wTop < mustBelow) {
+                    Cap mb = capCeilingHeight(state, strip, !strip.back);
+                    mb.h0 += epsilon;
+                    stackBelow.append(mb);
+                }
+            }
+            if (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK)) {
+                if (wBot > mustAbove) {
+                    Cap ma = capFloorHeight(state, strip, !strip.back);
+                    ma.h0 -= epsilon;
+                    stackAbove.append(ma);
+                }
+            }
             renderVertical(state, i + 1, stackBelow, stackAbove, scanTop, scanBot);
         }
         return;
@@ -826,33 +888,79 @@ void Renderer::renderVertical(Context & state, int depth,
 /*****************************************************************************/
 inline __m128 Renderer::sampleGlowmap(float gx, float gz)
 {
-    int x0 = ((int) gx) & (glowmapSize - 1);
-    int z0 = ((int) gz) & (glowmapSize - 1);
-    int x1 = (x0 + 1) & (glowmapSize - 1);
-    int z1 = (z0 + 1) & (glowmapSize - 1);
+    int x0 = ((int) gx) & (glowmapReso - 1);
+    int z0 = ((int) gz) & (glowmapReso - 1);
+    int x1 = (x0 + 1) & (glowmapReso - 1);
+    int z1 = (z0 + 1) & (glowmapReso - 1);
 
     __m128 fx = _mm_set1_ps(gx - x0);
     __m128 fz = _mm_set1_ps(gz - z0);
 
-    __m128 A = glowmap[z0 * glowmapSize + x0];
-    __m128 B = glowmap[z0 * glowmapSize + x1];
+    __m128 A = glowmap[z0 * glowmapReso + x0];
+    __m128 B = glowmap[z0 * glowmapReso + x1];
     __m128 AB = _mm_add_ps(A, _mm_mul_ps(_mm_sub_ps(B, A), fx));
 
-    __m128 C = glowmap[z1 * glowmapSize + x0];
-    __m128 D = glowmap[z1 * glowmapSize + x1];
+    __m128 C = glowmap[z1 * glowmapReso + x0];
+    __m128 D = glowmap[z1 * glowmapReso + x1];
     __m128 CD = _mm_add_ps(C, _mm_mul_ps(_mm_sub_ps(D, C), fx));
 
     return _mm_add_ps(AB, _mm_mul_ps(_mm_sub_ps(CD, AB), fz));
 }
 
-void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int scanTop, int scanBot, float height)
+/*****************************************************************************/
+Renderer::Cap Renderer::capFloorHeight(const Context & state, const Strip & strip, bool back)
+{
+    const Wall & w = walls[strip.wallId];
+    const Segment & s = segments[strip.wallId];
+
+// Surface slope along the ray
+// Away from the wall is towards the camera on the near side, away from it on the far side
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+    float drop = (back ? w.floorBackDrop : w.floorFrontDrop) * 0x1p-3;
+    if (back != strip.back) drop = -drop;
+    float d = (state.casterRayX * s.deltaX + state.casterRayZ * s.deltaZ) * s.invLen;
+    float n = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
+
+// The surface passes through the wall edge at the hit distance
+    Cap l;
+    l.slope = rise * d + drop * n;
+    l.h0 = strip.hBot - strip.dist * l.slope;
+    return l;
+}
+
+Renderer::Cap Renderer::capCeilingHeight(const Context & state, const Strip & strip, bool back)
+{
+    const Wall & w = walls[strip.wallId];
+    const Segment & s = segments[strip.wallId];
+
+// Surface slope along the ray
+// Away from the wall is towards the camera on the near side, away from it on the far side
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+    float drop = (back ? w.ceilingBackDrop : w.ceilingFrontDrop) * 0x1p-3;
+    if (back != strip.back) drop = -drop;
+    float d = (state.casterRayX * s.deltaX + state.casterRayZ * s.deltaZ) * s.invLen;
+    float n = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
+
+// The surface passes through the wall edge at the hit distance
+    Cap l;
+    l.slope = rise * d + drop * n;
+    l.h0 = strip.hTop - strip.dist * l.slope;
+    return l;
+}
+
+/*****************************************************************************/
+void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot)
 {
     if (scanTop >= frameResoY) return;
     if (scanBot < 0) return;
     if (scanTop < 0) scanTop = 0;
     if (scanBot > frameResoY) scanBot = frameResoY;
 
-    float dy = state.casterPos.y() - height;
+    const Wall & w = walls[strip.wallId];
+    Cap cap = (sID == WALL_SURFACE_FLOOR) ? capFloorHeight(state, strip, strip.back)
+                                          : capCeilingHeight(state, strip, strip.back);
+    float slope = cap.slope;
+    float dy = state.casterPos.y() - cap.h0;
     bool below = dy > 0.0f;
 
     int yStart = below ? scanTop : scanBot - 1;
@@ -869,17 +977,28 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
 
     float ox = (state.casterPos.x() + w.offset.x() + s.shiftX) * sx;
     float oz = (state.casterPos.z() + w.offset.z() + s.shiftY) * sy;
-    float rx = state.casterRx * sx;
-    float rz = state.casterRz * sy;
+    float rx = state.casterRayX * sx;
+    float rz = state.casterRayZ * sy;
 
+// Ray distance per row: adjacent = opposite / denom, denom being linear in y
+// Rays go through the row bottom edge, matching the (int) truncation of the wall strips
     float opposite = dy * state.casterPC;
-    int pitch = yStart + frameResoY / 2 - state.casterVShift;
+    float slopePC = slope * state.casterPC;
+    float invProj = 1.0f / state.casterProjection;
+    float denomStart = (yStart + 1.0f - state.casterHorizon) * invProj + slopePC;
+    float denomInc = yInc * invProj;
+
+// Rows beyond the surface horizon are pushed to the far distance
+    auto distance = [&](float denom) -> float {
+        float adjacent = opposite / denom;
+        return (adjacent > 0.0f && adjacent < 65536.0f) ? adjacent : fovDistanceFar;
+    };
 
 // Compute light
-    float gox = state.casterPos.x() * glowmapScale + glowmapSize * 0.5f;
-    float goz = state.casterPos.z() * glowmapScale + glowmapSize * 0.5f;
-    float grx = state.casterRx * glowmapScale;
-    float grz = state.casterRz * glowmapScale;
+    float gox = state.casterPos.x() * glowmapScale + glowmapReso * 0.5f;
+    float goz = state.casterPos.z() * glowmapScale + glowmapReso * 0.5f;
+    float grx = state.casterRayX * glowmapScale;
+    float grz = state.casterRayZ * glowmapScale;
 
     bool noLight = s.flags & SURFACE_FLAG_NO_LIGHT;
     bool noGlow = s.flags & SURFACE_FLAG_NO_GLOW;
@@ -890,9 +1009,9 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
     __m128 fog = unpackColorToVectorSSE4(fogFarColor);
 
 // Compute AO zone boundary in screen space.
-// Inverting pitchTable[p] = refY / (p - midY):
-// p_target = midY + (p_start - midY) * adjacentStart / adjacentAoEnd
-    float adjacentStart = opposite * pitchTable[pitch];
+// Inverting adjacent = opposite / denom:
+// y_target = horizon - 1.0 + proj * (opposite / adjacentAoEnd - slopePC)
+    float adjacentStart = distance(denomStart);
     float adjacentAoEnd = adjacentStart - occlusionLength;
     float aoScale = occlusionLength > 0.0f ? occlusionDarken / occlusionLength : 0.0f;
 
@@ -901,15 +1020,13 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
         yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
-        float midY = (float)frameResoY - 0.5f;
-        float fPitch = (float)pitch;
-        float pitchTarget = midY + (fPitch - midY) * adjacentStart / adjacentAoEnd;
-        int yAoEndRaw = (int)pitchTarget - frameResoY / 2 + (int)state.casterVShift;
+        float yTarget = state.casterHorizon - 1.0f + state.casterProjection * (opposite / adjacentAoEnd - slopePC);
+        int yAoEndRaw = (int)yTarget;
         yAoEnd = below ? std::clamp(yAoEndRaw, yStart, yEnd)
                        : std::clamp(yAoEndRaw, yEnd, yStart);
     }
 
-    uint32_t * ptr32 = &frame[state.casterX + frameResoX * yStart];
+    uint32_t * ptr32 = &frame[state.casterColumn + frameResoX * yStart];
 
     bool applyFog = (fogFlags & 1) && !noFog;
     auto renderZones = [&](auto noGlowTag, auto applyFogTag) {
@@ -964,15 +1081,16 @@ void Renderer::surfaceDraw(Context & state, const Wall & w, uint16_t sID, int sc
         };
 
     // Ambient occlusion zone: wall-base edge
+        float denom = denomStart;
         for (int y = yStart; y != yAoEnd; y += yInc) {
-            float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
-            drawAmbientOcclusion(adjacent);
+            drawAmbientOcclusion(distance(denom));
+            denom += denomInc;
         }
 
     // Plain zone
         for (int y = yAoEnd; y != yEnd; y += yInc) {
-            float adjacent = opposite * pitchTable[pitch]; pitch += yInc;
-            drawPlain(adjacent);
+            drawPlain(distance(denom));
+            denom += denomInc;
         }
     };
 
@@ -1035,7 +1153,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     if (scanBot > frameResoY) scanBot = frameResoY;
 
 // Check for click
-    if (clickRegistered && (clickX == state.casterX)) {
+    if (clickRegistered && (clickX == state.casterColumn)) {
         if (clickY >= scanTop && clickY < scanBot) {
             clickWallID = strip.wallId;
             clickRegistered = false;
@@ -1079,13 +1197,13 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     __m128 gm = fullBlack;
     if (!noGlow) {
         Segment & seg = segments[strip.wallId];
-        float bx = seg.bx + strip.k * seg.dx;
-        float bz = seg.bz + strip.k * seg.dz;
-        float gx = bx * glowmapScale + glowmapSize * 0.5f;
-        float gz = bz * glowmapScale + glowmapSize * 0.5f;
+        float bx = seg.beginX + strip.k * seg.deltaX;
+        float bz = seg.beginZ + strip.k * seg.deltaZ;
+        float gx = bx * glowmapScale + glowmapReso * 0.5f;
+        float gz = bz * glowmapScale + glowmapReso * 0.5f;
         float gside = strip.back ? -GlowSampleDistance : GlowSampleDistance;
-        gx += seg.dz * seg.invLen * gside;
-        gz -= seg.dx * seg.invLen * gside;
+        gx += seg.deltaZ * seg.invLen * gside;
+        gz -= seg.deltaX * seg.invLen * gside;
         gm = sampleGlowmap(gx, gz);
     }
     __m128 glow = _mm_add_ps(sun, gm);
@@ -1095,7 +1213,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     uint32_t * tex = &t.pixels[s.id * t.block];
     tex = &tex[(u & t.mask) * t.size];
 
-    uint32_t * ptr32 = &frame[state.casterX + frameResoX * scanTop];
+    uint32_t * ptr32 = &frame[state.casterColumn + frameResoX * scanTop];
 
 // Render a wall
     if (s.flags & SURFACE_FLAG_ALPHA) {
@@ -1168,19 +1286,10 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
 /*****************************************************************************/
 void Renderer::buildTables()
 {
-    if (!pitchTable || !panTable) return;
-
-// Surface pitch table (lens corrected)
-    const float angle = fovAngle * D2R;
-    const float refY = frameResoY / tanf(angle * 0.5f);
-    const float midY = frameResoY - 0.5f;
-    for (int y = 0; y < frameResoY * 2; y++) {
-        float pitch = atanf((y - midY) / refY);
-        if (pitch == 0.0f) pitchTable[y] = 0.0f;
-        else pitchTable[y] = 1.0f / tanf(pitch);
-    }
+    if (!panTable) return;
 
 // Horizontal pan table (lens corrected)
+    const float angle = fovAngle * D2R;
     const float refX = 0.5f * frameResoX / tanf(angle * 0.5f);
     const float midX = frameResoX * 0.5f - 0.5f;
     for (int x = 0; x < frameResoX; x++) {

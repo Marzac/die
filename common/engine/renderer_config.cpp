@@ -89,7 +89,7 @@ void Renderer::configInit()
 
     frameResoX = DefaultFrameResoX;
     frameResoY = DefaultFrameResoY;
-    glowmapSize = DefaultGlowmapReso;
+    glowmapReso = DefaultGlowmapReso;
     glowmapArea = DefaultGlowmapArea;
 
     nodesAllocated = DefaultNodesMax;
@@ -151,7 +151,7 @@ bool Renderer::configLoad(const QString & filename)
     // Parse according to key (values clamped to sane ranges)
         if (strcmp(key, "ScreenResoX") == 0) frameResoX = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
         else if (strcmp(key, "ScreenResoY") == 0) frameResoY = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
-        else if (strcmp(key, "GlowmapReso") == 0) glowmapSize = toPowerOfTwo(atoi(valueStr));
+        else if (strcmp(key, "GlowmapReso") == 0) glowmapReso = toPowerOfTwo(atoi(valueStr));
         else if (strcmp(key, "GlowmapArea") == 0) glowmapArea = std::max(GlowmapAreaMin, (float) atof(valueStr));
         else if (strcmp(key, "NodesMax") == 0) nodesAllocated = std::clamp(atoi(valueStr), NodesMin, NodesMax);
         else if (strcmp(key, "WallsMax") == 0) wallsAllocated = std::clamp(atoi(valueStr), WallsMin, WallsMax);
@@ -212,7 +212,7 @@ bool Renderer::configSave(const QString & filename)
     fprintf(file, "# ==== Generals ==== \n");
     fprintf(file, "ScreenResoX = %d\n", frameResoX);
     fprintf(file, "ScreenResoY = %d\n", frameResoY);
-    fprintf(file, "GlowmapReso = %d\n", glowmapSize);
+    fprintf(file, "GlowmapReso = %d\n", glowmapReso);
     fprintf(file, "GlowmapArea = %.1f\n", glowmapArea);
     fprintf(file, "NodesMax = %d\n", nodesAllocated);
     fprintf(file, "WallsMax = %d\n", wallsAllocated);
