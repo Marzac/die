@@ -42,7 +42,8 @@ QPen WdgMapEditor::colorSpeakerBase = QColor(0, 192, 192);
 
 QPen WdgMapEditor::colorGlowMap = QColor(64, 0, 0);
 
-QBrush WdgMapEditor::brushWallAnchor = QColor(32, 32, 255);
+QBrush WdgMapEditor::brushAnchorBase = QColor(32, 32, 255);
+QBrush WdgMapEditor::brushAnchorSelected = QColor(192, 192, 255);
 
 QImage WdgMapEditor::pictoSubmap;
 QImage WdgMapEditor::pictoDoor;
@@ -291,29 +292,32 @@ void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
             Node & n1 = map.nodes[w.nodeID1];
             Node & n2 = map.nodes[w.nodeID2];
 
-            float wBot = n1.pos.y();
-            float wTop = wBot + w.height;
-
-            QVector2D n1p = Editor::to2D(mode, n1.pos);
-            QVector2D n2p = Editor::to2D(mode, n2.pos);
-
-            n1p.setY(-wTop);
-            n2p.setY(-wBot);
-            n1p = org + n1p * editor.zoom;
-            n2p = org + n2p * editor.zoom;
-            QVector2D dp = n2p - n1p;
+            QVector2D n1p = org + Editor::to2D(mode, n1.pos) * editor.zoom;
+            QVector2D n2p = org + Editor::to2D(mode, n2.pos) * editor.zoom;
+            QVector2D hp(0.0f, -w.height * editor.zoom);
+            QPointF ns[] = {
+                n1p.toPointF(),
+                n2p.toPointF(),
+                (n2p + hp).toPointF(),
+                (n1p + hp).toPointF(),
+                n1p.toPointF()
+            };
 
             if (i == editor.selectedWall) painter.setPen(colorPrincipal);
             else if (w.selected) painter.setPen(colorSelected);
             else if (editor.inView(n1.pos)) painter.setPen(colorWallBase);
             else painter.setPen(colorGreyed);
 
-            painter.drawRect(n1p.x(), n1p.y(), dp.x(), dp.y());
+            painter.drawPolyline(ns, 5);
             painter.setPen(Qt::NoPen);
 
             if (!editor.inView(n1.pos)) continue;
-            QVector2D mp = (n1p + n2p) * 0.5f - QVector2D(2.0f, 2.0f);
-            painter.setBrush(brushWallAnchor);
+            if (!editor.inView(n2.pos)) continue;
+            QVector2D mp = (n1p + n2p + hp) * 0.5f - QVector2D(2.0f, 2.0f);
+
+            if (w.selected)
+                painter.setBrush(brushAnchorSelected);
+            else painter.setBrush(brushAnchorBase);
             painter.drawRect(mp.x(), mp.y(), 4.0f, 4.0f);
             painter.setBrush(Qt::NoBrush);
         }

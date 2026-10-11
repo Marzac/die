@@ -89,6 +89,11 @@ typedef struct {
     uint16_t nodeID2;
     float height;
 
+    float floorFrontDrop;
+    float floorBackDrop;
+    float ceilingFrontDrop;
+    float ceilingBackDrop;
+
     QVector2D dir;          ///< computed geometry, see Map::computeWall()
     QVector2D normal;       ///< computed geometry, see Map::computeWall()
     float length;           ///< computed geometry, see Map::computeWall()

@@ -52,7 +52,7 @@ bool Map::save(const QString & filename, bool submap)
 
     fprintf(file, "# == DIE MAP == \n");
     fprintf(file, "# Fred's Lab 2024-2026\n");
-    fprintf(file, "# 13.06.26 - V1.0\n");
+    fprintf(file, "# 06.10.26 - V1.1\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");
@@ -63,10 +63,10 @@ bool Map::save(const QString & filename, bool submap)
 
 // ==== WALLS ====
     fprintf(file, "# == WALLS ==\n");
-    fprintf(file, "# format: W nodeID1, nodeID2, height, flags\n");
+    fprintf(file, "# format: W nodeID1, nodeID2, height, flags, floorFrontDrop, floorBackDrop, ceilingFrontDrop, ceilingBackDrop\n");
     fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags\n");
     for (const Wall & w : walls) {
-        fprintf(file, "W %04hu, %04hu, %+4.4f, %04hx\n", w.nodeID1, w.nodeID2, w.height, w.flags);
+        fprintf(file, "W %04hu, %04hu, %+4.4f, %04hx, %+4.4f, %+4.4f, %+4.4f, %+4.4f\n", w.nodeID1, w.nodeID2, w.height, w.flags, w.floorFrontDrop, w.floorBackDrop, w.ceilingFrontDrop, w.ceilingBackDrop);
         for (int j = 0; j < WALL_SURFACES_COUNT; j++) {
             const Surface & s = w.surfaces[j];
             fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hx\n", j, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
@@ -234,7 +234,9 @@ bool Map::load(const QString & filename)
         }else if (c == 'W') {
             lastC = 'W';
             Wall w{};
-            fscanf(file, "%hu, %hu, %f, %hx\n", &w.nodeID1, &w.nodeID2, &w.height, &w.flags);
+        // V1.0 files end after the flags: the drops then stay at zero
+            fscanf(file, "%hu, %hu, %f, %hx", &w.nodeID1, &w.nodeID2, &w.height, &w.flags);
+            fscanf(file, ", %f, %f, %f, %f", &w.floorFrontDrop, &w.floorBackDrop, &w.ceilingFrontDrop, &w.ceilingBackDrop);
             if (w.nodeID1 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID2 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID1 == w.nodeID2)     { lastC = ' '; continue; }
