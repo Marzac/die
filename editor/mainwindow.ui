@@ -306,6 +306,38 @@
       <bool>true</bool>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushViewerStore">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Store the viewpoint for this map (Ctrl+F5)</string>
+     </property>
+     <property name="text">
+      <string>Store</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushViewerRecall">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>160</y>
+       <width>41</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="toolTip">
+      <string>Recall the stored viewpoint for this map (F5)</string>
+     </property>
+     <property name="text">
+      <string>Recall</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QScrollBar" name="scrollTextures">
     <property name="geometry">
