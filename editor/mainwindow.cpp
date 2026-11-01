@@ -28,6 +28,8 @@
 #include <QColorDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QSettings>
+#include <QUrl>
 #include <QDebug>
 
 #include <stdint.h>
@@ -101,6 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
     updateFogProperties();
     updateEngineProperties();
     updateEditorProperties();
+    updateViewMarkButton();
 
     if (renderWindow)
         renderWindow->setFocus();
@@ -169,6 +172,12 @@ void MainWindow::createShortcuts()
 
     shortcutEditDelete = new QShortcut(QKeySequence(Qt::Key_Delete), this);
     connect(shortcutEditDelete, SIGNAL(activated()), this, SLOT(on_deleteCurrent()));
+
+    shortcutViewerStore = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F5), this);
+    connect(shortcutViewerStore, SIGNAL(activated()), this, SLOT(on_pushViewerStore_clicked()));
+
+    shortcutViewerRecall = new QShortcut(QKeySequence(Qt::Key_F5), this);
+    connect(shortcutViewerRecall, SIGNAL(activated()), this, SLOT(on_pushViewerRecall_clicked()));
 }
 
 void MainWindow::createContextMenu()
@@ -2560,6 +2569,58 @@ void MainWindow::on_spinViewerPan_valueChanged(double arg1)
     walker.pan = arg1;
 }
 
+/*****************************************************************************/
+QString MainWindow::viewMarkKey() const
+{
+// Slashes would split the key into settings groups
+    QString file = mapFile.isEmpty() ? QString("untitled") : mapFile;
+    return "viewMarks/" + QString::fromLatin1(QUrl::toPercentEncoding(file));
+}
+
+void MainWindow::updateViewMarkButton()
+{
+    QSettings settings("Fred's Lab", "Waller");
+    ui->pushViewerRecall->setEnabled(settings.contains(viewMarkKey()));
+}
+
+void MainWindow::on_pushViewerStore_clicked()
+{
+    QStringList values;
+    values << QString::number(walker.pos.x(), 'g', 9)
+           << QString::number(walker.pos.y(), 'g', 9)
+           << QString::number(walker.pos.z(), 'g', 9)
+           << QString::number(walker.pan, 'g', 9)
+           << QString::number(walker.tilt, 'g', 9)
+           << QString::number(ui->spinFOVAngle->value(), 'g', 9)
+           << QString::number(ui->spinFOVNear->value(), 'g', 9)
+           << QString::number(ui->spinFOVFar->value(), 'g', 9);
+
+    QSettings settings("Fred's Lab", "Waller");
+    settings.setValue(viewMarkKey(), values.join(' '));
+    updateViewMarkButton();
+}
+
+void MainWindow::on_pushViewerRecall_clicked()
+{
+    QSettings settings("Fred's Lab", "Waller");
+    QStringList values = settings.value(viewMarkKey()).toString().split(' ', Qt::SkipEmptyParts);
+    if (values.size() < 8) return;
+
+    walker.pos = QVector3D(values[0].toFloat(), values[1].toFloat(), values[2].toFloat());
+    walker.speed = QVector3D();
+    walker.accel = QVector3D();
+    walker.pan = values[3].toFloat();
+
+// The tilt eases towards the mouse target every frame: hold it there
+    walker.tilt = values[4].toFloat();
+    walker.pitchTargetMouse = walker.tilt;
+
+    ui->spinFOVAngle->setValue(values[5].toDouble());
+    ui->spinFOVNear->setValue(values[6].toDouble());
+    ui->spinFOVFar->setValue(values[7].toDouble());
+    updateViewpointProperties();
+}
+
 void MainWindow::on_spinViewerMinY_valueChanged(double arg1)
 {
     editor.viewMinY = arg1;
@@ -2589,6 +2650,9 @@ void MainWindow::on_actionNew_triggered()
     undoHistory.clear();
     undoIndex = -1;
     pushUndoState();
+
+    mapFile.clear();
+    updateViewMarkButton();
 }
 
 void MainWindow::on_actionLoad_map_triggered()
@@ -2611,6 +2675,9 @@ void MainWindow::on_actionLoad_map_triggered()
     undoIndex = -1;
     pushUndoState();
     setWindowTitle("Waller Editor : " + QFileInfo(file).fileName());
+
+    mapFile = QFileInfo(file).absoluteFilePath();
+    updateViewMarkButton();
 }
 
 void MainWindow::on_actionSave_map_triggered()
@@ -2636,6 +2703,9 @@ void MainWindow::saveMap(bool submap)
     editor.rootMap.fog = editor.env.fog;
     editor.rootMap.save(file, submap);
     setWindowTitle("Waller Editor : " + QFileInfo(file).fileName());
+
+    mapFile = QFileInfo(file).absoluteFilePath();
+    updateViewMarkButton();
 }
 
 /*****************************************************************************/

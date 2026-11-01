@@ -91,6 +91,7 @@ public:
     void redo();
 
     void updateViewpointProperties();
+    void updateViewMarkButton();
     void updateViewNormals(bool normals);
     void updateViewMode();
 
@@ -117,6 +118,12 @@ private:
     QShortcut * shortcutEditLights;
     QShortcut * shortcutEditSpeakers;
     QShortcut * shortcutEditDelete;
+    QShortcut * shortcutViewerStore;
+    QShortcut * shortcutViewerRecall;
+
+// Viewpoint bookmark, one slot per map file, kept in the editor settings
+    QString mapFile;
+    QString viewMarkKey() const;
 
 private slots:
     void timerRender_tick();
@@ -285,6 +292,8 @@ private slots:
     void on_spinViewerY_valueChanged(double arg1);
     void on_spinViewerZ_valueChanged(double arg1);
     void on_spinViewerPan_valueChanged(double arg1);
+    void on_pushViewerStore_clicked();
+    void on_pushViewerRecall_clicked();
 
     void on_pushViewerTop_toggled(bool checked);
     void on_pushViewerFront_toggled(bool checked);
