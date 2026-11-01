@@ -288,6 +288,7 @@ private:
 
         bool push(const Cap & cap) {if (count >= CapStackMax) return false; caps[count++] = cap; return true;}
         void pop() {count--;}
+        void replace(const Cap & cap) {caps[count - 1] = cap;}
         const Cap & top() const {return caps[count - 1];}
     };
 
@@ -389,6 +390,11 @@ private:
     void surfaceDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
     Cap capFloorHeight(const Context & state, const Strip & strip, bool back);
     Cap capCeilingHeight(const Context & state, const Strip & strip, bool back);
+
+    /// \brief Bound for the rays passing over a wall top edge, false if nothing bounds them
+    bool edgeLowerBound(const Context & state, const Strip & strip, Cap & bound);
+    /// \brief Bound for the rays passing under a wall bottom edge, false if nothing bounds them
+    bool edgeUpperBound(const Context & state, const Strip & strip, Cap & bound);
 
     void buildTables();
 
