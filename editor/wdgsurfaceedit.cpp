@@ -40,8 +40,9 @@ void WdgSurfaceEdit::update()
         setSpinValueSilently(ui->spinShiftX, 0.0);
         setSpinValueSilently(ui->spinShiftY, 0.0);
         setCheckboxStateSilently(ui->checkAlpha, false);
-        setCheckboxStateSilently(ui->checkNoLight, false);
+        setCheckboxStateSilently(ui->checkNoEnvLight, false);
         setCheckboxStateSilently(ui->checkNoGlow, false);
+        setCheckboxStateSilently(ui->checkNoBleed, false);
         setCheckboxStateSilently(ui->checkNoFog, false);
         return;
     }
@@ -53,8 +54,9 @@ void WdgSurfaceEdit::update()
     setSpinValueSilently(ui->spinShiftX, surface.shiftX);
     setSpinValueSilently(ui->spinShiftY, surface.shiftY);
     setCheckboxStateSilently(ui->checkAlpha, surface.flags & SURFACE_FLAG_ALPHA);
-    setCheckboxStateSilently(ui->checkNoLight, surface.flags & SURFACE_FLAG_NO_LIGHT);
+    setCheckboxStateSilently(ui->checkNoEnvLight, surface.flags & SURFACE_FLAG_NO_ENV_LIGHT);
     setCheckboxStateSilently(ui->checkNoGlow, surface.flags & SURFACE_FLAG_NO_GLOW);
+    setCheckboxStateSilently(ui->checkNoBleed, surface.flags & SURFACE_FLAG_NO_BLEED);
     setCheckboxStateSilently(ui->checkNoFog, surface.flags & SURFACE_FLAG_NO_FOG);
 }
 
@@ -95,34 +97,16 @@ void WdgSurfaceEdit::on_spinShiftY_valueChanged(double arg1)
     emit surfaceChanged(surface);
 }
 
-void WdgSurfaceEdit::on_checkAlpha_toggled(bool checked)
+void WdgSurfaceEdit::setFlag(uint16_t flag, bool checked)
 {
     if (!hasSurface) return;
-    surface.flags &= ~SURFACE_FLAG_ALPHA;
-    if (checked) surface.flags |= SURFACE_FLAG_ALPHA;
+    surface.flags &= ~flag;
+    if (checked) surface.flags |= flag;
     emit surfaceChanged(surface);
 }
 
-void WdgSurfaceEdit::on_checkNoLight_toggled(bool checked)
-{
-    if (!hasSurface) return;
-    surface.flags &= ~SURFACE_FLAG_NO_LIGHT;
-    if (checked) surface.flags |= SURFACE_FLAG_NO_LIGHT;
-    emit surfaceChanged(surface);
-}
-
-void WdgSurfaceEdit::on_checkNoGlow_toggled(bool checked)
-{
-    if (!hasSurface) return;
-    surface.flags &= ~SURFACE_FLAG_NO_GLOW;
-    if (checked) surface.flags |= SURFACE_FLAG_NO_GLOW;
-    emit surfaceChanged(surface);
-}
-
-void WdgSurfaceEdit::on_checkNoFog_toggled(bool checked)
-{
-    if (!hasSurface) return;
-    surface.flags &= ~SURFACE_FLAG_NO_FOG;
-    if (checked) surface.flags |= SURFACE_FLAG_NO_FOG;
-    emit surfaceChanged(surface);
-}
+void WdgSurfaceEdit::on_checkAlpha_toggled(bool checked)      {setFlag(SURFACE_FLAG_ALPHA, checked);}
+void WdgSurfaceEdit::on_checkNoEnvLight_toggled(bool checked) {setFlag(SURFACE_FLAG_NO_ENV_LIGHT, checked);}
+void WdgSurfaceEdit::on_checkNoGlow_toggled(bool checked)     {setFlag(SURFACE_FLAG_NO_GLOW, checked);}
+void WdgSurfaceEdit::on_checkNoBleed_toggled(bool checked)    {setFlag(SURFACE_FLAG_NO_BLEED, checked);}
+void WdgSurfaceEdit::on_checkNoFog_toggled(bool checked)      {setFlag(SURFACE_FLAG_NO_FOG, checked);}

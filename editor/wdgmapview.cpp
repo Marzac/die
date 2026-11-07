@@ -75,6 +75,8 @@ void WdgMapView::mousePressEvent(QMouseEvent *event)
 
     dragX = event->pos().x();
 
+    if (!editor.wallSelector) return;
+
     int offsetX = (width() - frame->width()) / 2;
     int offsetY = (height() - frame->height()) / 2;
     int realX = dragX - offsetX;

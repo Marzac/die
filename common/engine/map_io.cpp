@@ -28,6 +28,26 @@
 static constexpr uint64_t TEXTURE_DATA_MAX = 16ull << 20;
 
 /*****************************************************************************/
+// Surface line, same layout for every object: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags
+static void writeSurface(FILE * file, int index, const Surface & s)
+{
+    fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hx\n", index, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
+}
+
+// Reads the rest of a surface line, with shifts (V1.2) or without (older doors / lifts / staircases)
+static void readSurface(FILE * file, Surface & s)
+{
+    fscanf(file, "%hu, %f, %f", &s.id, &s.scaleX, &s.scaleY);
+
+    char rest[128] = {};
+    if (!fgets(rest, sizeof(rest), file)) return;
+    if (sscanf(rest, " , %f , %f , %hx", &s.shiftX, &s.shiftY, &s.flags) == 3) return;
+
+    s.shiftX = s.shiftY = 0.0f;
+    sscanf(rest, " , %hx", &s.flags);
+}
+
+/*****************************************************************************/
 QString Map::getRelativePath(const QString & subMapPath)
 {
     QFileInfo baseInfo(path);
@@ -52,7 +72,7 @@ bool Map::save(const QString & filename, bool submap)
 
     fprintf(file, "# == DIE MAP == \n");
     fprintf(file, "# Fred's Lab 2024-2026\n");
-    fprintf(file, "# 06.10.26 - V1.1\n");
+    fprintf(file, "# 07.11.26 - V1.2\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");
@@ -67,10 +87,8 @@ bool Map::save(const QString & filename, bool submap)
     fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags\n");
     for (const Wall & w : walls) {
         fprintf(file, "W %04hu, %04hu, %+4.4f, %04hx, %+4.4f, %+4.4f, %+4.4f, %+4.4f\n", w.nodeID1, w.nodeID2, w.height, w.flags, w.floorFrontDrop, w.floorBackDrop, w.ceilingFrontDrop, w.ceilingBackDrop);
-        for (int j = 0; j < WALL_SURFACES_COUNT; j++) {
-            const Surface & s = w.surfaces[j];
-            fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hx\n", j, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
-        }
+        for (int j = 0; j < WALL_SURFACES_COUNT; j++)
+            writeSurface(file, j, w.surfaces[j]);
     } fprintf(file, "\n");
 
 // ==== SUBMAPS ====
@@ -89,23 +107,19 @@ bool Map::save(const QString & filename, bool submap)
     for (const Door & d : doors) {
         const char * name = d.name[0] ? d.name : "None";
         fprintf(file, "D %04hu, %+4.4f, %+4.4f, %+4.4f, %02hu, %02hu, %+4.4f, %+4.4f, %+4.4f, %.31s, %04hx, %.31s\n", d.nodeID, d.width, d.height, d.thick, d.mode, d.easing, d.angle, d.swing, d.time, tags.nameForTag(d.tag), d.flags, name);
-        for (int j = 0; j < DOOR_SURFACES_COUNT; j++) {
-            const Surface & s = d.surfaces[j];
-            fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %04hx\n", j, s.id, s.scaleX, s.scaleY, s.flags);
-        }
+        for (int j = 0; j < DOOR_SURFACES_COUNT; j++)
+            writeSurface(file, j, d.surfaces[j]);
     } fprintf(file, "\n");
 
 // ==== LIFTS ====
     fprintf(file, "# == LIFTS ==\n");
     fprintf(file, "# format: E nodeID, width, length, thick, travel, time, mode, easing, tag, flags, name\n");
-    fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, flags\n");
+    fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags\n");
     for (const Lift & e : lifts) {
         const char * name = e.name[0] ? e.name : "None";
         fprintf(file, "E %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %02hu, %02hu, %.31s, %04hx, %.31s\n", e.nodeID, e.width, e.length, e.thick, e.travel, e.time, e.mode, e.easing, tags.nameForTag(e.tag), e.flags, name);
-        for (int j = 0; j < LIFT_SURFACES_COUNT; j++) {
-            const Surface & s = e.surfaces[j];
-            fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %04hx\n", j, s.id, s.scaleX, s.scaleY, s.flags);
-        }
+        for (int j = 0; j < LIFT_SURFACES_COUNT; j++)
+            writeSurface(file, j, e.surfaces[j]);
     } fprintf(file, "\n");
 
 // ==== SPRITES ====
@@ -115,8 +129,7 @@ bool Map::save(const QString & filename, bool submap)
     for (const Sprite & b : sprites) {
         const char * name = b.name[0] ? b.name : "None";
         fprintf(file, "B %04hu, %+4.4f, %+4.4f, %+4.4f, %.31s, %04hx, %.31s\n", b.nodeID, b.width, b.height, b.pan, tags.nameForTag(b.tag), b.flags, name);
-        const Surface & s = b.surface;
-        fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hx\n", 0, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
+        writeSurface(file, 0, b.surface);
     } fprintf(file, "\n");
 
 // ==== STAIRCASES ====
@@ -125,10 +138,8 @@ bool Map::save(const QString & filename, bool submap)
     fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags\n");
     for (const Staircase & h : staircases) {
         fprintf(file, "H %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hu, %04hx\n", h.nodeID, h.pan, h.height, h.width, h.length, h.steps, h.flags);
-        for (int j = 0; j < STAIRCASE_SURFACES_COUNT; j++) {
-            const Surface & s = h.surfaces[j];
-            fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %04hx\n", j, s.id, s.scaleX, s.scaleY, s.flags);
-        }
+        for (int j = 0; j < STAIRCASE_SURFACES_COUNT; j++)
+            writeSurface(file, j, h.surfaces[j]);
     } fprintf(file, "\n");
 
 // ==== LIGHTS ====
@@ -344,7 +355,7 @@ bool Map::load(const QString & filename)
             memset(&s, 0, sizeof(Surface));
             uint16_t type = 0;
             fscanf(file, "%hu,", &type);
-            fscanf(file, "%hu, %f, %f, %hx\n", &s.id, &s.scaleX, &s.scaleY, &s.flags);
+            readSurface(file, s);
 
             if (lastC == 'W') {
                 if (type >= WALL_SURFACES_COUNT || walls.isEmpty()) continue;
