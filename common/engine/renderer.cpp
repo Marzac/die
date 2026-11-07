@@ -138,6 +138,7 @@ void Renderer::setGlowmapArea(float area)
 {
     if (area <= 0.0f) return;
     glowmapArea = area;
+    flags |= Renderer::FLAG_GLOWMAP_REBUILD;    // new scale: the still lights move
 }
 
 void Renderer::setFramesReso(int width, int height)
@@ -231,6 +232,8 @@ void Renderer::allocateGlowmap(int size)
     memset(glowmap, 0, size * size * sizeof(__m128));
     memset(glowmapStill, 0, size * size * sizeof(__m128));
     glowmapReso = size;
+// The still lights must be drawn again into the new maps
+    flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 bool Renderer::allocatePixelBuffer(uint32_t *& pixels, int width, int height)
@@ -392,7 +395,7 @@ void Renderer::lightsMash()
     const size_t gmSize = glowmapReso * glowmapReso * sizeof(__m128);
     if (!(flags & Renderer::FLAG_LIGHTS)) {
         memset(glowmap, 0, gmSize);
-        glowmapDirtyLast = {{0, glowmapReso, 0, glowmapReso}};
+        glowmapDirtyLast = {{0, 0, glowmapReso, glowmapReso}};
         return;
     }
 
@@ -403,7 +406,7 @@ void Renderer::lightsMash()
             glowmapConcurrent(glowmapStill, true);
         else glowmapChunk(glowmapStill, true, 0, glowmapReso);
         flags &= ~Renderer::FLAG_GLOWMAP_REBUILD;
-        dirtyBoxes.append({0, glowmapReso, 0, glowmapReso});
+        dirtyBoxes.append({0, 0, glowmapReso, glowmapReso});    // {beginX, beginZ, endX, endZ}: the whole map
     }
 
 // Concatenate the dirty boxes and keep the new one for next frame
