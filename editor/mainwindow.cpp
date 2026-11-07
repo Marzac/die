@@ -120,8 +120,8 @@ MainWindow::~MainWindow()
 /*****************************************************************************/
 void MainWindow::createRenderWindow()
 {
-    int screens = QGuiApplication::screens().count();
-    if (screens == 1) {
+    int screenCount = QGuiApplication::screens().count();
+    if (screenCount <= 1) {
         if (renderWindow) renderWindow->close();
         renderWindow = nullptr;
         return;
@@ -132,11 +132,21 @@ void MainWindow::createRenderWindow()
         return;
     }
 
-    renderWindow = new RenderWindow();
-    QRect rect = QGuiApplication::screens()[1]->geometry();
-    renderWindow->move(rect.x(), rect.y());
+    QScreen *mwScreen = this->window()->screen();
+    int mwScreenIndex = 0;
+    for (QScreen * screen : QGuiApplication::screens()) {
+        if (mwScreen == screen) break;
+        mwScreenIndex++;
+    }
 
-    renderWindow->showMaximized();
+    int rwScreenIndex = (mwScreenIndex + 1) % screenCount;
+    QScreen * rwScreen = QGuiApplication::screens()[rwScreenIndex];
+
+// Create the native window first, then place it
+    renderWindow = new RenderWindow();
+    renderWindow->winId();
+    renderWindow->setGeometry(rwScreen->geometry());
+    renderWindow->show();
     renderWindow->activateWindow();
 }
 
