@@ -238,8 +238,25 @@ public:
     int lightsCount;
     int lightsAllocated;
 
-    float lastFloor;
-    float lastCeiling;
+/// \brief Floor or ceiling plane: height at the probed position and world gradient (h = h0 + gx * dx + gz * dz)
+    typedef struct {
+        float h;
+        float gx, gz;
+    } Level;
+
+/// \brief Floor and ceiling planes around a position
+    typedef struct {
+        Level floor;            ///< closest plane below, h = HeightMin if none
+        Level ceiling;          ///< closest plane above, h = HeightMax if none
+    } Levels;
+
+    /// \brief Find the floor and ceiling at a position by casting one ray (pan in radians)
+    /// Uses the walls of the last render() call. The map is expected to delimit any
+    /// floor / ceiling change with a wall, so a single ray finds the planes around pos.
+    Levels probeLevels(const QVector3D & pos, float pan);
+
+    /// \brief Levels at the camera, probed once by the last render() call
+    Levels levels;
 
 private:
     static constexpr int StripsMax = 512;
@@ -309,12 +326,10 @@ private:
 
         Strip vStripsClipped[StripsMax];
         int vStripsClippedCount;
-
-        Cap ceiling;
-        Cap floor;
     } Context;
 
     Context renderStates[WorkerPool::WorkersMax];
+    Context probeState;             ///< scratch context of probeLevels()
 
     int frameResoX;
     int frameResoY;
@@ -381,7 +396,8 @@ private:
     void glowmapConcurrent(__m128 * gm, bool still);
     void texturesMash();
 
-    void findFloorCeilings(Context & state);
+    void castStrips(Context & state);
+    Level capLevel(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
     void drawVStrips(Context & state);
 
