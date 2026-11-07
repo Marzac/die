@@ -520,6 +520,7 @@ void Renderer::render(Viewpoint & vp)
 
 // Render frame
     viewPoint = vp;
+    levels = probeLevels(viewPoint.pos + viewPoint.offset, viewPoint.pan);
     if (flags & Renderer::FLAG_MULTITHREADING) renderConcurrent();
     else renderChunk(renderStates[0], 0, frameResoX);
 
@@ -564,15 +565,13 @@ void Renderer::renderConcurrent()
 /*****************************************************************************/
 void Renderer::renderChunk(Context & state, int x1, int x2)
 {
-// Render the strips
     const float angle = fovAngle * D2R;
-    const float proj = frameResoY / tanf(angle * 0.5f);
 
 // Clamp the shift to half the frame height
     state.casterVShift = frameResoY * viewPoint.tilt / angle;
     state.casterVShift = std::clamp(state.casterVShift, -0.5f * frameResoY, 0.5f * frameResoY);
     state.casterHorizon = frameResoY * 0.5f + state.casterVShift;
-    state.casterProjection = proj;
+    state.casterProjection = frameResoY / tanf(angle * 0.5f);
     state.casterPos = viewPoint.pos + viewPoint.offset;
 
 // Create the strips map
@@ -585,122 +584,20 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         state.casterRayX = cosf(pan + viewPoint.pan);
         state.casterRayZ = sinf(pan + viewPoint.pan);
         state.casterPC = 1.0f / cosf(pan);
+        castStrips(state);
 
-    // Compute wall strips
-        state.vStripsCount = 0;
-        float casterX = state.casterPos.x();
-        float casterZ = state.casterPos.z();
-        float invRayX = state.casterRayX != 0.0f ? 1.0f / state.casterRayX : 32768.0f;
-        float invRayZ = state.casterRayZ != 0.0f ? 1.0f / state.casterRayZ : 32768.0f;
-
-        for (int i = 0; i < wallsCount; i++) {
-            Segment & s = segments[i];
-            float z = 0.0f;
-            float k = 0.0f;
-
-        // Find intersection with wall
-            if (state.casterRayX * state.casterRayX > state.casterRayZ * state.casterRayZ) {
-                float ratio = state.casterRayZ * invRayX;
-                float delta = s.deltaX * ratio - s.deltaZ;
-                if (delta == 0.0f) continue;
-                float kd = (s.beginZ - casterZ) - (s.beginX - casterX) * ratio;
-                if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
-                else {if (kd > 0.0f || kd < delta) continue;}
-                k = kd / delta;
-                z = ((s.beginX - casterX) + k * s.deltaX) * invRayX;
-
-            }else{
-                float ratio = state.casterRayX * invRayZ;
-                float delta = s.deltaZ * ratio - s.deltaX;
-                if (delta == 0.0f) continue;
-                float kd = (s.beginX - casterX) - (s.beginZ - casterZ) * ratio;
-                if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
-                else {if (kd > 0.0f || kd < delta) continue;}
-                k = kd / delta;
-                z = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
-            }
-
-        // Clipping the intersection
-            if (z < fovDistanceNear) continue;
-            if (z > fovDistanceFar) continue;
-
-        // Find wall height
-            Wall & w = walls[i];
-            float div = (state.casterPC * proj) / z;
-            float bot1 = nodes[w.nodeID1].pos.y();
-            float bot2 = nodes[w.nodeID2].pos.y();
-            float bot = bot1 + (bot2 - bot1) * k;
-            float top = bot + w.height;
-
-        // Create a strip object
-            float casterY = state.casterPos.y();
-            Strip & strip = state.vStrips[state.vStripsCount];
-            strip.k = k;
-            strip.yTop = state.casterHorizon - (top - casterY) * div;
-            strip.yBot = state.casterHorizon - (bot - casterY) * div;
-            strip.yNoclipTop  = strip.yTop;
-            strip.yNoclipBot  = strip.yBot;
-            strip.yDarkenTop  = strip.yTop + occlusionLength * div;
-            strip.yDarkenBot  = strip.yBot - occlusionLength * div;
-            strip.hTop = top;
-            strip.hBot = bot;
-            strip.vTop = top - bot;
-            strip.vBot = 0.0f;
-            strip.u = k * s.length;
-            strip.dist = z;
-            strip.wallId = i;
-            strip.back = (state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) > 0.0f;
-
-        // Translate the wall flags into strip flags
-            strip.flags = VSTRIP_FLAG_FREE;
-            if (w.flags & WALL_FLAG_INVISIBLE) strip.flags |= VSTRIP_FLAG_INVISIBLE;
-            if (w.flags & WALL_FLAG_HIGHLIGHTED) strip.flags |= VSTRIP_FLAG_HIGHLIGHTED;
-
-            if (strip.back) {
-                if (w.flags & WALL_FLAG_CEILING_BACK) strip.flags |= VSTRIP_FLAG_HASCEILING;
-                if (w.flags & WALL_FLAG_FLOOR_BACK) strip.flags |= VSTRIP_FLAG_HASFLOOR;
-            }else{
-                if (w.flags & WALL_FLAG_CEILING_FRONT) strip.flags |= VSTRIP_FLAG_HASCEILING;
-                if (w.flags & WALL_FLAG_FLOOR_FRONT) strip.flags |= VSTRIP_FLAG_HASFLOOR;
-            }
-
-            if (w.flags & WALL_FLAG_INVISIBLE)
-                strip.flags |= VSTRIP_FLAG_SEETHROUGH;
-            else if (w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA)
-                strip.flags |= VSTRIP_FLAG_SEETHROUGH;
-
-            if (strip.back && (w.flags & WALL_FLAG_BACKCULLED))
-                strip.flags |= VSTRIP_FLAG_BACKCULLED | VSTRIP_FLAG_SEETHROUGH;
-
-        // Prepare the sorting
-            state.vStripsMap[state.vStripsCount] = state.vStripsCount;
-            state.vStripsZOrders[state.vStripsCount++] = z * z;
-        }
-
-    // Sort the strips per depth
-        std::sort(state.vStripsMap, state.vStripsMap + state.vStripsCount,
-            [&](uint16_t a, uint16_t b) {
-            float d1 = state.vStripsZOrders[a];
-            float d2 = state.vStripsZOrders[b];
-            return d1 < d2;
-        });
+    // Floor / ceiling planes
+        Cap ceiling = {levels.ceiling.h, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
+        Cap floor = {levels.floor.h, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
 
     // Render surfaces
         state.vStripsClippedCount = 0;
-        findFloorCeilings(state);
-
-    // Track the floor / ceiling under the camera (center column only)
-        if (state.casterColumn == frameResoX / 2) {
-            lastCeiling = state.ceiling.h0;
-            lastFloor = state.floor.h0;
-        }
-
         CapStack upperBounds = {};
         upperBounds.push({HeightMax, 0.0f});
-        upperBounds.push({state.ceiling.h0 + epsilon, state.ceiling.slope});
+        upperBounds.push({ceiling.h0 + epsilon, ceiling.slope});
         CapStack lowerBounds = {};
         lowerBounds.push({HeightMin, 0.0f});
-        lowerBounds.push({state.floor.h0 - epsilon, state.floor.slope});
+        lowerBounds.push({floor.h0 - epsilon, floor.slope});
         renderVertical(state, 0, upperBounds, lowerBounds, 0, frameResoY);
 
     // Render walls
@@ -709,54 +606,165 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
 }
 
 /*****************************************************************************/
-void Renderer::findFloorCeilings(Context & state)
+void Renderer::castStrips(Context & state)
 {
-    float camY = state.casterPos.y();
-    int strips = state.vStripsCount;
-    float secondLastCeiling = HeightMax;
-    float secondLastFloor = HeightMin;
+    state.vStripsCount = 0;
+    float casterX = state.casterPos.x();
+    float casterY = state.casterPos.y();
+    float casterZ = state.casterPos.z();
+    float invRayX = state.casterRayX != 0.0f ? 1.0f / state.casterRayX : 32768.0f;
+    float invRayZ = state.casterRayZ != 0.0f ? 1.0f / state.casterRayZ : 32768.0f;
 
-// Walk from the furthest wall to the closest
-    QList<Cap> caps;
-    for (int s = strips - 1; s >= 0; s--) {
-        Strip & strip = state.vStrips[state.vStripsMap[s]];
-        float wBot = strip.hBot;
-        float wTop = strip.hTop;
+    for (int i = 0; i < wallsCount; i++) {
+        Segment & s = segments[i];
+        float z = 0.0f;
+        float k = 0.0f;
 
-    // Mask out surfaces covered, compared at the wall distance
-        for (int i = caps.size() - 1; i >= 0; i--) {
-            float h = caps[i].h0 + strip.dist * caps[i].slope;
-            if (h >= wBot - epsilon && h <= wTop + epsilon)
-                caps.removeAt(i);
+    // Find intersection with wall
+        if (state.casterRayX * state.casterRayX > state.casterRayZ * state.casterRayZ) {
+            float ratio = state.casterRayZ * invRayX;
+            float delta = s.deltaX * ratio - s.deltaZ;
+            if (delta == 0.0f) continue;
+            float kd = (s.beginZ - casterZ) - (s.beginX - casterX) * ratio;
+            if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
+            else {if (kd > 0.0f || kd < delta) continue;}
+            k = kd / delta;
+            z = ((s.beginX - casterX) + k * s.deltaX) * invRayX;
+
+        }else{
+            float ratio = state.casterRayX * invRayZ;
+            float delta = s.deltaZ * ratio - s.deltaX;
+            if (delta == 0.0f) continue;
+            float kd = (s.beginX - casterX) - (s.beginZ - casterZ) * ratio;
+            if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
+            else {if (kd > 0.0f || kd < delta) continue;}
+            k = kd / delta;
+            z = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
         }
 
-    // Add the ceiling / floor surfaces
-        if (strip.flags & VSTRIP_FLAG_HASCEILING)
-            caps.append(capCeilingHeight(state, strip, strip.back));
-        if (strip.flags & VSTRIP_FLAG_HASFLOOR)
-            caps.append(capFloorHeight(state, strip, strip.back));
+    // Clipping the intersection
+        if (z < fovDistanceNear) continue;
+        if (z > fovDistanceFar) continue;
 
-    // Closest height above = ceiling, below = floor
-        continue;
+    // Find wall height
+        Wall & w = walls[i];
+        float div = (state.casterPC * state.casterProjection) / z;
+        float bot1 = nodes[w.nodeID1].pos.y();
+        float bot2 = nodes[w.nodeID2].pos.y();
+        float bot = bot1 + (bot2 - bot1) * k;
+        float top = bot + w.height;
+
+    // Create a strip object
+        Strip & strip = state.vStrips[state.vStripsCount];
+        strip.k = k;
+        strip.yTop = state.casterHorizon - (top - casterY) * div;
+        strip.yBot = state.casterHorizon - (bot - casterY) * div;
+        strip.yNoclipTop = strip.yTop;
+        strip.yNoclipBot = strip.yBot;
+        strip.yDarkenTop = strip.yTop + occlusionLength * div;
+        strip.yDarkenBot = strip.yBot - occlusionLength * div;
+        strip.hTop = top;
+        strip.hBot = bot;
+        strip.vTop = top - bot;
+        strip.vBot = 0.0f;
+        strip.u = k * s.length;
+        strip.dist = z;
+        strip.wallId = i;
+        strip.back = (state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) > 0.0f;
+
+    // Translate the wall flags into strip flags
+        strip.flags = VSTRIP_FLAG_FREE;
+        if (w.flags & WALL_FLAG_INVISIBLE) strip.flags |= VSTRIP_FLAG_INVISIBLE;
+        if (w.flags & WALL_FLAG_HIGHLIGHTED) strip.flags |= VSTRIP_FLAG_HIGHLIGHTED;
+
+        if (strip.back) {
+            if (w.flags & WALL_FLAG_CEILING_BACK) strip.flags |= VSTRIP_FLAG_HASCEILING;
+            if (w.flags & WALL_FLAG_FLOOR_BACK) strip.flags |= VSTRIP_FLAG_HASFLOOR;
+        }else{
+            if (w.flags & WALL_FLAG_CEILING_FRONT) strip.flags |= VSTRIP_FLAG_HASCEILING;
+            if (w.flags & WALL_FLAG_FLOOR_FRONT) strip.flags |= VSTRIP_FLAG_HASFLOOR;
+        }
+
+        if (w.flags & WALL_FLAG_INVISIBLE)
+            strip.flags |= VSTRIP_FLAG_SEETHROUGH;
+        else if (w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA)
+            strip.flags |= VSTRIP_FLAG_SEETHROUGH;
+
+        if (strip.back && (w.flags & WALL_FLAG_BACKCULLED))
+            strip.flags |= VSTRIP_FLAG_BACKCULLED | VSTRIP_FLAG_SEETHROUGH;
+
+    // Prepare the sorting
+        state.vStripsMap[state.vStripsCount] = state.vStripsCount;
+        state.vStripsZOrders[state.vStripsCount++] = z * z;
     }
 
-// Check the last levels, compared under the camera
-    state.ceiling = {HeightMax, 0.0f};
-    state.floor = {HeightMin, 0.0f};
-    for (const Cap & l : caps) {
-        if (l.h0 > camY && l.h0 < state.ceiling.h0) state.ceiling = l;
-        if (l.h0 < camY && l.h0 > state.floor.h0) state.floor = l;
+// Sort the strips per depth
+    std::sort(state.vStripsMap, state.vStripsMap + state.vStripsCount,
+        [&](uint16_t a, uint16_t b) {
+        float d1 = state.vStripsZOrders[a];
+        float d2 = state.vStripsZOrders[b];
+        return d1 < d2;
+    });
+}
+
+/*****************************************************************************/
+Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
+{
+    Context & state = probeState;
+    state.casterPos = pos;
+    state.casterRayX = cosf(pan);
+    state.casterRayZ = sinf(pan);
+    state.casterPC = 1.0f;
+    state.casterProjection = 1.0f;
+    state.casterHorizon = 0.0f;
+    castStrips(state);
+
+// Walk from the furthest wall to the closest, a wall hides the planes it crosses
+    static constexpr int LevelsMax = 2 * StripsMax;
+    Level found[LevelsMax];
+    int foundCount = 0;
+    for (int s = state.vStripsCount - 1; s >= 0; s--) {
+        const Strip & strip = state.vStrips[state.vStripsMap[s]];
+        for (int i = foundCount - 1; i >= 0; i--) {
+            const Level & l = found[i];
+            float h = l.h + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
+            if (h >= strip.hBot - epsilon && h <= strip.hTop + epsilon)
+                found[i] = found[--foundCount];
+        }
+        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capLevel(state, strip, strip.back, true);
+        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capLevel(state, strip, strip.back, false);
     }
-    if (state.ceiling.h0 == HeightMax) state.ceiling = {secondLastCeiling, 0.0f};
-    if (state.floor.h0 == HeightMin) state.floor = {secondLastFloor, 0.0f};
+
+// Closest plane above = ceiling, below = floor
+    Levels result = {{HeightMin, 0.0f, 0.0f}, {HeightMax, 0.0f, 0.0f}};
+    float y = pos.y();
+    for (int i = 0; i < foundCount; i++) {
+        const Level & l = found[i];
+        if (l.h > y && l.h < result.ceiling.h) result.ceiling = l;
+        if (l.h < y && l.h > result.floor.h) result.floor = l;
+    }
+    return result;
 }
-/*
-if (s != 1) continue;
-for (const Cap & l : caps) {
-    if (l.h0 > camY && l.h0 < secondLastCeiling) secondLastCeiling = l.h0;
-    if (l.h0 < camY && l.h0 > secondLastFloor) secondLastFloor = l.h0;
+
+/*****************************************************************************/
+Renderer::Level Renderer::capLevel(const Context & state, const Strip & strip, bool back, bool ceiling)
+{
+    const Wall & w = walls[strip.wallId];
+    const Segment & s = segments[strip.wallId];
+    Cap cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
+
+// Plane gradient: rise along the wall, drop away from it on the surface side
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+    float drop = ceiling ? (back ? w.ceilingBackDrop : w.ceilingFrontDrop)
+                         : (back ? w.floorBackDrop : w.floorFrontDrop);
+    drop *= 0x1p-3f;
+    float ux = s.deltaX * s.invLen;
+    float uz = s.deltaZ * s.invLen;
+    float nx = back ? -uz : uz;     // front normal is (uz, -ux)
+    float nz = back ? ux : -ux;
+    return {cap.h0, rise * ux - drop * nx, rise * uz - drop * nz};
 }
-*/
+
 /*****************************************************************************/
 void Renderer::renderVertical(Context & state, int depth,
                             CapStack upperBounds, CapStack lowerBounds,

@@ -409,8 +409,8 @@ void MainWindow::timerUI_tick()
     stats = stats.arg(editor.editedMap->sprites.count());
     stats = stats.arg(editor.editedMap->speakers.count());
 
-    stats = stats.arg(renderer.lastFloor);
-    stats = stats.arg(renderer.lastCeiling);
+    stats = stats.arg(renderer.levels.floor.h);
+    stats = stats.arg(renderer.levels.ceiling.h);
     ui->labelStatistics->setText(stats);
 }
 
