@@ -30,9 +30,13 @@ private slots:
     void on_spinShiftY_valueChanged(double arg1);
 
     void on_checkAlpha_toggled(bool checked);
-    void on_checkNoLight_toggled(bool checked);
+    void on_checkNoEnvLight_toggled(bool checked);
     void on_checkNoGlow_toggled(bool checked);
+    void on_checkNoBleed_toggled(bool checked);
     void on_checkNoFog_toggled(bool checked);
+
+private:
+    void setFlag(uint16_t flag, bool checked);
 
 private:
     Ui::WdgSurfaceEdit *ui;
