@@ -1060,6 +1060,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallFloorBack">
+      <property name="toolTip">
+       <string>Floor on the back side</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1122,6 +1125,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallCeilingBack">
+      <property name="toolTip">
+       <string>Ceiling on the back side</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1135,6 +1141,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallInvisible">
+      <property name="toolTip">
+       <string>Not drawn, not solid</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -1173,6 +1182,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallFloorFront">
+      <property name="toolTip">
+       <string>Floor on the front side</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1199,6 +1211,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallCeilingFront">
+      <property name="toolTip">
+       <string>Ceiling on the front side</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>20</x>
@@ -1231,6 +1246,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkWallBackculled">
+      <property name="toolTip">
+       <string>Hidden when seen from behind</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2193,6 +2211,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkDoorLocked">
+      <property name="toolTip">
+       <string>Won&apos;t open: shakes and plays the locked sound</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2264,6 +2285,9 @@
       <string>Lifts</string>
      </attribute>
      <widget class="QCheckBox" name="checkLiftLocked">
+      <property name="toolTip">
+       <string>Not implemented yet</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2660,6 +2684,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkLiftHaltable">
+      <property name="toolTip">
+       <string>Can be stopped while moving</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2673,6 +2700,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkLiftContinuous">
+      <property name="toolTip">
+       <string>Moves back and forth endlessly</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2686,6 +2716,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkLiftReturn">
+      <property name="toolTip">
+       <string>Comes back once after reaching the end</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2817,6 +2850,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpriteInvisible">
+      <property name="toolTip">
+       <string>Not drawn</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2830,6 +2866,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpriteBackculled">
+      <property name="toolTip">
+       <string>Hidden when seen from behind</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -2930,6 +2969,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpriteAutopan">
+      <property name="toolTip">
+       <string>Always faces the camera</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3005,6 +3047,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpriteShadows">
+      <property name="toolTip">
+       <string>Blocks the light of local lights</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3099,6 +3144,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkLightEnable">
+      <property name="toolTip">
+       <string>Light is on</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3438,6 +3486,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpeakerAuto">
+      <property name="toolTip">
+       <string>Starts playing with the map</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3451,6 +3502,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpeakerLoop">
+      <property name="toolTip">
+       <string>Repeats endlessly</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3480,6 +3534,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpeakerOmni">
+      <property name="toolTip">
+       <string>Same level in every direction</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3506,6 +3563,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpeakerToggle">
+      <property name="toolTip">
+       <string>With trigger: activating again stops it</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -3622,6 +3682,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkSpeakerTrigger">
+      <property name="toolTip">
+       <string>Plays when activated</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>70</x>
@@ -4157,6 +4220,9 @@
       <string>Stage</string>
      </attribute>
      <widget class="QCheckBox" name="checkFogEnable">
+      <property name="toolTip">
+       <string>Distance fog</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4388,6 +4454,9 @@
       <string>Config</string>
      </attribute>
      <widget class="QCheckBox" name="checkRendererMotionblur">
+      <property name="toolTip">
+       <string>Blend with the previous frame</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4404,6 +4473,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererSurfacesEnable">
+      <property name="toolTip">
+       <string>Draw the floors and ceilings</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4477,6 +4549,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererVignetting">
+      <property name="toolTip">
+       <string>Darken the frame borders</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4493,6 +4568,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererWallsEnable">
+      <property name="toolTip">
+       <string>Draw the walls</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4509,6 +4587,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererOcclusionEnable">
+      <property name="toolTip">
+       <string>Darken the surfaces near wall edges</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4525,6 +4606,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererMultithreadingEnable">
+      <property name="toolTip">
+       <string>Render on several threads</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4660,6 +4744,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererLightsEnable">
+      <property name="toolTip">
+       <string>Local lights (glowmap)</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4689,6 +4776,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererAlphaFeatures">
+      <property name="toolTip">
+       <string>Not implemented yet</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4843,6 +4933,9 @@
       </property>
      </widget>
      <widget class="QCheckBox" name="checkRendererGamma">
+      <property name="toolTip">
+       <string>Contrast curve on the final image</string>
+      </property>
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4947,6 +5040,9 @@
      <string>Editor:</string>
     </property>
     <widget class="QCheckBox" name="checkEditorSnap">
+     <property name="toolTip">
+      <string>Snap to the grid</string>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -5016,6 +5112,9 @@
      </item>
     </widget>
     <widget class="QCheckBox" name="checkEditorCollisions">
+     <property name="toolTip">
+      <string>The 3D camera can&apos;t go through walls</string>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -5032,6 +5131,9 @@
      </property>
     </widget>
     <widget class="QCheckBox" name="checkEditorGravity">
+     <property name="toolTip">
+      <string>Not implemented yet</string>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -5048,6 +5150,9 @@
      </property>
     </widget>
     <widget class="QCheckBox" name="checkEditorWallSelector">
+     <property name="toolTip">
+      <string>Click in the 3D view to select a wall</string>
+     </property>
      <property name="geometry">
       <rect>
        <x>10</x>

@@ -170,6 +170,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="checkAlpha">
+   <property name="toolTip">
+    <string>Magenta texels are transparent</string>
+   </property>
    <property name="geometry">
     <rect>
      <x>70</x>
@@ -192,7 +195,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Ignore the environment light (sun ambient + ray). With no glow too: fullbright, the texture as is.</string>
+    <string>Ignore the sun light. With no glow: texture as is</string>
    </property>
    <property name="text">
     <string>no env light</string>
@@ -208,7 +211,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>Ignore the local and dynamic lights (glowmap). With no env light too: fullbright, the texture as is.</string>
+    <string>Ignore the local lights. With no env light: texture as is</string>
    </property>
    <property name="text">
     <string>no glow</string>
@@ -224,7 +227,7 @@
     </rect>
    </property>
    <property name="toolTip">
-    <string>No light bleed: keeps the colors saturated.</string>
+    <string>No light bleed: saturated colors</string>
    </property>
    <property name="text">
     <string>no bleed</string>
@@ -241,6 +244,9 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="checkNoFog">
+   <property name="toolTip">
+    <string>Not affected by the fog</string>
+   </property>
    <property name="geometry">
     <rect>
      <x>70</x>
