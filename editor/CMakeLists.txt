@@ -44,8 +44,23 @@ qt_add_executable(waller WIN32 ${SOURCES}
     wdgsurfaceedit.h wdgsurfaceedit.ui
     wdgutilities.h)
 
+# Build version header (buildinfo.h), read from git on every build
+find_package(Git QUIET)
+set(BUILDINFO_HEADER ${CMAKE_CURRENT_BINARY_DIR}/buildinfo.h)
+add_custom_target(waller_buildinfo
+    COMMAND ${CMAKE_COMMAND}
+        -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/..
+        -DOUTPUT=${BUILDINFO_HEADER}
+        -DGIT_EXECUTABLE=${GIT_EXECUTABLE}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/../common/version.cmake
+    BYPRODUCTS ${BUILDINFO_HEADER}
+    COMMENT "Reading the build version from git"
+    VERBATIM)
+add_dependencies(waller waller_buildinfo)
+
 target_include_directories(waller PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_BINARY_DIR}
     ../common/engine
 )
 
