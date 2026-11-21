@@ -800,9 +800,9 @@ void MainWindow::updateLightProperties()
 {
     if (editor.selectedLight < 0) {
         ui->plainLightID->setPlainText("None");
-        ui->scrollLightStrength->setValue(0);
+        ui->spinLightStrength->setValue(0);
         ui->spinLightFalloff->setValue(0);
-        ui->scrollLightSpeed->setValue(0);
+        ui->spinLightSpeed->setValue(0);
         ui->pushLightColorA->setStyleSheet("background-color: #000");
         ui->pushLightColorB->setStyleSheet("background-color: #000");
         ui->comboLightAnimation->setCurrentIndex(0);
@@ -815,9 +815,9 @@ void MainWindow::updateLightProperties()
 
     ui->plainLightID->setPlainText(QString::number(editor.selectedLight));
 
-    ui->scrollLightStrength->setValue((int)(l.strength * 32));
+    ui->spinLightStrength->setValue(l.strength);
     ui->spinLightFalloff->setValue(l.falloff);
-    ui->scrollLightSpeed->setValue((int)(l.speed * 16));
+    ui->spinLightSpeed->setValue(l.speed);
     ui->pushLightColorA->setStyleSheet("background-color: " + QColor(l.colorA).name());
     ui->pushLightColorB->setStyleSheet("background-color: " + QColor(l.colorB).name());
     ui->comboLightAnimation->setCurrentIndex(l.anim);
@@ -934,33 +934,19 @@ void MainWindow::updateEngineProperties()
     setCheckboxStateSilently(ui->checkRendererAlphaFeatures, flags & Renderer::FLAG_ALPHA_FEATURES);
     setCheckboxStateSilently(ui->checkRendererGamma, flags & Renderer::FLAG_GAMMA);
 
-    ui->scrollRendererMotionblurPercent->blockSignals(true);
-    ui->scrollRendererMotionblurPercent->setValue((int)renderer.motionBlurFactor);
-    ui->scrollRendererMotionblurPercent->blockSignals(false);
-    ui->scrollRendererVignettingInner->blockSignals(true);
-    ui->scrollRendererVignettingInner->setValue((int)renderer.vignetteInnerRadius);
-    ui->scrollRendererVignettingInner->blockSignals(false);
-    ui->scrollRendererVignettingOuter->blockSignals(true);
-    ui->scrollRendererVignettingOuter->setValue((int)renderer.vignetteOuterRadius);
-    ui->scrollRendererVignettingOuter->blockSignals(false);
+    setSpinValueSilently(ui->spinRendererMotionblurPercent, renderer.motionBlurFactor);
+    setSpinValueSilently(ui->spinRendererVignettingInner, renderer.vignetteInnerRadius);
+    setSpinValueSilently(ui->spinRendererVignettingOuter, renderer.vignetteOuterRadius);
 
-    ui->scrollRendererGammaKRed->blockSignals(true);
-    ui->scrollRendererGammaKRed->setValue((int)(renderer.gammaKRed * 100.0f + 0.5f));
-    ui->scrollRendererGammaKRed->blockSignals(false);
-    ui->scrollRendererGammaKGreen->blockSignals(true);
-    ui->scrollRendererGammaKGreen->setValue((int)(renderer.gammaKGreen * 100.0f + 0.5f));
-    ui->scrollRendererGammaKGreen->blockSignals(false);
-    ui->scrollRendererGammaKBlue->blockSignals(true);
-    ui->scrollRendererGammaKBlue->setValue((int)(renderer.gammaKBlue * 100.0f + 0.5f));
-    ui->scrollRendererGammaKBlue->blockSignals(false);
+    setSpinValueSilently(ui->spinRendererGammaKRed, renderer.gammaKRed);
+    setSpinValueSilently(ui->spinRendererGammaKGreen, renderer.gammaKGreen);
+    setSpinValueSilently(ui->spinRendererGammaKBlue, renderer.gammaKBlue);
 
     setSpinValueSilently(ui->spinViewportResoX, renderer.getFrameResoX());
     setSpinValueSilently(ui->spinViewportResoY, renderer.getFrameResoY());
 
     setSpinValueSilently(ui->spinRendererOcclusionLength, renderer.occlusionLength);
-    ui->scrollRendererOcclusionDarken->blockSignals(true);
-    ui->scrollRendererOcclusionDarken->setValue((int)(renderer.occlusionDarken * 100.0f));
-    ui->scrollRendererOcclusionDarken->blockSignals(false);
+    setSpinValueSilently(ui->spinRendererOcclusionDarken, renderer.occlusionDarken);
 }
 
 /*****************************************************************************/
@@ -1857,14 +1843,14 @@ void MainWindow::on_pushLightColorB_clicked()
     renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
-void MainWindow::on_scrollLightStrength_valueChanged(int value)
+void MainWindow::on_spinLightStrength_valueChanged(double arg1)
 {
     if (editor.selectedLight < 0) return;
     scheduleUndoPush();
     for (int i = 0; i < editor.editedMap->lights.count(); i++) {
         Light & l = editor.editedMap->lights[i];
         if (!l.selected) continue;
-        l.strength = value * 0.03125f;
+        l.strength = arg1;
     }
     renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
@@ -1893,14 +1879,14 @@ void MainWindow::on_comboLightAnimation_currentIndexChanged(int index)
     renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
-void MainWindow::on_scrollLightSpeed_valueChanged(int value)
+void MainWindow::on_spinLightSpeed_valueChanged(double arg1)
 {
     if (editor.selectedLight < 0) return;
     scheduleUndoPush();
     for (int i = 0; i < editor.editedMap->lights.count(); i++) {
         Light & l = editor.editedMap->lights[i];
         if (!l.selected) continue;
-        l.speed = value * 0.0625f;
+        l.speed = arg1;
     }
 }
 
@@ -2956,25 +2942,25 @@ void MainWindow::on_spinRendererOcclusionLength_valueChanged(double arg1)
     renderer.occlusionLength = arg1;
 }
 
-void MainWindow::on_scrollRendererOcclusionDarken_valueChanged(int value)
+void MainWindow::on_spinRendererOcclusionDarken_valueChanged(double arg1)
 {
-    renderer.occlusionDarken = value * 0.01f;
+    renderer.occlusionDarken = arg1;
 }
 
 /*****************************************************************************/
-void MainWindow::on_scrollRendererMotionblurPercent_valueChanged(int value)
+void MainWindow::on_spinRendererMotionblurPercent_valueChanged(double arg1)
 {
-    renderer.motionBlurFactor = value;
+    renderer.motionBlurFactor = arg1;
 }
 
-void MainWindow::on_scrollRendererVignettingInner_valueChanged(int value)
+void MainWindow::on_spinRendererVignettingInner_valueChanged(double arg1)
 {
-    renderer.vignetteInnerRadius = value;
+    renderer.vignetteInnerRadius = arg1;
 }
 
-void MainWindow::on_scrollRendererVignettingOuter_valueChanged(int value)
+void MainWindow::on_spinRendererVignettingOuter_valueChanged(double arg1)
 {
-    renderer.vignetteOuterRadius = value;
+    renderer.vignetteOuterRadius = arg1;
 }
 
 void MainWindow::on_checkRendererGamma_toggled(bool checked)
@@ -2982,19 +2968,19 @@ void MainWindow::on_checkRendererGamma_toggled(bool checked)
     renderer.checkFlag(Renderer::FLAG_GAMMA, checked);
 }
 
-void MainWindow::on_scrollRendererGammaKRed_valueChanged(int value)
+void MainWindow::on_spinRendererGammaKRed_valueChanged(double arg1)
 {
-    renderer.gammaKRed = value * 0.01f;
+    renderer.gammaKRed = arg1;
 }
 
-void MainWindow::on_scrollRendererGammaKGreen_valueChanged(int value)
+void MainWindow::on_spinRendererGammaKGreen_valueChanged(double arg1)
 {
-    renderer.gammaKGreen = value * 0.01f;
+    renderer.gammaKGreen = arg1;
 }
 
-void MainWindow::on_scrollRendererGammaKBlue_valueChanged(int value)
+void MainWindow::on_spinRendererGammaKBlue_valueChanged(double arg1)
 {
-    renderer.gammaKBlue = value * 0.01f;
+    renderer.gammaKBlue = arg1;
 }
 
 /*****************************************************************************/
