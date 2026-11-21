@@ -56,7 +56,7 @@ private:
 
     static QBrush gridMajor;
     static QBrush gridMinor;
-    static QBrush gridScissor;
+    static QPen gridScissor;
 
     static QPen colorPrincipal;
     static QPen colorSelected;
@@ -99,6 +99,7 @@ private:
     void drawViewLabel(QPainter & painter);
     void drawGrid(QPainter & painter, QVector2D & org);
     void drawGlowMap(QPainter & painter, QVector2D & org);
+    void drawHeightLimits(QPainter & painter, QVector2D & org);
 
     void drawArrow(QPainter & painter, QVector2D & org, QVector2D &pos, float pan, float length);
     void drawMap(QPainter & painter, Map & map);
