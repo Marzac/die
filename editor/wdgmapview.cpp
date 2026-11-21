@@ -54,17 +54,16 @@ void WdgMapView::paintEvent(QPaintEvent *)
     int offsetY = (height() - frame->height()) / 2;
     painter.drawImage(offsetX, offsetY, *frame);
 
-// Handle selection: the click was picked by the render
-    if (!clickRegistered) return;
-    clickRegistered = false;
+    if (clickRegistered) {
+        clickRegistered = false;
+        editor.wallDeselectAll();
 
-    uint16_t wid = renderer.clickGetWallID();
-    if (wid == Renderer::ClickNoWall) return;
+        uint16_t wid = renderer.clickGetWallID();
+        if (wid != Renderer::ClickNoWall)
+            editor.wallSelect(wid);
 
-// Update the editor
-    editor.wallDeselectAll();
-    editor.wallSelect(wid);
-    mainWindow->updateWallProperties();
+        mainWindow->updateWallProperties();
+    }
 }
 
 /*****************************************************************************/
