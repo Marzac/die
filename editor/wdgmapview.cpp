@@ -59,8 +59,11 @@ void WdgMapView::paintEvent(QPaintEvent *)
         editor.wallDeselectAll();
 
         uint16_t wid = renderer.clickGetWallID();
-        if (wid != Renderer::ClickNoWall)
+        if (wid != Renderer::ClickNoWall) {
+        // Switch mode first: the switch deselects everything
+            if (editor.editMode != EDIT_MODE_WALLS) mainWindow->setEditMode(EDIT_MODE_WALLS);
             editor.wallSelect(wid);
+        }
 
         mainWindow->updateWallProperties();
     }
