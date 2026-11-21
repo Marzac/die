@@ -173,6 +173,8 @@ bool Renderer::configLoad(const QString & filename)
             if (atoi(valueStr)) flags |= Renderer::FLAG_VIGNETTE; else flags &= ~Renderer::FLAG_VIGNETTE;
         } else if (strcmp(key, "Gamma") == 0) {
             if (atoi(valueStr)) flags |= Renderer::FLAG_GAMMA; else flags &= ~Renderer::FLAG_GAMMA;
+        } else if (strcmp(key, "SunBleed") == 0) {
+            if (atoi(valueStr)) flags |= Renderer::FLAG_SUN_BLEED; else flags &= ~Renderer::FLAG_SUN_BLEED;
         } else if (strcmp(key, "Multithreading") == 0) {
             if (atoi(valueStr)) flags |= Renderer::FLAG_MULTITHREADING; else flags &= ~Renderer::FLAG_MULTITHREADING;
         }
@@ -237,6 +239,7 @@ bool Renderer::configSave(const QString & filename)
     fprintf(file, "MotionBlur = %d\n",       (flags & Renderer::FLAG_MOTIONBLUR) ? 1 : 0);
     fprintf(file, "Vignette = %d\n",         (flags & Renderer::FLAG_VIGNETTE) ? 1 : 0);
     fprintf(file, "Gamma = %d\n",            (flags & Renderer::FLAG_GAMMA) ? 1 : 0);
+    fprintf(file, "SunBleed = %d\n",         (flags & Renderer::FLAG_SUN_BLEED) ? 1 : 0);
     fprintf(file, "Multithreading = %d\n",   (flags & Renderer::FLAG_MULTITHREADING) ? 1 : 0);
     fprintf(file, "\n");
 
