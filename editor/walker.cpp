@@ -72,7 +72,7 @@ void Walker::update()
 void Walker::updateMove()
 {
     pan += speedPan * gamepads[0].leftX * R2D;
-    pan = fmodf(pan, 360.0f);
+    pan = remainderf(pan, 360.0f);
 
     pitchTargetPad = gamepads[0].rightY * cameraPitch;
     float pitchTarget = pitchTargetPad + pitchTargetMouse;
