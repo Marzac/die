@@ -15,7 +15,7 @@ Cap convention (as the renderer reads it):
     else use a step (door sill), which keeps the two textures apart
     (base cap = floor surface, top cap = ceiling surface).
 
-Run: python gen_complex.py  ->  writes test_complex.map next to this script.
+Run: python gen_complex.py  ->  writes test_complex_thick.map next to this script.
 """
 
 import math
@@ -26,6 +26,8 @@ SKY = 256.0
 
 # Texture tiles of default.png
 TEX_CHECKER, TEX_BRICK, TEX_STONE, TEX_WOOD, TEX_MARBLE, TEX_SKY = 0, 1, 2, 3, 4, 5
+# Surface scale: the renderer maps it against texture size / 256, 16 = one 64 texel tile per 16 units
+TEX_SCALE = 16.0
 
 # Surface flags
 SURFACE_NO_ENV_LIGHT, SURFACE_NO_GLOW = 0x0008, 0x0010
@@ -50,7 +52,7 @@ class Plane:
 
 
 class Sector:
-    def __init__(self, name, rect, floor, ceil, wall_tex, floor_tex, ceil_tex, ceil_scale=4.0):
+    def __init__(self, name, rect, floor, ceil, wall_tex, floor_tex, ceil_tex, ceil_scale=TEX_SCALE):
         self.name = name
         self.rect = rect                    # (x1, z1, x2, z2) or None
         self.floor = floor                  # Plane
@@ -78,7 +80,7 @@ class MapWriter:
         return self.node_ids[key]
 
     def wall(self, p1, p2, side_a, point_a, side_b, base, top, extra_flags=0,
-             face_tex=None, scale=4.0, surf_flags=0):
+             face_tex=None, scale=TEX_SCALE, surf_flags=0):
         """
         Wall from p1 to p2 (x, z), base / top: Plane of its bottom and top edges.
         side_a: sector on the side of point_a, side_b: sector on the other side (None = solid).
@@ -101,7 +103,7 @@ class MapWriter:
         flags = extra_flags
         drops = {"ff": 0.0, "fb": 0.0, "cf": 0.0, "cb": 0.0}
         floor_tex = ceil_tex = None
-        ceil_scale = 4.0
+        ceil_scale = TEX_SCALE
 
         def on_plane(edge, plane):
             return (abs(edge.at(x1, z1) - plane.at(x1, z1)) < EPS and
@@ -124,7 +126,7 @@ class MapWriter:
                     break
         # Top cap: the sector ceiling seen from below, or its floor seen from above
             for plane, tex, sc in ((sector.ceil, sector.ceil_tex, sector.ceil_scale),
-                                   (sector.floor, sector.floor_tex, 4.0)):
+                                   (sector.floor, sector.floor_tex, TEX_SCALE)):
                 if plane is not None and on_plane(top, plane):
                     flags |= WALL_CEILING_FRONT if is_front else WALL_CEILING_BACK
                     drops["cf" if is_front else "cb"] = drop(plane)
@@ -140,7 +142,7 @@ class MapWriter:
         surfaces = [
             (tex_of(front), scale, scale, surf_flags),
             (tex_of(back), scale, scale, surf_flags),
-            (floor_tex if floor_tex is not None else TEX_STONE, 4.0, 4.0, 0),
+            (floor_tex if floor_tex is not None else TEX_STONE, TEX_SCALE, TEX_SCALE, 0),
             (ceil_tex if ceil_tex is not None else TEX_STONE, ceil_scale, ceil_scale, surf_flags),
         ]
         n1 = self.node(x1, b1, z1)
@@ -213,7 +215,7 @@ K4 = corridor("K4", (-80, -12, -48, -4))
 K5 = corridor("K5", (-96, 24, -88, 48))
 
 # Outdoors: courtyard and grounds are the same sector (floor 0, sky)
-GROUNDS = Sector("grounds", (-256, -256, 256, 256), flat(0.0), flat(SKY), TEX_BRICK, TEX_STONE, TEX_SKY, 0.25)
+GROUNDS = Sector("grounds", (-256, -256, 256, 256), flat(0.0), flat(SKY), TEX_BRICK, TEX_STONE, TEX_SKY, TEX_SCALE / 16.0)
 
 def band(top):
     """Solid wall mass, its top seen from above as a floor."""
@@ -391,7 +393,7 @@ SKY_BASE, SKY_HALF = GROUNDS.floor, 256.0
 corners = [(-SKY_HALF, -SKY_HALF), (-SKY_HALF, SKY_HALF), (SKY_HALF, SKY_HALF), (SKY_HALF, -SKY_HALF)]   # inside = front side
 for i in range(4):
     m.wall(corners[i], corners[(i + 1) % 4], GROUNDS, (0, 0), None, SKY_BASE, flat(SKY),
-           WALL_BACKCULLED | WALL_NO_SHADOW, face_tex=TEX_SKY, scale=0.25,
+           WALL_BACKCULLED | WALL_NO_SHADOW, face_tex=TEX_SKY, scale=TEX_SCALE / 16.0,
            surf_flags=SURFACE_NO_ENV_LIGHT | SURFACE_NO_GLOW)
 
 # Lights ---------------------------------------------------------------------------
