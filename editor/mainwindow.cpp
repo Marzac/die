@@ -2554,6 +2554,7 @@ void MainWindow::resizeUI()
 
     ui->widgetTextureSelector->setGeometry(220, refY, viewPortWidth + 21, 51);
     ui->pushTextureBrowse->setGeometry(viewPortWidth - 10, 20, 21, 21);
+    ui->pushTextureAdd->setGeometry(viewPortWidth - 32, 20, 21, 21);
     refY += 54;
     ui->scrollTextures->setGeometry(220, refY, viewPortWidth + 21, 18);
     refY += 20;
@@ -2823,6 +2824,69 @@ void MainWindow::on_pushTextureBrowse_clicked()
     editor.editedMap->setTextures(strip);
     editor.selectedTextureID = 0;
     ui->widgetTextureSelector->setScroll(0);
+}
+
+void MainWindow::on_pushTextureAdd_clicked()
+{
+    if (!editor.editedMap) return;
+    QStringList files = QFileDialog::getOpenFileNames(this, "Add textures", QDir::currentPath(), "Image File (*.bmp *.png *.jpg)");
+    if (files.isEmpty()) return;
+
+    const QImage & strip = editor.editedMap->textures;
+    int size = strip.isNull() ? 0 : strip.width();
+
+    QList<QImage> tiles;
+    QStringList names, rejected;
+    for (const QString & file : files) {
+        QString name = QFileInfo(file).fileName();
+        QImage image(file);
+        if (image.isNull()) {rejected << name + ": cannot be read"; continue;}
+        if (image.width() != image.height()) {
+            rejected << QString("%1: not square (%2 x %3)").arg(name).arg(image.width()).arg(image.height());
+            continue;
+        }
+        if (!size) {
+            if (image.width() & (image.width() - 1)) {
+                rejected << QString("%1: %2 x %2 is not a power of two").arg(name).arg(image.width());
+                continue;
+            }
+            size = image.width();
+        }
+        tiles << image;
+        names << name;
+    }
+
+    int mismatched = 0;
+    for (const QImage & t : tiles) if (t.width() != size) mismatched++;
+    if (mismatched) {
+        QString question = QString("%1 image(s) are not %2 x %2, the tile size of the texture strip.\nRescale them to %2 x %2?").arg(mismatched).arg(size);
+        bool rescale = QMessageBox::question(this, "Add textures", question) == QMessageBox::Yes;
+        for (int i = tiles.count() - 1; i >= 0; i--) {
+            if (tiles[i].width() == size) continue;
+            if (rescale) {
+                tiles[i] = tiles[i].scaled(size, size, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            }else{
+                rejected << QString("%1: %2 x %2, not rescaled").arg(names[i]).arg(tiles[i].width());
+                tiles.removeAt(i);
+                names.removeAt(i);
+            }
+        }
+    }
+
+    if (!tiles.isEmpty()) {
+        QImage grown = Editor::textureStripAppend(strip, tiles);
+        if (!Editor::textureStripFits(grown)) {
+            QMessageBox::warning(this, "Add textures", "The texture strip would be too large to be saved in the map (16 MB at most): no texture added.");
+            return;
+        }
+        int first = strip.isNull() ? 0 : strip.height() / size;
+        editor.editedMap->setTextures(grown);
+        editor.selectedTextureID = (uint16_t) first;
+        ui->widgetTextureSelector->setScroll(999);
+    }
+
+    if (!rejected.isEmpty())
+        QMessageBox::warning(this, "Add textures", "Some images were not added:\n" + rejected.join("\n"));
 }
 
 /*****************************************************************************/
