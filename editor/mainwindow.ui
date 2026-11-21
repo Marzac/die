@@ -143,10 +143,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <double>-1024.000000000000000</double>
+      <double>-16384.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>1024.000000000000000</double>
+      <double>16384.000000000000000</double>
      </property>
     </widget>
     <widget class="QDoubleSpinBox" name="spinViewerY">
@@ -159,10 +159,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <double>-1024.000000000000000</double>
+      <double>-16384.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>1024.000000000000000</double>
+      <double>16384.000000000000000</double>
      </property>
     </widget>
     <widget class="QDoubleSpinBox" name="spinViewerZ">
@@ -175,10 +175,10 @@
       </rect>
      </property>
      <property name="minimum">
-      <double>-1024.000000000000000</double>
+      <double>-16384.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>1024.000000000000000</double>
+      <double>16384.000000000000000</double>
      </property>
     </widget>
     <widget class="QDoubleSpinBox" name="spinViewerPan">
@@ -609,10 +609,10 @@
        </rect>
       </property>
       <property name="minimum">
-       <double>-1024.000000000000000</double>
+       <double>-16384.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
       <property name="singleStep">
        <double>0.250000000000000</double>
@@ -644,10 +644,10 @@
        </rect>
       </property>
       <property name="minimum">
-       <double>-1024.000000000000000</double>
+       <double>-16384.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
       <property name="singleStep">
        <double>0.250000000000000</double>
@@ -688,10 +688,10 @@
        </rect>
       </property>
       <property name="minimum">
-       <double>-1024.000000000000000</double>
+       <double>-16384.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
       <property name="singleStep">
        <double>0.250000000000000</double>
@@ -3591,7 +3591,7 @@
        <double>0.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
      </widget>
      <widget class="QLabel" name="labelSpeakerPan">
@@ -4203,7 +4203,7 @@
        </rect>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
      </widget>
      <widget class="QLabel" name="labelFogFar">
@@ -4260,7 +4260,7 @@
        </rect>
       </property>
       <property name="maximum">
-       <double>1024.000000000000000</double>
+       <double>16384.000000000000000</double>
       </property>
      </widget>
      <widget class="QPushButton" name="pushSunAmbient">
