@@ -2661,8 +2661,8 @@ void MainWindow::on_actionNew_triggered()
     undoIndex = -1;
     pushUndoState();
 
-    mapFile.clear();
-    updateViewMarkButton();
+    submapFile.clear();
+    setMapFile(QString());
 }
 
 void MainWindow::on_actionLoad_map_triggered()
@@ -2684,37 +2684,72 @@ void MainWindow::on_actionLoad_map_triggered()
     undoHistory.clear();
     undoIndex = -1;
     pushUndoState();
-    setWindowTitle("Waller Editor : " + QFileInfo(file).fileName());
 
-    mapFile = QFileInfo(file).absoluteFilePath();
-    updateViewMarkButton();
+    submapFile.clear();
+    setMapFile(file);
 }
 
 void MainWindow::on_actionSave_map_triggered()
 {
-    saveMap(false);
+// Save over the current map file, ask for one if the map has none yet
+    if (mapFile.isEmpty()) {
+        on_actionSave_map_as_triggered();
+        return;
+    }
+    saveMap(mapFile, false);
+}
+
+void MainWindow::on_actionSave_map_as_triggered()
+{
+    QString file = askMapFile("Save game map as", mapFile);
+    if (file.isEmpty()) return;
+    if (saveMap(file, false))
+        setMapFile(file);
 }
 
 void MainWindow::on_actionSave_submap_triggered()
 {
-    saveMap(true);
+// Save over the current submap file, ask for one if the map has none yet
+    if (submapFile.isEmpty()) {
+        on_actionSave_submap_as_triggered();
+        return;
+    }
+    saveMap(submapFile, true);
 }
 
-void MainWindow::saveMap(bool submap)
+void MainWindow::on_actionSave_submap_as_triggered()
 {
-    QString path = editor.editedMap->path;
-    if (path.isEmpty())
-        path = QDir::currentPath();
-
-    QString file = QFileDialog::getSaveFileName(this, "Save game map", path, "Map File (*.map)");
+// The submap file is tracked apart: the map file stays the one Save map writes to
+    QString file = askMapFile("Save game submap as", submapFile);
     if (file.isEmpty()) return;
+    if (saveMap(file, true))
+        submapFile = QFileInfo(file).absoluteFilePath();
+}
 
+QString MainWindow::askMapFile(const QString & caption, const QString & startFile)
+{
+    QString path = startFile;
+    if (path.isEmpty()) path = mapFile;
+    if (path.isEmpty()) path = editor.editedMap->path;
+    if (path.isEmpty()) path = QDir::currentPath();
+    return QFileDialog::getSaveFileName(this, caption, path, "Map File (*.map)");
+}
+
+bool MainWindow::saveMap(const QString & file, bool submap)
+{
     editor.rootMap.sun = editor.env.sun;
     editor.rootMap.fog = editor.env.fog;
-    editor.rootMap.save(file, submap);
-    setWindowTitle("Waller Editor : " + QFileInfo(file).fileName());
+    if (!editor.rootMap.save(file, submap)) {
+        QMessageBox::warning(this, "Save map", "Could not write the map file:\n" + QDir::toNativeSeparators(file));
+        return false;
+    }
+    return true;
+}
 
-    mapFile = QFileInfo(file).absoluteFilePath();
+void MainWindow::setMapFile(const QString & file)
+{
+    mapFile = file.isEmpty() ? QString() : QFileInfo(file).absoluteFilePath();
+    setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()));
     updateViewMarkButton();
 }
 
