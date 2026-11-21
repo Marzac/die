@@ -111,7 +111,7 @@ void WdgMapView::mouseMoveEvent(QMouseEvent *event)
 
     if (event->buttons() & Qt::LeftButton) {
         float pan = walker.pan + deltaX * panSensitivity;
-        walker.pan = fmodf(pan, 360.0f);
+        walker.pan = remainderf(pan, 360.0f);
         float pitch = walker.pitchTargetMouse - pitchSensitivity * deltaY;
         walker.pitchTargetMouse = std::clamp(pitch, -pitchSpanMax, pitchSpanMax);
     }

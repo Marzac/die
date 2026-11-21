@@ -190,11 +190,14 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="wrapping">
+      <bool>true</bool>
+     </property>
      <property name="minimum">
-      <double>-1024.000000000000000</double>
+      <double>-180.000000000000000</double>
      </property>
      <property name="maximum">
-      <double>1024.000000000000000</double>
+      <double>180.000000000000000</double>
      </property>
     </widget>
     <widget class="QPushButton" name="pushViewerTop">

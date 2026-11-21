@@ -2630,7 +2630,7 @@ void MainWindow::on_pushViewerRecall_clicked()
     walker.pos = QVector3D(values[0].toFloat(), values[1].toFloat(), values[2].toFloat());
     walker.speed = QVector3D();
     walker.accel = QVector3D();
-    walker.pan = values[3].toFloat();
+    walker.pan = remainderf(values[3].toFloat(), 360.0f);
 
 // The tilt eases towards the mouse target every frame: hold it there
     walker.tilt = values[4].toFloat();
