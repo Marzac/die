@@ -57,12 +57,12 @@ constexpr int EDITOR_OBJECT_RADIUS = 12;
 class Editor
 {
 public:
+    static constexpr int zoomLevelMax = 256;
+    static constexpr int zoomLevelMin = -256;
+
     Editor();
     void init();
     void terminate();
-
-    /// \brief Snap a 2D position to the active grid
-    void snapCoords(QVector2D & pos);
 
     EDIT_MODES editMode;
 
@@ -87,15 +87,15 @@ public:
     QList<uint16_t> copyNodeIDs;
     QList<Node> copyNodes;
     QList<Wall> copyWalls;
-    QList<Door>      copyDoors;
-    QList<Lift>      copyLifts;
-    QList<Sprite>    copySprites;
+    QList<Door> copyDoors;
+    QList<Lift> copyLifts;
+    QList<Sprite> copySprites;
     QList<Staircase> copyStaircases;
-    QList<Light>     copyLights;
+    QList<Light> copyLights;
 
     bool gridSnap;
     float gridSize;
-    float zoom;
+    int zoomLevel;
     float viewMinY;
     float viewMaxY;
 
@@ -103,22 +103,14 @@ public:
     bool collisions;
     bool wallSelector;
 
-    bool inView(const QVector3D & pos) const {
-        return pos.y() >= viewMinY && pos.y() <= viewMaxY;
-    }
-
     void selectAll();
     void deselect();
     void cut();
     void copy();
-
-    /// \brief Paste the copied objects, positioned relative to the last copied node
     void paste(VIEW_MODES mode, QVector2D pos);
     void align();
 
 // Per-object operations.
-// The FindInCircle searches start right after the current selection,
-// so repeated clicks cycle through overlapping objects.
     void nodeSelect(int nId);
     bool nodeAdd(QVector3D pos, int & nId);
     void nodeDelete(int nId);
@@ -197,10 +189,11 @@ public:
     void pathSelectAll();
     void pathDeselectAll();
 
-    /// \brief Project a world position onto a 2D editor view
-    static QVector2D to2D(VIEW_MODES mode, const QVector3D & pos);
+    void snapCoords(QVector2D & pos);
+    bool inView(const QVector3D & pos) const;
+    float getZoom() const;
 
-    /// \brief Lift a 2D editor view position back to world space (ref fills the missing axis)
+    static QVector2D to2D(VIEW_MODES mode, const QVector3D & pos);
     static QVector3D to3D(VIEW_MODES mode, const QVector2D & pos, const QVector3D & ref);
 
 private:
@@ -208,8 +201,6 @@ private:
     float effectiveGridSize() const;
 
 // Copy / paste / delete of the node-bound objects (door, lift, sprite, ...).
-// Each object carries a single nodeID, so copy also pulls in its node and
-// paste remaps that nodeID onto the freshly pasted nodes.
     template <typename T>
     void copyObjects(const QList<T> & items, QList<T> & dst);
 

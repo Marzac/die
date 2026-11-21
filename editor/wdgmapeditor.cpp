@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 
 #include <math.h>
+#include <algorithm>
 
 /*****************************************************************************/
 QBrush WdgMapEditor::gridMajor = QColor(96, 96, 96);
@@ -128,7 +129,7 @@ void WdgMapEditor::drawGrid(QPainter & painter, QVector2D & org)
     int w = width();
     int h = height();
 
-    float grid = editor.gridSize * editor.zoom;
+    float grid = editor.gridSize * editor.getZoom();
     painter.fillRect(0, 0, w, h, QBrush(Qt::black));
 
  // Map grid
@@ -149,7 +150,7 @@ void WdgMapEditor::drawGlowMap(QPainter & painter, QVector2D & org)
 {
     if (mode != VIEW_TOP) return;
 
-    float area = renderer.getGlowmapArea() * editor.zoom;
+    float area = renderer.getGlowmapArea() * editor.getZoom();
 
     QVector2D av = QVector2D(area, area);
     QVector2D ao = org - 0.5f * av;
@@ -161,7 +162,7 @@ void WdgMapEditor::drawGlowMap(QPainter & painter, QVector2D & org)
 void WdgMapEditor::drawArrow(QPainter & painter, QVector2D & org, QVector2D & pos, float pan, float length)
 {
     painter.setRenderHint(QPainter::Antialiasing, true);
-    QPointF o = (org + pos * editor.zoom).toPointF();
+    QPointF o = (org + pos * editor.getZoom()).toPointF();
     QPointF f = QPointF(cosf(pan), sinf(pan)) * length;
     QPointF p = QPointF(f.y(), -f.x()) * 0.25f;
 
@@ -205,7 +206,7 @@ void WdgMapEditor::drawNodes(QPainter & painter, Map & map, QVector2D & org)
             else if (i != editor.selectedNode) continue;
 
             QVector2D np = Editor::to2D(mode, n.pos);
-            np = org + np * editor.zoom;
+            np = org + np * editor.getZoom();
 
             if (i == editor.selectedNode) painter.setPen(colorPrincipal);
             else if (n.selected) painter.setPen(colorSelected);
@@ -235,8 +236,8 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
             Node & n2 = map.nodes[w.nodeID2];
             QVector2D n1p = Editor::to2D(mode, n1.pos);
             QVector2D n2p = Editor::to2D(mode, n2.pos);
-            n1p = org + n1p * editor.zoom;
-            n2p = org + n2p * editor.zoom;
+            n1p = org + n1p * editor.getZoom();
+            n2p = org + n2p * editor.getZoom();
 
             if (i == editor.selectedWall) painter.setPen(colorPrincipal);
             else if (w.selected) painter.setPen(colorSelected);
@@ -260,7 +261,7 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
 
         QVector2D nm = n2p - n1p;
         nm = QVector2D(nm.y(), -nm.x()).normalized();
-        n1p = org + (n1p + n2p) * 0.5f * editor.zoom;
+        n1p = org + (n1p + n2p) * 0.5f * editor.getZoom();
         n2p = n1p + nm * 8.0f;
 
         if (!(w.flags & WALL_FLAG_BACKCULLED))
@@ -274,8 +275,8 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
 void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
 {
 // Minimum & maximum height
-    float minY = org.y() - editor.viewMinY * editor.zoom;
-    float maxY = org.y() - editor.viewMaxY * editor.zoom;
+    float minY = org.y() - editor.viewMinY * editor.getZoom();
+    float maxY = org.y() - editor.viewMaxY * editor.getZoom();
     painter.fillRect(0, minY, width(), 1, gridScissor);
     painter.fillRect(0, maxY, width(), 1, gridScissor);
 
@@ -292,9 +293,9 @@ void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
             Node & n1 = map.nodes[w.nodeID1];
             Node & n2 = map.nodes[w.nodeID2];
 
-            QVector2D n1p = org + Editor::to2D(mode, n1.pos) * editor.zoom;
-            QVector2D n2p = org + Editor::to2D(mode, n2.pos) * editor.zoom;
-            QVector2D hp(0.0f, -w.height * editor.zoom);
+            QVector2D n1p = org + Editor::to2D(mode, n1.pos) * editor.getZoom();
+            QVector2D n2p = org + Editor::to2D(mode, n2.pos) * editor.getZoom();
+            QVector2D hp(0.0f, -w.height * editor.getZoom());
             QPointF ns[] = {
                 n1p.toPointF(),
                 n2p.toPointF(),
@@ -872,19 +873,20 @@ void WdgMapEditor::mouseMoveEvent(QMouseEvent *event)
 /*****************************************************************************/
 void WdgMapEditor::wheelEvent(QWheelEvent *event)
 {
-    constexpr float zoomMax = 128.0f;
-    constexpr float zoomMin = 0.1073742f;   // 0.8^10, ten steps out
-
-    float lastZoom = editor.zoom;
+    float lastZoom = editor.getZoom();
+    int lastZoomLevel = editor.zoomLevel;
+    int zoomLevel = lastZoomLevel;
 
     QPoint degrees = event->angleDelta();
-    if (degrees.y() > 0) editor.zoom *= 1.25f;
-    if (degrees.y() < 0) editor.zoom *= 0.8f;
-    if (editor.zoom > zoomMax) editor.zoom = zoomMax;
-    if (editor.zoom < zoomMin) editor.zoom = zoomMin;
+    if (degrees.y() > 0) zoomLevel++;
+    else if (degrees.y() < 0) zoomLevel--;
+    editor.zoomLevel = std::clamp(zoomLevel, editor.zoomLevelMin, editor.zoomLevelMax);
+
+    //if (editor.zoom > zoomMax) editor.zoom = zoomMax;
+    //if (editor.zoom < zoomMin) editor.zoom = zoomMin;
 
     QVector2D org = QVector2D(width() * 0.5f, height() * 0.5f) + offset;
-    offset += (QVector2D(event->position()) - org) * (1.0f - editor.zoom / lastZoom);
+    offset += (QVector2D(event->position()) - org) * (1.0f - editor.getZoom() / lastZoom);
     event->accept();
 
     update();
@@ -894,7 +896,7 @@ void WdgMapEditor::wheelEvent(QWheelEvent *event)
 QVector2D WdgMapEditor::getWorldCoordinates(const QVector2D & pos)
 {
     QVector2D org = QVector2D(width() * 0.5f, height() * 0.5f) + offset;
-    return (pos - org) / editor.zoom;
+    return (pos - org) / editor.getZoom();
 }
 
 /*****************************************************************************/
@@ -915,7 +917,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
 
         Node & n = map.nodes[getNodeId(item)];
         QVector2D np = Editor::to2D(mode, n.pos);
-        np = org + np * editor.zoom;
+        np = org + np * editor.getZoom();
 
         if (editor.inView(n.pos)) {
             painter.setPen(pen);
@@ -931,7 +933,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
 
         Node& n = map.nodes[getNodeId(item)];
         QVector2D np = Editor::to2D(mode, n.pos);
-        np = org + np * editor.zoom;
+        np = org + np * editor.getZoom();
 
         if (editor.inView(n.pos)) {
             painter.setPen(colorSelected);
@@ -945,7 +947,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
         const T& item = items[selectedIndex];
         Node& n = map.nodes[getNodeId(item)];
         QVector2D np = Editor::to2D(mode, n.pos);
-        np = org + np * editor.zoom;
+        np = org + np * editor.getZoom();
 
         if (editor.inView(n.pos)) {
             painter.setPen(colorPrincipal);
