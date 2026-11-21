@@ -418,13 +418,13 @@ void MainWindow::timerUI_tick()
 
     updateViewpointProperties();
 
-    ui->spinViewerMinY->blockSignals(true);
-    ui->spinViewerMinY->setValue(editor.viewMinY);
-    ui->spinViewerMinY->blockSignals(false);
+    ui->spinScissorMinY->blockSignals(true);
+    ui->spinScissorMinY->setValue(editor.scissorMinY);
+    ui->spinScissorMinY->blockSignals(false);
 
-    ui->spinViewerMaxY->blockSignals(true);
-    ui->spinViewerMaxY->setValue(editor.viewMaxY);
-    ui->spinViewerMaxY->blockSignals(false);
+    ui->spinScissorMaxY->blockSignals(true);
+    ui->spinScissorMaxY->setValue(editor.scissorMaxY);
+    ui->spinScissorMaxY->blockSignals(false);
 
     QString stats("N:%1, W:%2, M%3, D%4, B%5, A%6, Floor:%7, Ceil:%8");
     stats = stats.arg(editor.editedMap->nodes.count());
@@ -2559,10 +2559,9 @@ void MainWindow::resizeUI()
     refY += 20;
 
     ui->groupInfos->setGeometry(220, refY, viewPortWidth + 21, 51);
-    ui->groupViewer->setGeometry(refX + 26, 10, 141, 243);
-    ui->groupFOV->setGeometry(refX + 26, 265, 141, 93);
-    ui->groupEditor->setGeometry(refX + 26, 370, 141, 146);
-    ui->pushRendererGlowmapRebuild->setGeometry(refX + 26, 525, 141, 22);
+    ui->groupViewer->setGeometry(refX + 26, 10, 141, 171);
+    ui->groupFOV->setGeometry(refX + 26, 190, 141, 91);
+    ui->groupEditor->setGeometry(refX + 26, 292, 141, 211);
 
     int infoY = height() - 822 + 760;
     ui->labelCopyright->setGeometry(refX + 26, infoY - 16, 141, 32);
@@ -2642,21 +2641,21 @@ void MainWindow::on_pushViewerRecall_clicked()
     updateViewpointProperties();
 }
 
-void MainWindow::on_spinViewerMinY_valueChanged(double arg1)
+void MainWindow::on_spinScissorMinY_valueChanged(double arg1)
 {
-    editor.viewMinY = arg1;
-    if (editor.viewMaxY < editor.viewMinY) {
-        editor.viewMaxY = editor.viewMinY;
-        ui->spinViewerMaxY->setValue(arg1);
+    editor.scissorMinY = arg1;
+    if (editor.scissorMaxY < editor.scissorMinY) {
+        editor.scissorMaxY = editor.scissorMinY;
+        ui->spinScissorMaxY->setValue(arg1);
     }
 }
 
-void MainWindow::on_spinViewerMaxY_valueChanged(double arg1)
+void MainWindow::on_spinScissorMaxY_valueChanged(double arg1)
 {
-    editor.viewMaxY = arg1;
-    if (editor.viewMinY > editor.viewMaxY) {
-        editor.viewMinY = editor.viewMaxY;
-        ui->spinViewerMinY->setValue(arg1);
+    editor.scissorMaxY = arg1;
+    if (editor.scissorMinY > editor.scissorMaxY) {
+        editor.scissorMinY = editor.scissorMaxY;
+        ui->spinScissorMinY->setValue(arg1);
     }
 }
 

@@ -306,8 +306,8 @@ private slots:
     void on_pushViewerSide_toggled(bool checked);
     void on_pushViewer3D_toggled(bool checked);
 
-    void on_spinViewerMinY_valueChanged(double arg1);
-    void on_spinViewerMaxY_valueChanged(double arg1);
+    void on_spinScissorMinY_valueChanged(double arg1);
+    void on_spinScissorMaxY_valueChanged(double arg1);
 
     void on_pushSunAmbient_clicked();
     void on_pushSunRay_clicked();
