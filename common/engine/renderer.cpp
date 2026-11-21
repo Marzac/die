@@ -1077,8 +1077,9 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     uint32_t * tex = &t.pixels[s.id * t.block];
 
 // Compute texture coordinates
-    float sx = s.scaleX * (t.size >> 6);
-    float sy = s.scaleY * (t.size >> 6);
+    float ts = t.size * 0x1p-8f;
+    float sx = s.scaleX * ts;
+    float sy = s.scaleY * ts;
 
     float ox = (state.casterPos.x() + w.offset.x() + s.shiftX) * sx;
     float oz = (state.casterPos.z() + w.offset.z() + s.shiftY) * sy;
@@ -1281,8 +1282,9 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     const Texture & t = textures[w.textureID];
 
 // Compute texture coords
-    float sx = s.scaleX * (t.size >> 6);
-    float sy = s.scaleY * (t.size >> 6);
+    float ts = t.size * 0x1p-8f;
+    float sx = s.scaleX * ts;
+    float sy = s.scaleY * ts;
 // V sampled at the row bottom edges, like the strip coverage (16.16 fixed point)
     float dvdy = (strip.vBot - strip.vTop) / (strip.yBot - strip.yTop);
     float vStart = strip.vTop + (scanTop + 1.0f - strip.yTop) * dvdy;
