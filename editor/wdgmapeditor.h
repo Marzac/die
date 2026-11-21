@@ -45,7 +45,8 @@ private:
 
     QVector2D offset;
     QVector2D scroll;
-    QVector2D cursor;
+    QVector2D pointer;      ///< for picking
+    QVector2D cursor;       ///< snapped, for placing and dragging
     QVector2D dragCursor;
 
     bool selectRegion;
