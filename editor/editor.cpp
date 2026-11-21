@@ -428,20 +428,20 @@ bool Editor::wallAdd(int n1, int n2, uint16_t texId, int & wId)
     w.flags = WALL_FLAG_BACKCULLED;
 
     w.surfaces[WALL_SURFACE_FRONT].id = texId;
-    w.surfaces[WALL_SURFACE_FRONT].scaleX = 4.0f;
-    w.surfaces[WALL_SURFACE_FRONT].scaleY = 4.0f;
+    w.surfaces[WALL_SURFACE_FRONT].scaleX = 8.0f;
+    w.surfaces[WALL_SURFACE_FRONT].scaleY = 8.0f;
 
     w.surfaces[WALL_SURFACE_BACK].id = texId;
-    w.surfaces[WALL_SURFACE_BACK].scaleX = 4.0f;
-    w.surfaces[WALL_SURFACE_BACK].scaleY = 4.0f;
+    w.surfaces[WALL_SURFACE_BACK].scaleX = 8.0f;
+    w.surfaces[WALL_SURFACE_BACK].scaleY = 8.0f;
 
     w.surfaces[WALL_SURFACE_CEILING].id = 1;
-    w.surfaces[WALL_SURFACE_CEILING].scaleX = 4.0f;
-    w.surfaces[WALL_SURFACE_CEILING].scaleY = 4.0f;
+    w.surfaces[WALL_SURFACE_CEILING].scaleX = 8.0f;
+    w.surfaces[WALL_SURFACE_CEILING].scaleY = 8.0f;
 
     w.surfaces[WALL_SURFACE_FLOOR].id = 0;
-    w.surfaces[WALL_SURFACE_FLOOR].scaleX = 4.0f;
-    w.surfaces[WALL_SURFACE_FLOOR].scaleY = 4.0f;
+    w.surfaces[WALL_SURFACE_FLOOR].scaleX = 8.0f;
+    w.surfaces[WALL_SURFACE_FLOOR].scaleY = 8.0f;
 
     editedMap->walls.append(w);
     wId = editedMap->walls.count() - 1;
@@ -649,16 +649,16 @@ bool Editor::doorAdd(int node, uint16_t texId, int & dId)
     d.easing = EASING_IN_OUT_QUAD;
 
     d.surfaces[DOOR_SURFACE_FRONT].id = texId;
-    d.surfaces[DOOR_SURFACE_FRONT].scaleX = 4.0f;
-    d.surfaces[DOOR_SURFACE_FRONT].scaleY = 4.0f;
+    d.surfaces[DOOR_SURFACE_FRONT].scaleX = 8.0f;
+    d.surfaces[DOOR_SURFACE_FRONT].scaleY = 8.0f;
 
     d.surfaces[DOOR_SURFACE_BACK].id = texId;
-    d.surfaces[DOOR_SURFACE_BACK].scaleX = 4.0f;
-    d.surfaces[DOOR_SURFACE_BACK].scaleY = 4.0f;
+    d.surfaces[DOOR_SURFACE_BACK].scaleX = 8.0f;
+    d.surfaces[DOOR_SURFACE_BACK].scaleY = 8.0f;
 
     d.surfaces[DOOR_SURFACE_SIDE].id = 0;
-    d.surfaces[DOOR_SURFACE_SIDE].scaleX = 4.0f;
-    d.surfaces[DOOR_SURFACE_SIDE].scaleY = 4.0f;
+    d.surfaces[DOOR_SURFACE_SIDE].scaleX = 8.0f;
+    d.surfaces[DOOR_SURFACE_SIDE].scaleY = 8.0f;
 
     editedMap->doors.append(d);
     dId = editedMap->doors.count() - 1;
@@ -720,16 +720,16 @@ bool Editor::liftAdd(int node, uint16_t texId, int & eId)
     e.easing = EASING_IN_OUT_QUAD;
 
     e.surfaces[LIFT_SURFACE_TOP].id = texId;
-    e.surfaces[LIFT_SURFACE_TOP].scaleX = 4.0f;
-    e.surfaces[LIFT_SURFACE_TOP].scaleY = 4.0f;
+    e.surfaces[LIFT_SURFACE_TOP].scaleX = 8.0f;
+    e.surfaces[LIFT_SURFACE_TOP].scaleY = 8.0f;
 
     e.surfaces[LIFT_SURFACE_BOTTOM].id = texId;
-    e.surfaces[LIFT_SURFACE_BOTTOM].scaleX = 4.0f;
-    e.surfaces[LIFT_SURFACE_BOTTOM].scaleY = 4.0f;
+    e.surfaces[LIFT_SURFACE_BOTTOM].scaleX = 8.0f;
+    e.surfaces[LIFT_SURFACE_BOTTOM].scaleY = 8.0f;
 
     e.surfaces[LIFT_SURFACE_SIDES].id = 0;
-    e.surfaces[LIFT_SURFACE_SIDES].scaleX = 4.0f;
-    e.surfaces[LIFT_SURFACE_SIDES].scaleY = 4.0f;
+    e.surfaces[LIFT_SURFACE_SIDES].scaleX = 8.0f;
+    e.surfaces[LIFT_SURFACE_SIDES].scaleY = 8.0f;
 
     editedMap->lifts.append(e);
     eId = editedMap->lifts.count() - 1;
@@ -787,8 +787,8 @@ bool Editor::spriteAdd(int node, uint16_t texId, int & bId)
     b.height = 16.0f;
     b.pan = 0.0f;
     b.surface.id = texId;
-    b.surface.scaleX = 4.0f;
-    b.surface.scaleY = 4.0f;
+    b.surface.scaleX = 8.0f;
+    b.surface.scaleY = 8.0f;
     b.flags = SPRITE_FLAG_AUTOPAN;
 
     editedMap->sprites.append(b);
@@ -849,16 +849,16 @@ bool Editor::staircaseAdd(int node, uint16_t texId, int & hId)
     h.steps = 16;
 
     h.surfaces[STAIRCASE_SURFACE_STEPFALL].id = texId;
-    h.surfaces[STAIRCASE_SURFACE_STEPFALL].scaleX = 4.0f;
-    h.surfaces[STAIRCASE_SURFACE_STEPFALL].scaleY = 4.0f;
+    h.surfaces[STAIRCASE_SURFACE_STEPFALL].scaleX = 8.0f;
+    h.surfaces[STAIRCASE_SURFACE_STEPFALL].scaleY = 8.0f;
 
     h.surfaces[STAIRCASE_SURFACE_STEPTOP].id = texId;
-    h.surfaces[STAIRCASE_SURFACE_STEPTOP].scaleX = 4.0f;
-    h.surfaces[STAIRCASE_SURFACE_STEPTOP].scaleY = 4.0f;
+    h.surfaces[STAIRCASE_SURFACE_STEPTOP].scaleX = 8.0f;
+    h.surfaces[STAIRCASE_SURFACE_STEPTOP].scaleY = 8.0f;
 
     h.surfaces[STAIRCASE_SURFACE_SIDES].id = texId;
-    h.surfaces[STAIRCASE_SURFACE_SIDES].scaleX = 4.0f;
-    h.surfaces[STAIRCASE_SURFACE_SIDES].scaleY = 4.0f;
+    h.surfaces[STAIRCASE_SURFACE_SIDES].scaleX = 8.0f;
+    h.surfaces[STAIRCASE_SURFACE_SIDES].scaleY = 8.0f;
 
     editedMap->staircases.append(h);
     hId = editedMap->staircases.count() - 1;
