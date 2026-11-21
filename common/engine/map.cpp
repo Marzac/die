@@ -61,6 +61,10 @@ void Map::resetEnvironment()
     fog.distanceFar = 320.0f;
     fog.color = 0x000000;
     fog.flags = FOG_FLAG_ENABLE;
+
+    glowmap = {};
+    glowmap.reso = Renderer::DefaultGlowmapReso;
+    glowmap.area = Renderer::DefaultGlowmapArea;
 }
 
 /*****************************************************************************/
@@ -845,6 +849,7 @@ MapState Map::captureState() const
     s.paths      = paths;
     s.sun        = sun;
     s.fog        = fog;
+    s.glowmap    = glowmap;
     return s;
 }
 
@@ -862,6 +867,7 @@ void Map::restoreState(const MapState & s)
     paths      = s.paths;
     sun        = s.sun;
     fog        = s.fog;
+    glowmap    = s.glowmap;
 }
 
 /*****************************************************************************/
@@ -879,5 +885,6 @@ bool operator==(const MapState & a, const MapState & b)
     if (a.paths      != b.paths)      return false;
     if (!(a.sun == b.sun)) return false;
     if (!(a.fog == b.fog)) return false;
+    if (!(a.glowmap == b.glowmap)) return false;
     return true;
 }

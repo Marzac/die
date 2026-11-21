@@ -150,7 +150,7 @@ void WdgMapEditor::drawGlowMap(QPainter & painter, QVector2D & org)
 {
     if (mode != VIEW_TOP) return;
 
-    float area = renderer.getGlowmapArea() * editor.getZoom();
+    float area = editor.env.glowmap.area * editor.getZoom();
 
     QVector2D av = QVector2D(area, area);
     QVector2D ao = org - 0.5f * av;

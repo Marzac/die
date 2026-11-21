@@ -77,6 +77,7 @@ public:
     void updateTagProperties();
     void updateSunProperties();
     void updateFogProperties();
+    void updateGlowmapProperties();
     void updateEngineProperties();
     void updateEditorProperties();
 

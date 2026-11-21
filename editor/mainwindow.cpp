@@ -118,6 +118,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     updateSunProperties();
     updateFogProperties();
+    updateGlowmapProperties();
     updateEngineProperties();
     updateEditorProperties();
     updateViewMarkButton();
@@ -264,6 +265,7 @@ void MainWindow::applyUndoState()
     updateAllProperties();
     updateSunProperties();
     updateFogProperties();
+    updateGlowmapProperties();
     updateUndoActions();
     renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
@@ -899,6 +901,22 @@ void MainWindow::updateFogProperties()
     ui->checkFogEnable->setChecked(editor.env.fog.flags & FOG_FLAG_ENABLE);
 }
 
+void MainWindow::updateGlowmapProperties()
+{
+// A value from the file outside the presets leaves the combo blank
+    int sizeIndex = -1, areaIndex = -1;
+    for (int i = 0; i < glowmapCount; i++) {
+        if (glowmapSizes[i] == editor.env.glowmap.reso) sizeIndex = i;
+        if (glowmapAreas[i] == editor.env.glowmap.area) areaIndex = i;
+    }
+    ui->comboGlowmapSize->blockSignals(true);
+    ui->comboGlowmapSize->setCurrentIndex(sizeIndex);
+    ui->comboGlowmapSize->blockSignals(false);
+    ui->comboGlowmapArea->blockSignals(true);
+    ui->comboGlowmapArea->setCurrentIndex(areaIndex);
+    ui->comboGlowmapArea->blockSignals(false);
+}
+
 /*****************************************************************************/
 void MainWindow::updateEditorProperties()
 {
@@ -947,26 +965,6 @@ void MainWindow::updateEngineProperties()
     ui->scrollRendererOcclusionDarken->blockSignals(true);
     ui->scrollRendererOcclusionDarken->setValue((int)(renderer.occlusionDarken * 100.0f));
     ui->scrollRendererOcclusionDarken->blockSignals(false);
-
-    int currentSize = renderer.getGlowmapReso();
-    for (int i = 0; i < glowmapCount; i++) {
-        if (glowmapSizes[i] == currentSize) {
-            ui->comboGlowmapSize->blockSignals(true);
-            ui->comboGlowmapSize->setCurrentIndex(i);
-            ui->comboGlowmapSize->blockSignals(false);
-            break;
-        }
-    }
-
-    int currentArea = (int)renderer.getGlowmapArea();
-    for (int i = 0; i < glowmapCount; i++) {
-        if (glowmapAreas[i] == currentArea) {
-            ui->comboGlowmapArea->blockSignals(true);
-            ui->comboGlowmapArea->setCurrentIndex(i);
-            ui->comboGlowmapArea->blockSignals(false);
-            break;
-        }
-    }
 }
 
 /*****************************************************************************/
@@ -2691,8 +2689,10 @@ void MainWindow::on_actionLoad_map_triggered()
     editor.rootMap.load(file);
     editor.env.sun = editor.rootMap.sun;
     editor.env.fog = editor.rootMap.fog;
+    editor.env.glowmap = editor.rootMap.glowmap;
     updateSunProperties();
     updateFogProperties();
+    updateGlowmapProperties();
     updateTagProperties();
     refreshTagCombos();
     renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
@@ -2756,6 +2756,7 @@ bool MainWindow::saveMap(const QString & file, bool submap)
 {
     editor.rootMap.sun = editor.env.sun;
     editor.rootMap.fog = editor.env.fog;
+    editor.rootMap.glowmap = editor.env.glowmap;
     if (!editor.rootMap.save(file, submap)) {
         QMessageBox::warning(this, "Save map", "Could not write the map file:\n" + QDir::toNativeSeparators(file));
         return false;
@@ -3123,13 +3124,13 @@ void MainWindow::on_pushViewportReset_clicked()
 void MainWindow::on_comboGlowmapArea_currentIndexChanged(int index)
 {
     if (index < 0 || index >= glowmapCount) return;
-    renderer.setGlowmapArea(glowmapAreas[index]);
+    editor.env.glowmap.area = glowmapAreas[index];
 }
 
 void MainWindow::on_comboGlowmapSize_currentIndexChanged(int index)
 {
     if (index < 0 || index >= glowmapCount) return;
-    renderer.setGlowmapReso(glowmapSizes[index]);
+    editor.env.glowmap.reso = glowmapSizes[index];
 }
 
 void MainWindow::on_pushRendererGlowmapRebuild_clicked()

@@ -36,6 +36,7 @@ void Editor::init()
     editedMap->load("lastmap.map");
     env.sun = editedMap->sun;
     env.fog = editedMap->fog;
+    env.glowmap = editedMap->glowmap;
 
     editMode = EDIT_MODE_NODES;
 
@@ -58,6 +59,7 @@ void Editor::terminate()
 {
     editedMap->sun = env.sun;
     editedMap->fog = env.fog;
+    editedMap->glowmap = env.glowmap;
     editedMap->save("lastmap.map", false);
     editedMap->terminate();
     env.terminate();
