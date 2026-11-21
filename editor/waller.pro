@@ -18,6 +18,23 @@ win32-msvc* {
 INCLUDEPATH += \
     ../common/engine
 
+# Build version header (buildinfo.h), read from git on every build by common/version.cmake
+# CMake: the one shipped with Qt (Tools/CMake_64) if present, else the one on the PATH
+CMAKE_BIN = cmake
+QT_TOOLS_CMAKE = $$clean_path($$[QT_INSTALL_PREFIX]/../../Tools/CMake_64/bin/cmake)
+win32: QT_TOOLS_CMAKE = $${QT_TOOLS_CMAKE}.exe
+exists($$QT_TOOLS_CMAKE): CMAKE_BIN = $$shell_quote($$shell_path($$QT_TOOLS_CMAKE))
+
+VERSION_SCRIPT = $$PWD/../common/version.cmake
+buildinfo.input = VERSION_SCRIPT
+buildinfo.output = $$OUT_PWD/buildinfo.h
+buildinfo.commands = $$CMAKE_BIN -DSOURCE_DIR=$$shell_quote($$clean_path($$PWD/..)) -DOUTPUT=$$shell_quote($$OUT_PWD/buildinfo.h) -P $$shell_quote($$VERSION_SCRIPT)
+buildinfo.depends = FORCE
+buildinfo.CONFIG += no_link target_predeps
+buildinfo.variable_out = GENERATED_FILES
+QMAKE_EXTRA_COMPILERS += buildinfo
+INCLUDEPATH += $$OUT_PWD
+
 SOURCES += \
     main.cpp \
     editor.cpp \

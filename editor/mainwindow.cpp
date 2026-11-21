@@ -19,6 +19,7 @@
 #include "tags.h"
 
 #include "wdgutilities.h"
+#include "buildinfo.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -41,6 +42,20 @@ static constexpr int glowmapAreas[] = {256, 512, 1024, 2048, 4096, 8192, 16384};
 static constexpr int glowmapCount = 7;
 
 /*****************************************************************************/
+// Short build version: "v1.2" on a tagged build, "v1.2+11 · b465772*" past the tag
+// (11 commits after it, * = built with uncommitted changes)
+static QString buildVersion()
+{
+    QString version = BUILD_VERSION;
+    if (BUILD_AHEAD > 0) version += QString("+%1").arg(BUILD_AHEAD);
+    if (BUILD_AHEAD > 0 || BUILD_DIRTY) {
+        version += QString(" · ") + BUILD_COMMIT;
+        if (BUILD_DIRTY) version += "*";
+    }
+    return version;
+}
+
+/*****************************************************************************/
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     uiEditMode(EDIT_MODE_NODES), once(true),
@@ -50,6 +65,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->labelCopyright->setText("Waller " + buildVersion());
+    ui->labelCopyright->setToolTip(QString("Tag %1, commit %2, built %3").arg(BUILD_TAG, BUILD_COMMIT, BUILD_DATE));
 
     static const QStringList easingNames = {
         "Linear",
@@ -3055,6 +3072,15 @@ void MainWindow::on_actionAbout_triggered()
     QString aboutText;
     aboutText += "<b>Waller</b><br>";
     aboutText += "Designed for the <b>DIE Engine</b><br><br>";
+
+    aboutText += QString("Version <b>%1</b> (%2)<br>").arg(BUILD_VERSION, BUILD_TAG);
+    QString commit = BUILD_COMMIT;
+    if (commit != "unknown")
+        commit = QString("<a href=\"https://github.com/Marzac/die/commit/%1\">%1</a>").arg(commit);
+    aboutText += "Commit " + commit;
+    if (BUILD_AHEAD > 0) aboutText += QString(", %1 commit%2 after the tag").arg(BUILD_AHEAD).arg(BUILD_AHEAD > 1 ? "s" : "");
+    if (BUILD_DIRTY) aboutText += ", with uncommitted changes";
+    aboutText += QString("<br>Built %1<br><br>").arg(BUILD_DATE);
     aboutText += "© 2024–2026 Frédéric Meslin<br>";
     aboutText += "<a href=\"https://fredslab.net\">Fred's Lab</a><br>";
     aboutText += "<a href=\"mailto:info@fredslab.net\">info@fredslab.net</a><br><br>";
