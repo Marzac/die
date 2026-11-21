@@ -458,7 +458,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedNode = nId;
             editor.editedMap->nodes[nId].selected = true;
 
-        }else{
+        }else if (!shift) {
             editor.selectedNode = EDIT_UNSELECTED;
             editor.nodeDeselectAll();
         }
@@ -477,8 +477,14 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedWall = wId;
             editor.editedMap->walls[wId].selected = true;
 
-        }else{
-            if (nodeHover) selectRegionStart = false;
+        }else if (nodeHover) {
+            selectRegionStart = false;
+            if (!shift) {
+                editor.selectedWall = EDIT_UNSELECTED;
+                editor.wallDeselectAll();
+            }
+
+        }else if (!shift) {
             editor.selectedWall = EDIT_UNSELECTED;
             editor.wallDeselectAll();
         }
@@ -494,7 +500,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedSubmap = mId;
             editor.editedMap->submaps[mId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedSubmap != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedSubmap = EDIT_UNSELECTED;
@@ -512,7 +518,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedDoor = dId;
             editor.editedMap->doors[dId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedDoor != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedDoor = EDIT_UNSELECTED;
@@ -530,7 +536,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedLift = eId;
             editor.editedMap->lifts[eId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedLift != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedLift = EDIT_UNSELECTED;
@@ -548,7 +554,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedStaircase = hId;
             editor.editedMap->staircases[hId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedStaircase != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedStaircase = EDIT_UNSELECTED;
@@ -566,7 +572,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedLight = lId;
             editor.editedMap->lights[lId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedLight != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedLight = EDIT_UNSELECTED;
@@ -584,7 +590,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.selectedSpeaker = dId;
             editor.editedMap->speakers[dId].selected = true;
 
-        }else{
+        }else if (!shift) {
             if (editor.selectedSpeaker != EDIT_UNSELECTED)
                 mouseLeftWasPressed = false;
             editor.selectedSpeaker = EDIT_UNSELECTED;
@@ -861,8 +867,9 @@ void WdgMapEditor::mousePressEvent(QMouseEvent *event)
 void WdgMapEditor::mouseReleaseEvent(QMouseEvent *event)
 {
     if (mouseLeftWasPressed) {
-        if (!selectRegion) mouseReleaseCreate(event);
-        else mouseReleaseSelect(event);
+        bool shift = event->modifiers() & Qt::ShiftModifier;
+        if (selectRegion) mouseReleaseSelect(event);
+        else if (!shift) mouseReleaseCreate(event);
         mainWindow->pushUndoState();
     }
     selectRegion = false;
