@@ -2815,7 +2815,12 @@ void MainWindow::on_pushTextureBrowse_clicked()
     if (file.isEmpty()) return;
     if (!editor.editedMap) return;
 
-    editor.editedMap->textures.load(file);
+    QImage strip(file);
+    if (strip.isNull()) {
+        QMessageBox::warning(this, "Open texture strip", "Could not read the image:\n" + QDir::toNativeSeparators(file));
+        return;
+    }
+    editor.editedMap->setTextures(strip);
     editor.selectedTextureID = 0;
     ui->widgetTextureSelector->setScroll(0);
 }

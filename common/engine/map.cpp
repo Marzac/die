@@ -73,8 +73,16 @@ void Map::init()
     origin = QVector3D(0.0f, 0.0f, 0.0f);
     scale = 1.0f;
     pan = 0.0f;
-    textures.load(":/Textures/default.png");
+    setTextures(QImage(":/Textures/default.png"));
     clearObjects();
+}
+
+void Map::setTextures(const QImage & strip)
+{
+// The renderer reads 32-bit pixels
+    QImage::Format f = strip.format();
+    if (strip.isNull() || f == QImage::Format_RGB32 || f == QImage::Format_ARGB32) textures = strip;
+    else textures = strip.convertToFormat(strip.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
 }
 
 void Map::terminate()
