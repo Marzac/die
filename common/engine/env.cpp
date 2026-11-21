@@ -18,7 +18,7 @@
 
 /*****************************************************************************/
 Env::Env() :
-    sun{}, fog{}
+    sun{}, fog{}, glowmap{}
 {
     init();
 }
@@ -37,6 +37,9 @@ void Env::init()
     fog.distanceFar = 320.0f;
     fog.color = 0x000000;
     fog.flags = FOG_FLAG_ENABLE;
+
+    glowmap.reso = Renderer::DefaultGlowmapReso;
+    glowmap.area = Renderer::DefaultGlowmapArea;
 }
 
 void Env::terminate()
@@ -60,4 +63,8 @@ void Env::pass()
     renderer.fogDistanceFar = fog.distanceFar;
     renderer.fogFarColor = fog.color;
     renderer.fogFlags = fog.flags;
+
+// Glow map: only on change, a new resolution reallocates it and both rebuild the still lights
+    if (renderer.getGlowmapReso() != glowmap.reso) renderer.setGlowmapReso(glowmap.reso);
+    if (renderer.getGlowmapArea() != glowmap.area) renderer.setGlowmapArea(glowmap.area);
 }

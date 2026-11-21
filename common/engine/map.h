@@ -41,6 +41,7 @@ struct MapState {
     QList<Path>       paths;
     Sun sun;
     Fog fog;
+    Glowmap glowmap;
 };
 
 bool operator==(const MapState & a, const MapState & b);
@@ -125,6 +126,7 @@ public:
     QImage textures;
     Sun sun;
     Fog fog;
+    Glowmap glowmap;
     QList<Node> nodes;
     QList<Wall> walls;
     QList<Submap> submaps;

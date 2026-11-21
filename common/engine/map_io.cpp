@@ -27,6 +27,22 @@
 // Maximum size of an embedded texture strip (base64 data)
 static constexpr uint64_t TEXTURE_DATA_MAX = 16ull << 20;
 
+// Glow map ranges accepted from a map file
+static constexpr int GLOWMAP_RESO_MIN = 32;
+static constexpr int GLOWMAP_RESO_MAX = 4096;
+static constexpr float GLOWMAP_AREA_MIN = 1.0f;
+
+/*****************************************************************************/
+// Glow map values read from a file: resolution rounded up to a power of two, both clamped
+static Glowmap sanitizeGlowmap(int reso, float area)
+{
+    Glowmap g;
+    g.reso = GLOWMAP_RESO_MIN;
+    while (g.reso < reso && g.reso < GLOWMAP_RESO_MAX) g.reso <<= 1;
+    g.area = area >= GLOWMAP_AREA_MIN ? area : GLOWMAP_AREA_MIN;
+    return g;
+}
+
 /*****************************************************************************/
 // Surface line, same layout for every object: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags
 static void writeSurface(FILE * file, int index, const Surface & s)
@@ -72,7 +88,7 @@ bool Map::save(const QString & filename, bool submap)
 
     fprintf(file, "# == DIE MAP == \n");
     fprintf(file, "# Fred's Lab 2024-2026\n");
-    fprintf(file, "# 07.11.26 - V1.2\n");
+    fprintf(file, "# 21.11.26 - V1.3\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");
@@ -180,6 +196,9 @@ bool Map::save(const QString & filename, bool submap)
         fprintf(file, "# format: F color, distanceNear, distanceFar, flags\n");
         fprintf(file, "F %06x, %+4.4f, %+4.4f, %04hx\n",
             fog.color & 0xFFFFFF, fog.distanceNear, fog.distanceFar, fog.flags);
+    // Decimal values only: older loaders skip the line one character at a time
+        fprintf(file, "# format: G glowmapReso, glowmapArea\n");
+        fprintf(file, "G %d, %+4.4f\n", glowmap.reso, glowmap.area);
         fprintf(file, "\n");
 
 // ==== TEXTURE STRIP ====
@@ -386,6 +405,13 @@ bool Map::load(const QString & filename)
         }else if (c == 'F') {
             fscanf(file, "%x, %f, %f, %hx",
                 &fog.color, &fog.distanceNear, &fog.distanceFar, &fog.flags);
+
+        }else if (c == 'G') {
+        // V1.3: maps without this line keep the default glow map
+            int reso = 0;
+            float area = 0.0f;
+            if (fscanf(file, "%d, %f", &reso, &area) == 2)
+                glowmap = sanitizeGlowmap(reso, area);
 
         }else if (c == 'T') {
             uint16_t type = 0;

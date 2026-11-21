@@ -21,9 +21,6 @@
 namespace {
     constexpr int FrameResoMin = 64;
     constexpr int FrameResoMax = 8192;
-    constexpr int GlowmapResoMin = 32;
-    constexpr int GlowmapResoMax = 2048;
-    constexpr float GlowmapAreaMin = 1.0f;
     constexpr int NodesMin = 16;
     constexpr int NodesMax = 65536;
     constexpr int WallsMin = 16;
@@ -74,21 +71,13 @@ static const char * getKey(FILE * file)
 }
 
 /*****************************************************************************/
-// Round up to a power of two
-static int toPowerOfTwo(int v)
-{
-    int p = GlowmapResoMin;
-    while (p < v && p < GlowmapResoMax) p <<= 1;
-    return p;
-}
-
-/*****************************************************************************/
 void Renderer::configInit()
 {
     flags = FLAGS_DEFAULT;
 
     frameResoX = DefaultFrameResoX;
     frameResoY = DefaultFrameResoY;
+// Glow map: startup defaults only, each map sets its own (Env::pass)
     glowmapReso = DefaultGlowmapReso;
     glowmapArea = DefaultGlowmapArea;
 
@@ -151,8 +140,6 @@ bool Renderer::configLoad(const QString & filename)
     // Parse according to key (values clamped to sane ranges)
         if (strcmp(key, "ScreenResoX") == 0) frameResoX = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
         else if (strcmp(key, "ScreenResoY") == 0) frameResoY = std::clamp(atoi(valueStr), FrameResoMin, FrameResoMax);
-        else if (strcmp(key, "GlowmapReso") == 0) glowmapReso = toPowerOfTwo(atoi(valueStr));
-        else if (strcmp(key, "GlowmapArea") == 0) glowmapArea = std::max(GlowmapAreaMin, (float) atof(valueStr));
         else if (strcmp(key, "NodesMax") == 0) nodesAllocated = std::clamp(atoi(valueStr), NodesMin, NodesMax);
         else if (strcmp(key, "WallsMax") == 0) wallsAllocated = std::clamp(atoi(valueStr), WallsMin, WallsMax);
         else if (strcmp(key, "TexturesMax") == 0) texturesAllocated = std::clamp(atoi(valueStr), TexturesMin, TexturesMax);
@@ -212,8 +199,6 @@ bool Renderer::configSave(const QString & filename)
     fprintf(file, "# ==== Generals ==== \n");
     fprintf(file, "ScreenResoX = %d\n", frameResoX);
     fprintf(file, "ScreenResoY = %d\n", frameResoY);
-    fprintf(file, "GlowmapReso = %d\n", glowmapReso);
-    fprintf(file, "GlowmapArea = %.1f\n", glowmapArea);
     fprintf(file, "NodesMax = %d\n", nodesAllocated);
     fprintf(file, "WallsMax = %d\n", wallsAllocated);
     fprintf(file, "TexturesMax = %d\n", texturesAllocated);

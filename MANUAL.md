@@ -147,6 +147,11 @@ The glowmap is a 2D grid of accumulated light values laid flat over the world's 
 It is configured by two parameters: its resolution (a power-of-two size, e.g. 256x256 cells) and the area it covers, in world units.
 Together they set the size of one cell, and therefore how fine the lighting detail can be.
 
+Both belong to the map, as maps differ in size and in how much lighting detail they need. They are set in the Stage tab of Waller, next to
+the sun and fog, and saved in the map's environment section (`G` line). A map without them, saved before V1.3, gets a 256 x 256 glowmap
+over 1024 world units. The area should cover the whole playable space: outside it the glowmap wraps around, so surfaces there pick up
+light from the opposite edge. Picking the smallest area that fits gives the finest cells for a given resolution.
+
 For each point light, every glowmap cell within its reach accumulates that light's color, scaled down by the squared distance to the light
 (the falloff). While accumulating, a 2D ray is cast from the light to the cell against every wall segment: if a wall (that isn't flagged to
 skip shadows) crosses that ray, the cell is considered shadowed and the light contributes nothing to it. While rendering, the glowmap is

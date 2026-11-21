@@ -42,6 +42,14 @@ typedef struct {
     uint16_t flags;         ///< combination of FOG_FLAGS
 } Fog;
 
+/**
+    \brief Glow map properties: the light grid laid over the world X/Z plane, centered on the origin
+*/
+typedef struct {
+    int reso;               ///< grid resolution, in cells per side (power of two)
+    float area;             ///< world area covered, in world units per side
+} Glowmap;
+
 /*****************************************************************************/
 inline bool operator==(const Sun & a, const Sun & b)
 {
@@ -61,13 +69,19 @@ inline bool operator==(const Fog & a, const Fog & b)
            a.flags == b.flags;
 }
 
+inline bool operator==(const Glowmap & a, const Glowmap & b)
+{
+    return a.reso == b.reso &&
+           a.area == b.area;
+}
+
 /*****************************************************************************/
 class Env
 {
 public:
     Env();
 
-    /// \brief Set the default sun & fog properties
+    /// \brief Set the default sun, fog & glow map properties
     void init();
 
     /// \brief Release the environment resources
@@ -78,6 +92,7 @@ public:
 
     Sun sun;
     Fog fog;
+    Glowmap glowmap;
 };
 
 #endif // ENV_H
