@@ -159,8 +159,10 @@ sampled (with bilinear filtering) at the position of each wall column and each f
 lighting already computed for that surface.
 
 Strong point lights also bleed: the squared glowmap value, scaled by a fixed factor, is added on top of the lit texel, burning its colors
-toward the light's color. Being squared, the bleed stays negligible in dim light and only shows on brightly lit spots. The ambient and ray
-lights never bleed, they only scale the texture colors: a white ambient at full strength with no ray shows the textures exactly as they are.
+toward the light's color. Being squared, the bleed stays negligible in dim light and only shows on brightly lit spots. By default the
+ambient and ray lights never bleed, they only scale the texture colors: a white ambient at full strength with no ray shows the textures
+exactly as they are. The "sun bleed" renderer option adds them to the bleed (the squared sum of the sun and glowmap light), which brings back
+the paler, washed look of the earlier engine versions.
 Surfaces flagged "no bleed" skip this term and keep their colors saturated.
 
 To keep the cost down, the glowmap is split into two layers. Lights left on a fixed color (A or B, not animated) are "still": they are

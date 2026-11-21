@@ -45,27 +45,29 @@ static inline int floorToInt(float x)
 /*****************************************************************************/
 /**
     \brief Per-surface lighting terms, from the SURFACE_FLAGS
-    The pixel is lit as: lit = texel * (env + glowmap) + glowmap^2 * bleed
-    The squared glowmap only burns the brightly lit spots, the env light stays a pure multiplier
+    The pixel is lit as: lit = texel * (env + glowmap) + (bleedEnv + glowmap)^2 * bleed
+    The square only burns the brightly lit spots; bleedEnv is the env light with FLAG_SUN_BLEED, black otherwise
 */
 struct SurfaceLighting {
     __m128 env;         ///< environment light (sun ambient + ray), unit gain when fullbright
     __m128 bleed;       ///< bleed factor, zero when disabled
+    __m128 bleedEnv;    ///< env light part that bleeds, black unless FLAG_SUN_BLEED
     bool glow;          ///< sample the glowmap (local / dynamic lights)
     bool occlusion;     ///< ambient occlusion allowed
 };
 
-static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 envLight, __m128 bleed)
+static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 envLight, __m128 bleed, bool sunBleed)
 {
     bool noEnv = surfaceFlags & SURFACE_FLAG_NO_ENV_LIGHT;
     bool noGlow = surfaceFlags & SURFACE_FLAG_NO_GLOW;
 
 // Fullbright: the texels as they are
-    if (noEnv && noGlow) return {unitWhite, fullBlack, false, false};
+    if (noEnv && noGlow) return {unitWhite, fullBlack, fullBlack, false, false};
 
     SurfaceLighting l;
     l.env = noEnv ? fullBlack : envLight;
     l.bleed = (surfaceFlags & SURFACE_FLAG_NO_BLEED) ? fullBlack : bleed;
+    l.bleedEnv = sunBleed ? l.env : fullBlack;
     l.glow = !noGlow;
     l.occlusion = true;
     return l;
@@ -1114,9 +1116,10 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
 
     __m128 ray = unpackColorToVectorSSE4(below ? floorRay : ceilingRay);
-    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed);
+    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed, flags & Renderer::FLAG_SUN_BLEED);
     const __m128 ill = sl.env;
     const __m128 bleed = sl.bleed;
+    const __m128 bleedEnv = sl.bleedEnv;
     bool noGlow = !sl.glow;
     __m128 fog = unpackColorToVectorSSE4(fogFarColor);
 
@@ -1177,7 +1180,8 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             __m128 glow = _mm_add_ps(gm, ill);
             float aoFactor = (1.0f - occlusionDarken) + (adjacentStart - adjacent) * aoScale;
             v4 = _mm_mul_ps(v4, _mm_set1_ps(aoFactor));
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(gm, gm), bleed));
+            __m128 bl = _mm_add_ps(gm, bleedEnv);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(bl, bl), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1190,7 +1194,8 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             __m128 v4 = unpackColorToVectorSSE4(co);
             __m128 gm = sampleGlow(adjacent);
             __m128 glow = _mm_add_ps(gm, ill);
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(gm, gm), bleed));
+            __m128 bl = _mm_add_ps(gm, bleedEnv);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(bl, bl), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1312,7 +1317,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
 
 // Compute lights
     __m128 ray = unpackColorToVectorSSE4(strip.back ? w.rayBack : w.rayFront);
-    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed);
+    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed, flags & Renderer::FLAG_SUN_BLEED);
     const __m128 sun = sl.env;
     const __m128 bleed = sl.bleed;
 
@@ -1329,7 +1334,8 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         gm = sampleGlowmap(gx, gz);
     }
     __m128 glow = _mm_add_ps(sun, gm);
-    __m128 glowBled = _mm_mul_ps(_mm_mul_ps(gm, gm), bleed);     // constant along the strip
+    __m128 bl = _mm_add_ps(gm, sl.bleedEnv);
+    __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bl, bl), bleed);     // constant along the strip
 
 // Configure the pointers
     int32_t u = floorToInt((strip.u + s.shiftX) * sx);

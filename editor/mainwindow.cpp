@@ -932,6 +932,7 @@ void MainWindow::updateEngineProperties()
     setCheckboxStateSilently(ui->checkRendererMotionblur, flags & Renderer::FLAG_MOTIONBLUR);
     setCheckboxStateSilently(ui->checkRendererVignetting, flags & Renderer::FLAG_VIGNETTE);
     setCheckboxStateSilently(ui->checkRendererAlphaFeatures, flags & Renderer::FLAG_ALPHA_FEATURES);
+    setCheckboxStateSilently(ui->checkRendererSunBleed, flags & Renderer::FLAG_SUN_BLEED);
     setCheckboxStateSilently(ui->checkRendererGamma, flags & Renderer::FLAG_GAMMA);
 
     setSpinValueSilently(ui->spinRendererMotionblurPercent, renderer.motionBlurFactor);
@@ -2935,6 +2936,11 @@ void MainWindow::on_checkRendererVignetting_toggled(bool checked)
 void MainWindow::on_checkRendererAlphaFeatures_toggled(bool checked)
 {
     renderer.checkFlag(Renderer::FLAG_ALPHA_FEATURES, checked);
+}
+
+void MainWindow::on_checkRendererSunBleed_toggled(bool checked)
+{
+    renderer.checkFlag(Renderer::FLAG_SUN_BLEED, checked);
 }
 
 void MainWindow::on_spinRendererOcclusionLength_valueChanged(double arg1)

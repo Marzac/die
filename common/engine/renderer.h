@@ -91,6 +91,7 @@ public:
         FLAG_LIGHTS             = 0x0004,
         FLAG_AMBIENT_OCCLUSION  = 0x0008,
         FLAG_GLOWMAP_REBUILD    = 0x0010,
+        FLAG_SUN_BLEED          = 0x0020,   ///< the sun light bleeds too, not only the glowmap
         FLAG_MOTIONBLUR         = 0x0100,
         FLAG_VIGNETTE           = 0x0200,
         FLAG_GAMMA              = 0x0400,
