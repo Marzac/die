@@ -24,7 +24,7 @@
 /*****************************************************************************/
 QBrush WdgMapEditor::gridMajor = QColor(96, 96, 96);
 QBrush WdgMapEditor::gridMinor = QColor(32, 32, 32);
-QBrush WdgMapEditor::gridScissor = QColor(128, 128, 128);
+QPen WdgMapEditor::gridScissor = QPen(QColor(255, 216, 0), 2);
 
 QPen WdgMapEditor::colorPrincipal = QColor(255, 255, 255);
 QPen WdgMapEditor::colorSelected = QColor(192, 192, 192);
@@ -41,7 +41,7 @@ QPen WdgMapEditor::colorLightBase = QColor(32, 32, 192);
 QPen WdgMapEditor::colorSpriteBase = QColor(32, 192, 32);
 QPen WdgMapEditor::colorSpeakerBase = QColor(0, 192, 192);
 
-QPen WdgMapEditor::colorGlowMap = QColor(64, 0, 0);
+QPen WdgMapEditor::colorGlowMap = QPen(QColor(255, 48, 48), 2);
 
 QBrush WdgMapEditor::brushAnchorBase = QColor(32, 32, 255);
 QBrush WdgMapEditor::brushAnchorSelected = QColor(192, 192, 255);
@@ -159,6 +159,19 @@ void WdgMapEditor::drawGlowMap(QPainter & painter, QVector2D & org)
     painter.drawRect(ao.x(), ao.y(), av.x(), av.y());
 }
 
+void WdgMapEditor::drawHeightLimits(QPainter & painter, QVector2D & org)
+{
+// Minimum & maximum height of the view, side and front views only
+    if (mode == VIEW_TOP) return;
+
+    float minY = org.y() - editor.viewMinY * editor.getZoom();
+    float maxY = org.y() - editor.viewMaxY * editor.getZoom();
+
+    painter.setPen(gridScissor);
+    painter.drawLine(QPointF(0, minY), QPointF(width(), minY));
+    painter.drawLine(QPointF(0, maxY), QPointF(width(), maxY));
+}
+
 void WdgMapEditor::drawArrow(QPainter & painter, QVector2D & org, QVector2D & pos, float pan, float length)
 {
     painter.setRenderHint(QPainter::Antialiasing, true);
@@ -179,6 +192,7 @@ void WdgMapEditor::drawMap(QPainter & painter, Map & map)
 
     drawGrid(painter, org);
     drawGlowMap(painter, org);
+    drawHeightLimits(painter, org);
     drawNodes(painter, map, org);
     if (mode == VIEW_TOP) drawWallsTop(painter, map, org);
     else drawWallsSide(painter, map, org);
@@ -274,12 +288,6 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
 
 void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
 {
-// Minimum & maximum height
-    float minY = org.y() - editor.viewMinY * editor.getZoom();
-    float maxY = org.y() - editor.viewMaxY * editor.getZoom();
-    painter.fillRect(0, minY, width(), 1, gridScissor);
-    painter.fillRect(0, maxY, width(), 1, gridScissor);
-
 // Walls borders
     painter.setRenderHint(QPainter::Antialiasing, true);
     for (int pass = 0; pass < 3; pass++) {
