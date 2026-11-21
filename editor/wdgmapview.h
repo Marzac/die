@@ -19,6 +19,13 @@ class WdgMapView : public QWidget
     Q_OBJECT
 
 public:
+    static constexpr float walkSensitivity = 0.125f;
+    static constexpr float strafeSensitivity = 0.500f;
+    static constexpr float panSensitivity = 1.0f;
+    static constexpr float pitchSensitivity = 2.0f;
+
+    static constexpr float pitchSpanMax = 80.0f;
+
     explicit WdgMapView(QWidget *parent = nullptr);
 
 protected:
@@ -29,7 +36,7 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    int dragX;
+    int dragX, dragY;
     bool clickRegistered;
 
     void drawViewLabel(QPainter & painter);
