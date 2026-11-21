@@ -480,11 +480,14 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
         }else if (nodeHover) {
             selectRegionStart = false;
             if (!shift) {
+                // Clicking the next node of a chain keeps the walls built so far
+                bool chaining = editor.selectedNode != EDIT_UNSELECTED && editor.selectedNode != nIdHover;
                 editor.selectedWall = EDIT_UNSELECTED;
-                editor.wallDeselectAll();
+                if (!chaining) editor.wallDeselectAll();
             }
 
         }else if (!shift) {
+            editor.selectedNode = EDIT_UNSELECTED;
             editor.selectedWall = EDIT_UNSELECTED;
             editor.wallDeselectAll();
         }
@@ -763,8 +766,9 @@ void WdgMapEditor::mouseReleaseCreate(QMouseEvent *)
 
             }else editor.selectedWall = EDIT_UNSELECTED;
 
+            // The chain's anchor node is shown by selectedNode alone
+            editor.nodeDeselectAll();
             editor.selectedNode = nId;
-            editor.editedMap->nodes[nId].selected = true;
             mainWindow->updateNodeProperties();
             mainWindow->updateWallProperties();
         }
