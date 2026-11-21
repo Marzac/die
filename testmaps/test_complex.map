@@ -1,6 +1,6 @@
 # == DIE MAP == 
 # Fred's Lab 2024-2026
-# 07.11.26 - V1.2
+# 21.11.26 - V1.3
 # == NODES ==
 # format: N x, y, z, metaA, metaB, metaC, tag, flags
 N -48.0000, +0.0000, -88.0000, +0.0000, +0.0000, +0.0000, None, 0001
@@ -594,6 +594,8 @@ L 0109, 00ffe0b0, 00404040, +1.0000, +40.0000, +1.0000, 0003, None, 0002
 R bbbbbb, +0.0900, ffffdd, +0.3000, +10.0000, +1.0000
 # format: F color, distanceNear, distanceFar, flags
 F 000000, +64.0000, +512.0000, 0000
+# format: G glowmapReso, glowmapArea
+G 256, +512.0000
 
 # == TEXTURE STRIP ==
 # format: T type, length, data
