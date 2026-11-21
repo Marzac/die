@@ -47,8 +47,8 @@ void Editor::init()
     gridSize = 8.0f;
 
     zoomLevel = 1;
-    viewMinY = -4096.f;
-    viewMaxY = 4096.f;
+    scissorMinY = -4096.f;
+    scissorMaxY = 4096.f;
 
     gravity = false;
     collisions = false;
@@ -1086,9 +1086,9 @@ void Editor::snapCoords(QVector2D & pos)
     pos.setY((int)((pos.y() + rz) / gs) * gs);
 }
 
-bool Editor::inView(const QVector3D & pos) const
+bool Editor::inScissor(const QVector3D & pos) const
 {
-    return pos.y() >= viewMinY && pos.y() <= viewMaxY;
+    return pos.y() >= scissorMinY && pos.y() <= scissorMaxY;
 }
 
 float Editor::getZoom() const
@@ -1134,7 +1134,7 @@ bool Editor::findInCircle(
         int index = (i + offset) % count;
         const T & item = items[index];
         const Node & n = editedMap->nodes[getNodeId(item)];
-        if (!inView(n.pos)) continue;
+        if (!inScissor(n.pos)) continue;
         QVector2D np = to2D(mode, n.pos);
         float r = np.distanceToPoint(pos);
         if (r > rMin) continue;
@@ -1160,7 +1160,7 @@ bool Editor::findInRect(
     for (int i = 0; i < items.count(); i++) {
         const T & item = items[i];
         Node & n = editedMap->nodes[getNodeId(item)];
-        if (!inView(n.pos)) continue;
+        if (!inScissor(n.pos)) continue;
         QVector2D np = to2D(mode, n.pos);
         QVector2D d1 = c1 - np;
         QVector2D d2 = c2 - np;

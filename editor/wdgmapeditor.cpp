@@ -164,8 +164,8 @@ void WdgMapEditor::drawHeightLimits(QPainter & painter, QVector2D & org)
 // Minimum & maximum height of the view, side and front views only
     if (mode == VIEW_TOP) return;
 
-    float minY = org.y() - editor.viewMinY * editor.getZoom();
-    float maxY = org.y() - editor.viewMaxY * editor.getZoom();
+    float minY = org.y() - editor.scissorMinY * editor.getZoom();
+    float maxY = org.y() - editor.scissorMaxY * editor.getZoom();
 
     painter.setPen(gridScissor);
     painter.drawLine(QPointF(0, minY), QPointF(width(), minY));
@@ -224,7 +224,7 @@ void WdgMapEditor::drawNodes(QPainter & painter, Map & map, QVector2D & org)
 
             if (i == editor.selectedNode) painter.setPen(colorPrincipal);
             else if (n.selected) painter.setPen(colorSelected);
-            else if (editor.inView(n.pos)) painter.setPen(colorNodeBase);
+            else if (editor.inScissor(n.pos)) painter.setPen(colorNodeBase);
             else painter.setPen(colorGreyed);
 
             painter.drawEllipse(np.toPointF(), 3.0f, 3.0f);
@@ -255,7 +255,7 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
 
             if (i == editor.selectedWall) painter.setPen(colorPrincipal);
             else if (w.selected) painter.setPen(colorSelected);
-            else if (editor.inView(n1.pos)) painter.setPen(colorWallBase);
+            else if (editor.inScissor(n1.pos)) painter.setPen(colorWallBase);
             else painter.setPen(colorGreyed);
 
             painter.drawLine(n1p.toPointF(), n2p.toPointF());
@@ -268,7 +268,7 @@ void WdgMapEditor::drawWallsTop(QPainter & painter, Map & map, QVector2D & org)
         Wall & w = map.walls[i];
         Node & n1 = map.nodes[w.nodeID1];
         Node & n2 = map.nodes[w.nodeID2];
-        if (!editor.inView(n1.pos)) continue;
+        if (!editor.inScissor(n1.pos)) continue;
 
         QVector2D n1p = Editor::to2D(mode, n1.pos);
         QVector2D n2p = Editor::to2D(mode, n2.pos);
@@ -314,14 +314,14 @@ void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
 
             if (i == editor.selectedWall) painter.setPen(colorPrincipal);
             else if (w.selected) painter.setPen(colorSelected);
-            else if (editor.inView(n1.pos)) painter.setPen(colorWallBase);
+            else if (editor.inScissor(n1.pos)) painter.setPen(colorWallBase);
             else painter.setPen(colorGreyed);
 
             painter.drawPolyline(ns, 5);
             painter.setPen(Qt::NoPen);
 
-            if (!editor.inView(n1.pos)) continue;
-            if (!editor.inView(n2.pos)) continue;
+            if (!editor.inScissor(n1.pos)) continue;
+            if (!editor.inScissor(n2.pos)) continue;
             QVector2D mp = (n1p + n2p + hp) * 0.5f - QVector2D(2.0f, 2.0f);
 
             if (w.selected)
@@ -927,7 +927,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
         QVector2D np = Editor::to2D(mode, n.pos);
         np = org + np * editor.getZoom();
 
-        if (editor.inView(n.pos)) {
+        if (editor.inScissor(n.pos)) {
             painter.setPen(pen);
             painter.drawImage(np.toPointF() - QPointF(8.0f, 8.0f), icon);
         }else painter.setPen(colorGreyed);
@@ -943,7 +943,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
         QVector2D np = Editor::to2D(mode, n.pos);
         np = org + np * editor.getZoom();
 
-        if (editor.inView(n.pos)) {
+        if (editor.inScissor(n.pos)) {
             painter.setPen(colorSelected);
             painter.drawImage(np.toPointF() - QPointF(8.0f, 8.0f), icon);
         }else painter.setPen(colorGreyed);
@@ -957,7 +957,7 @@ void WdgMapEditor::drawItems(QPainter& painter,
         QVector2D np = Editor::to2D(mode, n.pos);
         np = org + np * editor.getZoom();
 
-        if (editor.inView(n.pos)) {
+        if (editor.inScissor(n.pos)) {
             painter.setPen(colorPrincipal);
             painter.drawImage(np.toPointF() - QPointF(8.0f, 8.0f), icon);
         }else painter.setPen(colorGreyed);

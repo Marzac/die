@@ -96,8 +96,8 @@ public:
     bool gridSnap;
     float gridSize;
     int zoomLevel;
-    float viewMinY;
-    float viewMaxY;
+    float scissorMinY;
+    float scissorMaxY;
 
     bool gravity;
     bool collisions;
@@ -190,7 +190,7 @@ public:
     void pathDeselectAll();
 
     void snapCoords(QVector2D & pos);
-    bool inView(const QVector3D & pos) const;
+    bool inScissor(const QVector3D & pos) const;
     float getZoom() const;
 
     static QVector2D to2D(VIEW_MODES mode, const QVector3D & pos);
