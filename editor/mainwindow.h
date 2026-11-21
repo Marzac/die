@@ -313,8 +313,8 @@ private slots:
     void on_pushSunRay_clicked();
     void on_spinSunHour_valueChanged(double arg1);
     void on_spinSunAngle_valueChanged(double arg1);
-    void on_scrollSunAmbient_valueChanged(int value);
-    void on_scrollSunRay_valueChanged(int value);
+    void on_spinSunAmbient_valueChanged(double arg1);
+    void on_spinSunRay_valueChanged(double arg1);
 
     void on_pushFogColor_clicked();
     void on_spinFogNear_valueChanged(double arg1);

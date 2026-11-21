@@ -882,9 +882,9 @@ void MainWindow::updateSunProperties()
 {
     Sun & sun = editor.env.sun;
     ui->pushSunAmbient->setStyleSheet("background-color: " + QColor(sun.ambientColor).name());
-    ui->scrollSunAmbient->setValue(sun.ambientStrength * 100.0f);
+    ui->spinSunAmbient->setValue(sun.ambientStrength);
     ui->pushSunRay->setStyleSheet("background-color: " + QColor(sun.rayColor).name());
-    ui->scrollSunRay->setValue(sun.rayStrength * 100.0f);
+    ui->spinSunRay->setValue(sun.rayStrength);
     ui->spinSunHour->setValue(sun.hour);
     ui->spinSunAngle->setValue(sun.angle);
 }
@@ -2562,7 +2562,7 @@ void MainWindow::resizeUI()
     ui->groupInfos->setGeometry(220, refY, viewPortWidth + 21, 51);
     ui->groupViewer->setGeometry(refX + 26, 10, 141, 171);
     ui->groupFOV->setGeometry(refX + 26, 190, 141, 91);
-    ui->groupEditor->setGeometry(refX + 26, 292, 141, 211);
+    ui->groupEditor->setGeometry(refX + 26, 290, 141, 211);
 
     int infoY = height() - 822 + 760;
     ui->labelCopyright->setGeometry(refX + 26, infoY - 16, 141, 32);
@@ -3040,14 +3040,14 @@ void MainWindow::on_spinSunAngle_valueChanged(double arg1)
     editor.env.sun.angle = arg1;
 }
 
-void MainWindow::on_scrollSunAmbient_valueChanged(int value)
+void MainWindow::on_spinSunAmbient_valueChanged(double arg1)
 {
-    editor.env.sun.ambientStrength = value * 0.01f;
+    editor.env.sun.ambientStrength = arg1;
 }
 
-void MainWindow::on_scrollSunRay_valueChanged(int value)
+void MainWindow::on_spinSunRay_valueChanged(double arg1)
 {
-    editor.env.sun.rayStrength = value * 0.01f;
+    editor.env.sun.rayStrength = arg1;
 }
 
 /*****************************************************************************/
