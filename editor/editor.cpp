@@ -1093,7 +1093,7 @@ bool Editor::inView(const QVector3D & pos) const
 
 float Editor::getZoom() const
 {
-    return exp2f(zoomLevel);
+    return exp2f(zoomLevel* 0.5f);
 }
 
 /*****************************************************************************/

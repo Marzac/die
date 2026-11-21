@@ -57,8 +57,8 @@ constexpr int EDITOR_OBJECT_RADIUS = 12;
 class Editor
 {
 public:
-    static constexpr int zoomLevelMax = 256;
-    static constexpr int zoomLevelMin = -256;
+    static constexpr int zoomLevelMax = 10;
+    static constexpr int zoomLevelMin = -12;
 
     Editor();
     void init();
