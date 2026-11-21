@@ -583,6 +583,24 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
         }
         mainWindow->updateLightProperties();
 
+    }else if (editor.editMode == EDIT_MODE_SPRITES) {
+        int bId = 0;
+        if (editor.spriteFindInCircle(mode, pos, bId)) {
+            bool inRegion = editor.editedMap->sprites[bId].selected;
+            if (!shift && !inRegion) editor.spriteDeselectAll();
+            selectRegionStart = false;
+            mainWindow->pushUndoState();
+            editor.selectedSprite = bId;
+            editor.editedMap->sprites[bId].selected = true;
+
+        }else if (!shift) {
+            if (editor.selectedSprite != EDIT_UNSELECTED)
+                mouseLeftWasPressed = false;
+            editor.selectedSprite = EDIT_UNSELECTED;
+            editor.spriteDeselectAll();
+        }
+        mainWindow->updateSpriteProperties();
+
     }else if (editor.editMode == EDIT_MODE_SPEAKERS) {
         int dId = 0;
         if (editor.speakerFindInCircle(mode, pos, dId)) {
