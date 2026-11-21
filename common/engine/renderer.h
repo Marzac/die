@@ -41,7 +41,7 @@ public:
     static constexpr int DefaultGlowmapReso = 256;
     static constexpr float DefaultGlowmapArea = 1024.0f;
     static constexpr float GlowSampleDistance = 1.0f;
-    static constexpr float GlowBleedFactor = 0.25f;
+    static constexpr float GlowBleedFactor = 0.2f;
     static constexpr float GlowFalloffSharpness = 49.0f;
 
  /// \brief Default collection sizes
