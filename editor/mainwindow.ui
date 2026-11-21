@@ -5269,7 +5269,10 @@
     <addaction name="separator"/>
     <addaction name="actionLoad_map"/>
     <addaction name="actionSave_map"/>
+    <addaction name="actionSave_map_as"/>
+    <addaction name="separator"/>
     <addaction name="actionSave_submap"/>
+    <addaction name="actionSave_submap_as"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
@@ -5319,10 +5322,18 @@
   </action>
   <action name="actionSave_map">
    <property name="text">
-    <string>Save map ...</string>
+    <string>Save map</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_map_as">
+   <property name="text">
+    <string>Save map as ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
    </property>
   </action>
   <action name="actionQuit">
@@ -5340,10 +5351,18 @@
   </action>
   <action name="actionSave_submap">
    <property name="text">
-    <string>Save submap ...</string>
+    <string>Save submap</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+M</string>
+   </property>
+  </action>
+  <action name="actionSave_submap_as">
+   <property name="text">
+    <string>Save submap as ...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+M</string>
    </property>
   </action>
   <action name="actionAbout">

@@ -95,7 +95,9 @@ public:
     void updateViewNormals(bool normals);
     void updateViewMode();
 
-    void saveMap(bool submap);
+    QString askMapFile(const QString & caption, const QString & startFile);
+    bool saveMap(const QString & file, bool submap);
+    void setMapFile(const QString & file);
 
 private:
     void resizeUI();
@@ -124,6 +126,9 @@ private:
 // Viewpoint bookmark, one slot per map file, kept in the editor settings
     QString mapFile;
     QString viewMarkKey() const;
+
+// Last submap file written by Save submap as, reset by New map and Load map
+    QString submapFile;
 
 private slots:
     void timerRender_tick();
@@ -344,7 +349,9 @@ private slots:
     void on_actionNew_triggered();
     void on_actionLoad_map_triggered();
     void on_actionSave_map_triggered();
+    void on_actionSave_map_as_triggered();
     void on_actionSave_submap_triggered();
+    void on_actionSave_submap_as_triggered();
     void on_actionQuit_triggered();
 
     void on_pushTextureBrowse_clicked();
