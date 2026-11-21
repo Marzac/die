@@ -45,7 +45,7 @@ void Editor::init()
     gridSnap = true;
     gridSize = 8.0f;
 
-    zoom = 1.0f;
+    zoomLevel = 1;
     viewMinY = -4096.f;
     viewMaxY = 4096.f;
 
@@ -473,7 +473,7 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
     int nOff = selectedWall < 0 ? 0 : selectedWall + 1;
     int count = editedMap->walls.count();
     if (mode == VIEW_TOP) {
-        float rMin = EDITOR_WALL_RADIUS / zoom;
+        float rMin = EDITOR_WALL_RADIUS / getZoom();
         rMin = std::max(rMin, 0.5f * effectiveGridSize());
         for (int i = 0; i < count; i++) {
             int index = (i + nOff) % count;
@@ -1084,6 +1084,16 @@ void Editor::snapCoords(QVector2D & pos)
     pos.setY((int)((pos.y() + rz) / gs) * gs);
 }
 
+bool Editor::inView(const QVector3D & pos) const
+{
+    return pos.y() >= viewMinY && pos.y() <= viewMaxY;
+}
+
+float Editor::getZoom() const
+{
+    return exp2f(zoomLevel);
+}
+
 /*****************************************************************************/
 QVector2D Editor::to2D(VIEW_MODES mode, const QVector3D & pos)
 {
@@ -1112,7 +1122,7 @@ bool Editor::findInCircle(
     int selectedIndex)
 {
     outId = -1;
-    float rMin = EDITOR_OBJECT_RADIUS / zoom;
+    float rMin = EDITOR_OBJECT_RADIUS / getZoom();
     rMin = std::max(rMin, 0.5f * effectiveGridSize());
 
     int count = items.count();
