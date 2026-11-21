@@ -464,6 +464,7 @@ void Editor::wallDeselectAll()
 {
     for (int i = 0; i < editedMap->walls.count(); i++)
         editedMap->walls[i].selected = false;
+    editor.selectedWall = EDIT_UNSELECTED;
 }
 
 bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
@@ -609,6 +610,7 @@ void Editor::submapDeselectAll()
 {
     for (int i = 0; i < editedMap->submaps.count(); i++)
         editedMap->submaps[i].selected = false;
+    editor.selectedSubmap = EDIT_UNSELECTED;
 }
 
 bool Editor::submapFindInCircle(VIEW_MODES mode, QVector2D pos, int & mId)
@@ -681,6 +683,7 @@ void Editor::doorDeselectAll()
 {
     for (int i = 0; i < editedMap->doors.count(); i++)
         editedMap->doors[i].selected = false;
+    editor.selectedDoor = EDIT_UNSELECTED;
 }
 
 bool Editor::doorFindInCircle(VIEW_MODES mode, QVector2D pos, int & dId)
@@ -752,6 +755,7 @@ void Editor::liftDeselectAll()
 {
     for (int i = 0; i < editedMap->lifts.count(); i++)
         editedMap->lifts[i].selected = false;
+    editor.selectedLift = EDIT_UNSELECTED;
 }
 
 bool Editor::liftFindInCircle(VIEW_MODES mode, QVector2D pos, int & eId)
@@ -812,6 +816,7 @@ void Editor::spriteDeselectAll()
 {
     for (int i = 0; i < editedMap->sprites.count(); i++)
         editedMap->sprites[i].selected = false;
+    editor.selectedSprite = EDIT_UNSELECTED;
 }
 
 bool Editor::spriteFindInCircle(VIEW_MODES mode, QVector2D pos, int & bId)
@@ -881,6 +886,7 @@ void Editor::staircaseDeselectAll()
 {
     for (int i = 0; i < editedMap->staircases.count(); i++)
         editedMap->staircases[i].selected = false;
+    editor.selectedStaircase = EDIT_UNSELECTED;
 }
 
 bool Editor::staircaseFindInCircle(VIEW_MODES mode, QVector2D pos, int & hId)
@@ -940,6 +946,7 @@ void Editor::lightDeselectAll()
 {
     for (int i = 0; i < editedMap->lights.count(); i++)
         editedMap->lights[i].selected = false;
+    editor.selectedLight = EDIT_UNSELECTED;
 }
 
 bool Editor::lightFindInCircle(VIEW_MODES mode, QVector2D pos, int & lId)
@@ -1003,6 +1010,7 @@ void Editor::speakerDeselectAll()
 {
     for (int i = 0; i < editedMap->speakers.count(); i++)
         editedMap->speakers[i].selected = false;
+    editor.selectedSpeaker = EDIT_UNSELECTED;
 }
 
 bool Editor::speakerFindInCircle(VIEW_MODES mode, QVector2D pos, int & aId)
@@ -1055,6 +1063,7 @@ void Editor::pathDeselectAll()
 {
     for (int i = 0; i < editedMap->paths.count(); i++)
         editedMap->paths[i].selected = false;
+    editor.selectedPath = EDIT_UNSELECTED;
 }
 
 /*****************************************************************************/
