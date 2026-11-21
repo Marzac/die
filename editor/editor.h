@@ -49,9 +49,7 @@ typedef enum {
 /*****************************************************************************/
 constexpr int EDIT_UNSELECTED = -1;
 
-constexpr int EDITOR_NODE_RADIUS = 8;
-constexpr int EDITOR_WALL_RADIUS = 16;
-constexpr int EDITOR_OBJECT_RADIUS = 12;
+constexpr int EDITOR_PICK_RADIUS = 12;     // in screen pixels
 
 /*****************************************************************************/
 class Editor

@@ -474,9 +474,10 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
     wId = -1;
     int nOff = selectedWall < 0 ? 0 : selectedWall + 1;
     int count = editedMap->walls.count();
+// Nearest wins, ties cycle
+    float tie = 0.5f / getZoom();
     if (mode == VIEW_TOP) {
-        float rMin = EDITOR_WALL_RADIUS / getZoom();
-        rMin = std::max(rMin, 0.5f * effectiveGridSize());
+        float rMin = EDITOR_PICK_RADIUS / getZoom() + tie;
         for (int i = 0; i < count; i++) {
             int index = (i + nOff) % count;
             Wall & w = editedMap->walls[index];
@@ -489,11 +490,10 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
             if (dp < 0.0f || dp > w.length) continue;
 
             float dr = fabsf(QVector2D::dotProduct(np, w.normal));
-            if (dr > rMin) continue;
+            if (dr >= rMin - tie) continue;
 
             rMin = dr;
             wId = index;
-            break;
         }
 
     }else{
@@ -520,11 +520,10 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
             QVector2D hp(0.0f, -w.height);
             QVector2D np = (n1p + n2p + hp) * 0.5f;
             float r = np.distanceToPoint(pos);
-            if (r > rMin) continue;
+            if (r >= rMin - tie) continue;
 
             rMin = r;
             wId = index;
-            break;
         }
     }
 
@@ -1124,12 +1123,13 @@ bool Editor::findInCircle(
     int selectedIndex)
 {
     outId = -1;
-    float rMin = EDITOR_OBJECT_RADIUS / getZoom();
-    rMin = std::max(rMin, 0.5f * effectiveGridSize());
+    float tie = 0.5f / getZoom();
+    float rMin = EDITOR_PICK_RADIUS / getZoom() + tie;
 
     int count = items.count();
     int offset = selectedIndex < 0 ? 0 : selectedIndex + 1;
 
+// Nearest wins, ties cycle
     for (int i = 0; i < count; i++) {
         int index = (i + offset) % count;
         const T & item = items[index];
@@ -1137,10 +1137,9 @@ bool Editor::findInCircle(
         if (!inScissor(n.pos)) continue;
         QVector2D np = to2D(mode, n.pos);
         float r = np.distanceToPoint(pos);
-        if (r > rMin) continue;
+        if (r >= rMin - tie) continue;
         rMin = r;
         outId = index;
-        break;
     }
 
     return outId != -1;

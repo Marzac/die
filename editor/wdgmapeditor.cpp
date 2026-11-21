@@ -442,7 +442,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
 {
     bool shift = event->modifiers() & Qt::ShiftModifier;
     QVector2D click = QVector2D(event->position());
-    QVector2D pos = getWorldCoordinates(click);
+    QVector2D pos = pointer;
 
     selectRegionStart = true;
     selectRegionC1 = selectRegionC2 = click;
@@ -745,7 +745,7 @@ void WdgMapEditor::mouseReleaseCreate(QMouseEvent *)
         if (selected) return;
 
         int nId = 0;
-        if (editor.nodeFindInCircle(mode, cursor, nId)) {
+        if (editor.nodeFindInCircle(mode, pointer, nId)) {
             if (editor.selectedNode != EDIT_UNSELECTED &&
                 editor.selectedNode != nId) {
                 int wId = 0;
@@ -844,7 +844,8 @@ void WdgMapEditor::mouseReleaseSelect(QMouseEvent *event)
 /*****************************************************************************/
 void WdgMapEditor::mousePressEvent(QMouseEvent *event)
 {
-    cursor = getWorldCoordinates(QVector2D(event->position()));
+    pointer = getWorldCoordinates(QVector2D(event->position()));
+    cursor = pointer;
     editor.snapCoords(cursor);
     dragCursor = cursor;
 
@@ -871,7 +872,8 @@ void WdgMapEditor::mouseReleaseEvent(QMouseEvent *event)
 
 void WdgMapEditor::mouseMoveEvent(QMouseEvent *event)
 {
-    cursor = getWorldCoordinates(QVector2D(event->position()));
+    pointer = getWorldCoordinates(QVector2D(event->position()));
+    cursor = pointer;
     editor.snapCoords(cursor);
 
     if (event->buttons() & Qt::MiddleButton) mouseMoveScroll(event);
