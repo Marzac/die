@@ -23,6 +23,7 @@ import os
 
 EPS = 1e-3
 SKY = 256.0
+GLOWMAP = (256, 512.0)     # glow map resolution, area: the skybox span (-256 .. 256)
 
 # Texture tiles of default.png
 TEX_CHECKER, TEX_BRICK, TEX_STONE, TEX_WOOD, TEX_MARBLE, TEX_SKY = 0, 1, 2, 3, 4, 5
@@ -157,7 +158,7 @@ class MapWriter:
             f.write("# == DIE MAP == \n")
             for line in header:
                 f.write(f"# {line}\n")
-            f.write("# 07.11.26 - V1.2\n")
+            f.write("# 21.11.26 - V1.3\n")
             f.write("# == NODES ==\n")
             f.write("# format: N x, y, z, metaA, metaB, metaC, tag, flags\n")
             for x, y, z in self.nodes:
@@ -177,6 +178,8 @@ class MapWriter:
             f.write("\n# == ENVIRONMENT ==\n")
             f.write("R bbbbbb, +0.6000, ffffdd, +1.0000, +10.0000, +1.0000\n")
             f.write("F 000000, +64.0000, +512.0000, 0000\n")
+            f.write("# format: G glowmapReso, glowmapArea\n")
+            f.write(f"G {GLOWMAP[0]}, {GLOWMAP[1]:+.4f}\n")
 
 
 # =============================================================================
