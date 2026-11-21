@@ -45,7 +45,8 @@ static inline int floorToInt(float x)
 /*****************************************************************************/
 /**
     \brief Per-surface lighting terms, from the SURFACE_FLAGS
-    The pixel is lit as: lit = texel * (env + glowmap) + (env + glowmap) * bleed
+    The pixel is lit as: lit = texel * (env + glowmap) + glowmap^2 * bleed
+    The squared glowmap only burns the brightly lit spots, the env light stays a pure multiplier
 */
 struct SurfaceLighting {
     __m128 env;         ///< environment light (sun ambient + ray), unit gain when fullbright
@@ -1172,10 +1173,11 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             int v = floorToInt(oz + rz * adjacent);
             uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
             __m128 v4 = unpackColorToVectorSSE4(co);
-            __m128 glow = _mm_add_ps(sampleGlow(adjacent), ill);
+            __m128 gm = sampleGlow(adjacent);
+            __m128 glow = _mm_add_ps(gm, ill);
             float aoFactor = (1.0f - occlusionDarken) + (adjacentStart - adjacent) * aoScale;
             v4 = _mm_mul_ps(v4, _mm_set1_ps(aoFactor));
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, bleed));
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(gm, gm), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1186,8 +1188,9 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             int v = floorToInt(oz + rz * adjacent);
             uint32_t co = tex[(u & t.mask) * t.size + (v & t.mask)];
             __m128 v4 = unpackColorToVectorSSE4(co);
-            __m128 glow = _mm_add_ps(sampleGlow(adjacent), ill);
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(glow, bleed));
+            __m128 gm = sampleGlow(adjacent);
+            __m128 glow = _mm_add_ps(gm, ill);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(gm, gm), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1326,7 +1329,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         gm = sampleGlowmap(gx, gz);
     }
     __m128 glow = _mm_add_ps(sun, gm);
-    __m128 glowBled = _mm_mul_ps(glow, bleed);     // constant along the strip
+    __m128 glowBled = _mm_mul_ps(_mm_mul_ps(gm, gm), bleed);     // constant along the strip
 
 // Configure the pointers
     int32_t u = floorToInt((strip.u + s.shiftX) * sx);
