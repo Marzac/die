@@ -24,9 +24,6 @@
 #include <stdint.h>
 #include <string.h>
 
-// Maximum size of an embedded texture strip (base64 data)
-static constexpr uint64_t TEXTURE_DATA_MAX = 16ull << 20;
-
 // Glow map ranges accepted from a map file
 static constexpr int GLOWMAP_RESO_MIN = 32;
 static constexpr int GLOWMAP_RESO_MAX = 4096;

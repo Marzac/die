@@ -356,6 +356,7 @@ private slots:
     void on_actionQuit_triggered();
 
     void on_pushTextureBrowse_clicked();
+    void on_pushTextureAdd_clicked();
     void on_pushMapCenter_clicked();
     void on_scrollMapH_sliderMoved(int position);
     void on_scrollMapV_sliderMoved(int position);
