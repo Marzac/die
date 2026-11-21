@@ -5068,8 +5068,28 @@
       </rect>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>7</number>
      </property>
+     <item>
+      <property name="text">
+       <string>1024</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>512</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>256</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>128</string>
+      </property>
+     </item>
      <item>
       <property name="text">
        <string>64</string>

@@ -432,7 +432,7 @@ void MainWindow::on_checkEditorSnap_toggled(bool checked)
 
 void MainWindow::on_comboEditorSnap_currentIndexChanged(int index)
 {
-    const float sizes[] = {64.0f, 32.0f, 16.0f, 8.0f, 4.0f, 2.0f, 1.0f, 0.5f};
+    const float sizes[] = {1024.0f, 512.0f, 256.0f, 128.0f, 64.0f, 32.0f, 16.0f, 8.0f, 4.0f, 2.0f, 1.0f, 0.5f};
     editor.gridSize = sizes[index];
 }
 
