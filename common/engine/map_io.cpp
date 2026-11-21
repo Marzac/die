@@ -429,8 +429,8 @@ bool Map::load(const QString & filename)
             }
             skipLine(file);
 
-            QByteArray imageData = QByteArray::fromBase64(base64Data);
-            textures.loadFromData(imageData, "PNG");
+            QImage strip = QImage::fromData(QByteArray::fromBase64(base64Data), "PNG");
+            if (!strip.isNull()) setTextures(strip);
         }
     }
 

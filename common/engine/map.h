@@ -118,6 +118,8 @@ public:
     /// \brief Restore a snapshot of the map data
     void restoreState(const MapState & state);
 
+    void setTextures(const QImage & strip);
+
     QVector3D origin;
     float pan;
     float scale;
