@@ -158,6 +158,11 @@ skip shadows) crosses that ray, the cell is considered shadowed and the light co
 sampled (with bilinear filtering) at the position of each wall column and each floor/ceiling pixel, and added to the ambient and ray
 lighting already computed for that surface.
 
+Strong point lights also bleed: the squared glowmap value, scaled by a fixed factor, is added on top of the lit texel, burning its colors
+toward the light's color. Being squared, the bleed stays negligible in dim light and only shows on brightly lit spots. The ambient and ray
+lights never bleed, they only scale the texture colors: a white ambient at full strength with no ray shows the textures exactly as they are.
+Surfaces flagged "no bleed" skip this term and keep their colors saturated.
+
 To keep the cost down, the glowmap is split into two layers. Lights left on a fixed color (A or B, not animated) are "still": they are
 baked once into a static layer, and only recomputed when something asks for a rebuild (e.g. the static geometry or a still light changed).
 Animated lights (cycle, pulse, flash, flicker) cannot be baked, since their color possibly changes every frame. Therefore they are recomputed
