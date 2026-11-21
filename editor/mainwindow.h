@@ -253,10 +253,10 @@ private slots:
 
     void on_pushLightColorA_clicked();
     void on_pushLightColorB_clicked();
-    void on_scrollLightStrength_valueChanged(int value);
+    void on_spinLightStrength_valueChanged(double arg1);
     void on_spinLightFalloff_valueChanged(double value);
     void on_comboLightAnimation_currentIndexChanged(int index);
-    void on_scrollLightSpeed_valueChanged(int value);
+    void on_spinLightSpeed_valueChanged(double arg1);
     void on_checkLightEnable_toggled(bool checked);
     void on_comboLightTag_currentIndexChanged(int index);
     void on_pushLightDelete_clicked();
@@ -339,13 +339,13 @@ private slots:
     void on_checkRendererAlphaFeatures_toggled(bool checked);
     void on_checkRendererGamma_toggled(bool checked);
     void on_spinRendererOcclusionLength_valueChanged(double arg1);
-    void on_scrollRendererOcclusionDarken_valueChanged(int value);
-    void on_scrollRendererMotionblurPercent_valueChanged(int value);
-    void on_scrollRendererVignettingInner_valueChanged(int value);
-    void on_scrollRendererVignettingOuter_valueChanged(int value);
-    void on_scrollRendererGammaKRed_valueChanged(int value);
-    void on_scrollRendererGammaKGreen_valueChanged(int value);
-    void on_scrollRendererGammaKBlue_valueChanged(int value);
+    void on_spinRendererOcclusionDarken_valueChanged(double arg1);
+    void on_spinRendererMotionblurPercent_valueChanged(double arg1);
+    void on_spinRendererVignettingInner_valueChanged(double arg1);
+    void on_spinRendererVignettingOuter_valueChanged(double arg1);
+    void on_spinRendererGammaKRed_valueChanged(double arg1);
+    void on_spinRendererGammaKGreen_valueChanged(double arg1);
+    void on_spinRendererGammaKBlue_valueChanged(double arg1);
 
     void on_actionNew_triggered();
     void on_actionLoad_map_triggered();
