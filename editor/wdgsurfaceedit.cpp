@@ -45,6 +45,7 @@ void WdgSurfaceEdit::update()
         setCheckboxStateSilently(ui->checkNoGlow, false);
         setCheckboxStateSilently(ui->checkNoBleed, false);
         setCheckboxStateSilently(ui->checkNoFog, false);
+        setCheckboxStateSilently(ui->checkNoAO, false);
         return;
     }
 
@@ -60,6 +61,7 @@ void WdgSurfaceEdit::update()
     setCheckboxStateSilently(ui->checkNoGlow, surface.flags & SURFACE_FLAG_NO_GLOW);
     setCheckboxStateSilently(ui->checkNoBleed, surface.flags & SURFACE_FLAG_NO_BLEED);
     setCheckboxStateSilently(ui->checkNoFog, surface.flags & SURFACE_FLAG_NO_FOG);
+    setCheckboxStateSilently(ui->checkNoAO, surface.flags & SURFACE_FLAG_NO_AO);
 }
 
 /*****************************************************************************/
@@ -113,3 +115,4 @@ void WdgSurfaceEdit::on_checkNoRay_toggled(bool checked)      {setFlag(SURFACE_F
 void WdgSurfaceEdit::on_checkNoGlow_toggled(bool checked)     {setFlag(SURFACE_FLAG_NO_GLOW, checked);}
 void WdgSurfaceEdit::on_checkNoBleed_toggled(bool checked)    {setFlag(SURFACE_FLAG_NO_BLEED, checked);}
 void WdgSurfaceEdit::on_checkNoFog_toggled(bool checked)      {setFlag(SURFACE_FLAG_NO_FOG, checked);}
+void WdgSurfaceEdit::on_checkNoAO_toggled(bool checked)       {setFlag(SURFACE_FLAG_NO_AO, checked);}

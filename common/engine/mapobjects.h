@@ -49,6 +49,7 @@ typedef enum : uint16_t {
     SURFACE_FLAG_NO_BLEED   = 0x0040,       ///< no light bleed: keeps the colors saturated
     SURFACE_FLAG_NO_AMBIENT = 0x0080,       ///< ignore the sun ambient light
     SURFACE_FLAG_NO_RAY     = 0x0100,       ///< ignore the sun ray light
+    SURFACE_FLAG_NO_AO      = 0x0200,       ///< no ambient occlusion
 } SURFACE_FLAGS;
 // NO_AMBIENT | NO_RAY | NO_GLOW together = fullbright: the texels are drawn as is (no bleed, no AO)
 
