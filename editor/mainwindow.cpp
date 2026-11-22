@@ -239,6 +239,8 @@ void MainWindow::scheduleUndoPush()
 void MainWindow::undo()
 {
     undoDebounceTimer->stop();
+// Record any unsaved change first
+    pushUndoState();
     if (undoIndex <= 0) return;
     undoIndex--;
     applyUndoState();
