@@ -106,6 +106,10 @@ inline void fadeToSSE4(uint32_t * frame, size_t size, uint32_t color, uint16_t f
 /*****************************************************************************/
 /**
     \brief Scale 4 scattered pixels by a common factor
+    \param p0 first pixel, scaled in place
+    \param p1 second pixel, scaled in place
+    \param p2 third pixel, scaled in place
+    \param p3 fourth pixel, scaled in place
     \param factor Q8 darkening factor (0 .. 256 = black .. unchanged)
 */
 inline void darken4SSE4(uint32_t * p0, uint32_t * p1, uint32_t * p2, uint32_t * p3, uint16_t factor)
@@ -136,6 +140,9 @@ inline void darken4SSE4(uint32_t * p0, uint32_t * p1, uint32_t * p2, uint32_t * 
 
 /**
     \brief Apply a circular vignette (darkened corners)
+    \param frame frame to darken, in place
+    \param width frame width, in pixels
+    \param height frame height, in pixels
     \param inner_radius radius where the darkening starts, in pixels
     \param outer_radius radius where the frame turns black, in pixels
 */
@@ -179,6 +186,9 @@ inline void vignetteSSE4(uint32_t * frame, size_t width, size_t height, int inne
 /*****************************************************************************/
 /**
     \brief Apply a per-channel smoothstep tone curve
+    \param frame frame to tone, in place
+    \param width frame width, in pixels
+    \param height frame height, in pixels
     \param ks per-channel gains {kr, kg, kb} (1.0 = full smoothstep)
 */
 // ks = {kr, kg, kb}; applies per-channel smoothstep: q = c*k, c = 3q² - 2q³

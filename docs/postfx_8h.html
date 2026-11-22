@@ -175,6 +175,10 @@ Functions</h2></td></tr>
 <p>Scale 4 scattered pixels by a common factor. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">p0</td><td>first pixel, scaled in place </td></tr>
+    <tr><td class="paramname">p1</td><td>second pixel, scaled in place </td></tr>
+    <tr><td class="paramname">p2</td><td>third pixel, scaled in place </td></tr>
+    <tr><td class="paramname">p3</td><td>fourth pixel, scaled in place </td></tr>
     <tr><td class="paramname">factor</td><td>Q8 darkening factor (0 .. 256 = black .. unchanged) </td></tr>
   </table>
   </dd>
@@ -272,6 +276,9 @@ Functions</h2></td></tr>
 <p>Apply a per-channel smoothstep tone curve. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">frame</td><td>frame to tone, in place </td></tr>
+    <tr><td class="paramname">width</td><td>frame width, in pixels </td></tr>
+    <tr><td class="paramname">height</td><td>frame height, in pixels </td></tr>
     <tr><td class="paramname">ks</td><td>per-channel gains {kr, kg, kb} (1.0 = full smoothstep) </td></tr>
   </table>
   </dd>
@@ -375,6 +382,9 @@ Functions</h2></td></tr>
 <p>Apply a circular vignette (darkened corners). </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
+    <tr><td class="paramname">frame</td><td>frame to darken, in place </td></tr>
+    <tr><td class="paramname">width</td><td>frame width, in pixels </td></tr>
+    <tr><td class="paramname">height</td><td>frame height, in pixels </td></tr>
     <tr><td class="paramname">inner_radius</td><td>radius where the darkening starts, in pixels </td></tr>
     <tr><td class="paramname">outer_radius</td><td>radius where the frame turns black, in pixels </td></tr>
   </table>
