@@ -440,10 +440,60 @@ QSet<int> Editor::selectedNodeSet() const
     return moved;
 }
 
+QVector2D Editor::pivotOf(const QSet<int> & ids) const
+{
+    QVector2D bbMin(INFINITY, INFINITY), bbMax(-INFINITY, -INFINITY);
+    for (int id : ids) {
+        QVector2D p = to2D(VIEW_TOP, editedMap->nodes[id].pos);
+        bbMin = QVector2D(std::min(bbMin.x(), p.x()), std::min(bbMin.y(), p.y()));
+        bbMax = QVector2D(std::max(bbMax.x(), p.x()), std::max(bbMax.y(), p.y()));
+    }
+    return (bbMin + bbMax) * 0.5f;
+}
+
 void Editor::nudge(const QVector3D & dp)
 {
     for (int id : selectedNodeSet())
         editedMap->nodes[id].pos += dp;
+    editedMap->computeAllWalls();
+}
+
+/*****************************************************************************/
+// Counterclockwise in the top view
+void Editor::rotate(float degrees)
+{
+    QSet<int> moved = selectedNodeSet();
+    if (moved.isEmpty()) return;
+    QVector2D pivot = pivotOf(moved);
+
+    float c = cosf(degrees * D2R);
+    float s = sinf(degrees * D2R);
+    for (int id : moved) {
+        QVector3D & p = editedMap->nodes[id].pos;
+        float dx = p.x() - pivot.x();
+        float dz = p.z() - pivot.y();
+        p.setX(pivot.x() + dx * c + dz * s);
+        p.setZ(pivot.y() - dx * s + dz * c);
+    }
+    editedMap->computeAllWalls();
+}
+
+void Editor::flip(bool horizontal)
+{
+    QSet<int> moved = selectedNodeSet();
+    if (moved.isEmpty()) return;
+    QVector2D pivot = pivotOf(moved);
+
+    for (int id : moved) {
+        QVector3D & p = editedMap->nodes[id].pos;
+        if (horizontal) p.setX(2.0f * pivot.x() - p.x());
+        else p.setZ(2.0f * pivot.y() - p.z());
+    }
+
+// Reverse the walls so their fronts face the same side
+    for (Wall & w : editedMap->walls)
+        if (moved.contains(w.nodeID1) && moved.contains(w.nodeID2))
+            std::swap(w.nodeID1, w.nodeID2);
     editedMap->computeAllWalls();
 }
 

@@ -112,6 +112,8 @@ public:
     void nodeMerge();
     void nodeCollapse();
     void nudge(const QVector3D & dp);
+    void rotate(float degrees);
+    void flip(bool horizontal);
 
 // Per-object operations.
     void nodeSelect(int nId);
@@ -206,6 +208,7 @@ public:
 private:
     int findCopiedNodeID(uint16_t id);
     QSet<int> selectedNodeSet() const;
+    QVector2D pivotOf(const QSet<int> & ids) const;
 
 // Copy / paste / delete of the node-bound objects (door, lift, sprite, ...).
     template <typename T>

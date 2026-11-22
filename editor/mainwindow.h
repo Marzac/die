@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QElapsedTimer>
 
+#include <functional>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -102,6 +104,7 @@ public:
 
 private:
     void resizeUI();
+    void transformSelection(std::function<void()> apply);
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
 
@@ -369,6 +372,11 @@ private slots:
     void on_actionPaste_triggered();
     void on_actionDelete_triggered();
     void on_actionAlign_triggered();
+    void on_actionRotatePlus90_triggered();
+    void on_actionRotateMinus90_triggered();
+    void on_actionRotateFree_triggered();
+    void on_actionFlipHorizontal_triggered();
+    void on_actionFlipVertical_triggered();
     void on_actionSplit2_triggered();
     void on_actionSplit3_triggered();
     void on_actionMerge_triggered();
