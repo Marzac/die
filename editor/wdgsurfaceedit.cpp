@@ -40,7 +40,8 @@ void WdgSurfaceEdit::update()
         setSpinValueSilently(ui->spinShiftX, 0.0);
         setSpinValueSilently(ui->spinShiftY, 0.0);
         setCheckboxStateSilently(ui->checkAlpha, false);
-        setCheckboxStateSilently(ui->checkNoEnvLight, false);
+        setCheckboxStateSilently(ui->checkNoAmbient, false);
+        setCheckboxStateSilently(ui->checkNoRay, false);
         setCheckboxStateSilently(ui->checkNoGlow, false);
         setCheckboxStateSilently(ui->checkNoBleed, false);
         setCheckboxStateSilently(ui->checkNoFog, false);
@@ -54,7 +55,8 @@ void WdgSurfaceEdit::update()
     setSpinValueSilently(ui->spinShiftX, surface.shiftX);
     setSpinValueSilently(ui->spinShiftY, surface.shiftY);
     setCheckboxStateSilently(ui->checkAlpha, surface.flags & SURFACE_FLAG_ALPHA);
-    setCheckboxStateSilently(ui->checkNoEnvLight, surface.flags & SURFACE_FLAG_NO_ENV_LIGHT);
+    setCheckboxStateSilently(ui->checkNoAmbient, surface.flags & SURFACE_FLAG_NO_AMBIENT);
+    setCheckboxStateSilently(ui->checkNoRay, surface.flags & SURFACE_FLAG_NO_RAY);
     setCheckboxStateSilently(ui->checkNoGlow, surface.flags & SURFACE_FLAG_NO_GLOW);
     setCheckboxStateSilently(ui->checkNoBleed, surface.flags & SURFACE_FLAG_NO_BLEED);
     setCheckboxStateSilently(ui->checkNoFog, surface.flags & SURFACE_FLAG_NO_FOG);
@@ -106,7 +108,8 @@ void WdgSurfaceEdit::setFlag(uint16_t flag, bool checked)
 }
 
 void WdgSurfaceEdit::on_checkAlpha_toggled(bool checked)      {setFlag(SURFACE_FLAG_ALPHA, checked);}
-void WdgSurfaceEdit::on_checkNoEnvLight_toggled(bool checked) {setFlag(SURFACE_FLAG_NO_ENV_LIGHT, checked);}
+void WdgSurfaceEdit::on_checkNoAmbient_toggled(bool checked)  {setFlag(SURFACE_FLAG_NO_AMBIENT, checked);}
+void WdgSurfaceEdit::on_checkNoRay_toggled(bool checked)      {setFlag(SURFACE_FLAG_NO_RAY, checked);}
 void WdgSurfaceEdit::on_checkNoGlow_toggled(bool checked)     {setFlag(SURFACE_FLAG_NO_GLOW, checked);}
 void WdgSurfaceEdit::on_checkNoBleed_toggled(bool checked)    {setFlag(SURFACE_FLAG_NO_BLEED, checked);}
 void WdgSurfaceEdit::on_checkNoFog_toggled(bool checked)      {setFlag(SURFACE_FLAG_NO_FOG, checked);}

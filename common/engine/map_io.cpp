@@ -54,10 +54,16 @@ static void readSurface(FILE * file, Surface & s)
 
     char rest[128] = {};
     if (!fgets(rest, sizeof(rest), file)) return;
-    if (sscanf(rest, " , %f , %f , %hx", &s.shiftX, &s.shiftY, &s.flags) == 3) return;
+    if (sscanf(rest, " , %f , %f , %hx", &s.shiftX, &s.shiftY, &s.flags) != 3) {
+        s.shiftX = s.shiftY = 0.0f;
+        sscanf(rest, " , %hx", &s.flags);
+    }
 
-    s.shiftX = s.shiftY = 0.0f;
-    sscanf(rest, " , %hx", &s.flags);
+// V1.3 and older: one flag for ambient + ray
+    if (s.flags & SURFACE_FLAG_NO_ENV_LIGHT) {
+        s.flags &= ~SURFACE_FLAG_NO_ENV_LIGHT;
+        s.flags |= SURFACE_FLAG_NO_AMBIENT | SURFACE_FLAG_NO_RAY;
+    }
 }
 
 /*****************************************************************************/
@@ -85,7 +91,7 @@ bool Map::save(const QString & filename, bool submap)
 
     fprintf(file, "# == DIE MAP == \n");
     fprintf(file, "# Fred's Lab 2024-2026\n");
-    fprintf(file, "# 21.11.26 - V1.3\n");
+    fprintf(file, "# 22.11.26 - V1.4\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");

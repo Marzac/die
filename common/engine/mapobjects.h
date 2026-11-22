@@ -43,12 +43,14 @@ typedef struct {
 typedef enum : uint16_t {
     SURFACE_FLAG_REGULAR    = 0x0000,
     SURFACE_FLAG_ALPHA      = 0x0004,
-    SURFACE_FLAG_NO_ENV_LIGHT = 0x0008,     ///< ignore the environment light (sun ambient + ray)
+    SURFACE_FLAG_NO_ENV_LIGHT = 0x0008,     ///< legacy (V1.3 and older): ambient + ray, split on load
     SURFACE_FLAG_NO_GLOW    = 0x0010,       ///< ignore the local / dynamic lights (glowmap)
     SURFACE_FLAG_NO_FOG     = 0x0020,
     SURFACE_FLAG_NO_BLEED   = 0x0040,       ///< no light bleed: keeps the colors saturated
+    SURFACE_FLAG_NO_AMBIENT = 0x0080,       ///< ignore the sun ambient light
+    SURFACE_FLAG_NO_RAY     = 0x0100,       ///< ignore the sun ray light
 } SURFACE_FLAGS;
-// NO_ENV_LIGHT | NO_GLOW together = fullbright: the texels are drawn as is (no bleed, no AO)
+// NO_AMBIENT | NO_RAY | NO_GLOW together = fullbright: the texels are drawn as is (no bleed, no AO)
 
 /**
     \brief Texture mapping of one face of a map object
