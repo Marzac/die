@@ -70,7 +70,7 @@ static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 ambi
     l.bleed = (surfaceFlags & SURFACE_FLAG_NO_BLEED) ? fullBlack : bleed;
     l.bleedEnv = sunBleed ? l.env : fullBlack;
     l.glow = !noGlow;
-    l.occlusion = true;
+    l.occlusion = !(surfaceFlags & SURFACE_FLAG_NO_AO);
     return l;
 }
 

@@ -275,6 +275,22 @@
     <string>no fog</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="checkNoAO">
+   <property name="geometry">
+    <rect>
+     <x>6</x>
+     <y>302</y>
+     <width>78</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>No ambient occlusion: no darkening near the edges</string>
+   </property>
+   <property name="text">
+    <string>no AO</string>
+   </property>
+  </widget>
  </widget>
  <customwidgets>
   <customwidget>

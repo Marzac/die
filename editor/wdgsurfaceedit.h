@@ -35,6 +35,7 @@ private slots:
     void on_checkNoGlow_toggled(bool checked);
     void on_checkNoBleed_toggled(bool checked);
     void on_checkNoFog_toggled(bool checked);
+    void on_checkNoAO_toggled(bool checked);
 
 private:
     void setFlag(uint16_t flag, bool checked);
