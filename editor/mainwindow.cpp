@@ -324,6 +324,8 @@ void MainWindow::contextMenu_show(const QPoint &pos)
     QAction * deleteAction = contextMenu.addAction("Delete");
     contextMenu.addSeparator();
     QAction * alignAction = contextMenu.addAction("Align");
+    contextMenu.addSeparator();
+    contextMenu.addMenu(ui->menuWalls);
 
     QAction * selectedAction = contextMenu.exec(mapToGlobal(pos));
     if (!selectedAction) return;
@@ -2795,6 +2797,22 @@ void MainWindow::on_actionAlign_triggered()
 {
     pushUndoState();
     editor.align();
+}
+
+void MainWindow::on_actionSplit2_triggered()
+{
+    pushUndoState();
+    editor.wallSplit(2);
+    pushUndoState();
+    updateWallProperties();
+}
+
+void MainWindow::on_actionSplit3_triggered()
+{
+    pushUndoState();
+    editor.wallSplit(3);
+    pushUndoState();
+    updateWallProperties();
 }
 
 /*****************************************************************************/

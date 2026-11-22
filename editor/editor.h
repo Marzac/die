@@ -107,6 +107,7 @@ public:
     void copy();
     void paste(VIEW_MODES mode, QVector2D pos);
     void align();
+    void wallSplit(int parts);
 
 // Per-object operations.
     void nodeSelect(int nId);
