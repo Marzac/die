@@ -49,6 +49,7 @@ public:
     QTimer * renderTimer;
     QTimer * uiTimer;
     RenderWindow * renderWindow;
+    bool wallPickPending;
 
 // Render metrics, reported once per second
     QElapsedTimer metricsClock;
@@ -104,6 +105,7 @@ public:
 
 private:
     void resizeUI();
+    void resolveWallPick();
     void transformSelection(std::function<void()> apply);
     void resizeEvent(QResizeEvent *event);
     void closeEvent(QCloseEvent *event);
