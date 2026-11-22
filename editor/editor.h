@@ -108,6 +108,7 @@ public:
     void paste(VIEW_MODES mode, QVector2D pos);
     void align();
     void wallSplit(int parts);
+    void nodeMerge();
 
 // Per-object operations.
     void nodeSelect(int nId);

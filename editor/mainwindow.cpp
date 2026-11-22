@@ -325,6 +325,7 @@ void MainWindow::contextMenu_show(const QPoint &pos)
     contextMenu.addSeparator();
     QAction * alignAction = contextMenu.addAction("Align");
     contextMenu.addSeparator();
+    contextMenu.addMenu(ui->menuNodes);
     contextMenu.addMenu(ui->menuWalls);
 
     QAction * selectedAction = contextMenu.exec(mapToGlobal(pos));
@@ -2813,6 +2814,15 @@ void MainWindow::on_actionSplit3_triggered()
     editor.wallSplit(3);
     pushUndoState();
     updateWallProperties();
+}
+
+void MainWindow::on_actionMerge_triggered()
+{
+    if (editor.selectedNode < 0) return;
+    pushUndoState();
+    editor.nodeMerge();
+    pushUndoState();
+    updateAllProperties();
 }
 
 /*****************************************************************************/
