@@ -5469,6 +5469,12 @@
     <addaction name="actionPaste"/>
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
+    <widget class="QMenu" name="menuNodes">
+     <property name="title">
+      <string>Nodes</string>
+     </property>
+     <addaction name="actionMerge"/>
+    </widget>
     <widget class="QMenu" name="menuWalls">
      <property name="title">
       <string>Walls</string>
@@ -5478,6 +5484,7 @@
     </widget>
     <addaction name="actionAlign"/>
     <addaction name="separator"/>
+    <addaction name="menuNodes"/>
     <addaction name="menuWalls"/>
    </widget>
    <addaction name="menuFile"/>
@@ -5607,6 +5614,11 @@
   <action name="actionSplit3">
    <property name="text">
     <string>Split3</string>
+   </property>
+  </action>
+  <action name="actionMerge">
+   <property name="text">
+    <string>Merge</string>
    </property>
   </action>
   <action name="actionUndo">

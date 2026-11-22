@@ -309,6 +309,54 @@ void Editor::wallSplit(int parts)
     editedMap->computeAllWalls();
 }
 
+void Editor::nodeMerge()
+{
+    int primary = selectedNode;
+    QList<Node> & nodes = editedMap->nodes;
+    if (primary < 0 || primary >= nodes.count()) return;
+
+    auto remap = [&](uint16_t & id) {
+        if (id != primary && id < nodes.count() && nodes[id].selected) id = primary;
+    };
+
+    for (Wall & w : editedMap->walls) {remap(w.nodeID1); remap(w.nodeID2);}
+    for (Submap & m : editedMap->submaps) remap(m.nodeID);
+    for (Door & d : editedMap->doors) remap(d.nodeID);
+    for (Lift & e : editedMap->lifts) remap(e.nodeID);
+    for (Sprite & b : editedMap->sprites) remap(b.nodeID);
+    for (Staircase & h : editedMap->staircases) remap(h.nodeID);
+    for (Light & l : editedMap->lights) remap(l.nodeID);
+    for (Speaker & a : editedMap->speakers) remap(a.nodeID);
+
+// Remap the waypoints, dropping consecutive repeats
+    for (Path & p : editedMap->paths) {
+        int dst = 0;
+        for (int j = 0; j < p.nodesCount; j++) {
+            uint16_t id = p.nodes[j];
+            remap(id);
+            if (dst && p.nodes[dst - 1] == id) continue;
+            p.nodes[dst++] = id;
+        }
+        p.nodesCount = dst;
+    }
+
+// Drop the walls reduced to a point
+    for (int i = 0; i < editedMap->walls.count(); i++) {
+        const Wall & w = editedMap->walls[i];
+        if (w.nodeID1 == w.nodeID2) wallDelete(i--);
+    }
+
+    for (int i = nodes.count() - 1; i >= 0; i--) {
+        if (i == primary || !nodes[i].selected) continue;
+        nodeDelete(i);
+        if (i < primary) primary--;
+    }
+
+    nodeDeselectAll();
+    nodeSelect(primary);
+    editedMap->computeAllWalls();
+}
+
 /*****************************************************************************/
 void Editor::nodeSelect(int nId)
 {
