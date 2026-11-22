@@ -5484,6 +5484,11 @@
      <addaction name="actionSplit3"/>
     </widget>
     <addaction name="actionAlign"/>
+    <addaction name="actionRotatePlus90"/>
+    <addaction name="actionRotateMinus90"/>
+    <addaction name="actionRotateFree"/>
+    <addaction name="actionFlipHorizontal"/>
+    <addaction name="actionFlipVertical"/>
     <addaction name="separator"/>
     <addaction name="menuNodes"/>
     <addaction name="menuWalls"/>
@@ -5605,6 +5610,31 @@
   <action name="actionAlign">
    <property name="text">
     <string>Align</string>
+   </property>
+  </action>
+  <action name="actionRotatePlus90">
+   <property name="text">
+    <string>Rotate +90</string>
+   </property>
+  </action>
+  <action name="actionRotateMinus90">
+   <property name="text">
+    <string>Rotate -90</string>
+   </property>
+  </action>
+  <action name="actionRotateFree">
+   <property name="text">
+    <string>Rotate free...</string>
+   </property>
+  </action>
+  <action name="actionFlipHorizontal">
+   <property name="text">
+    <string>Flip horizontal</string>
+   </property>
+  </action>
+  <action name="actionFlipVertical">
+   <property name="text">
+    <string>Flip vertical</string>
    </property>
   </action>
   <action name="actionSplit2">

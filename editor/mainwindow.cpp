@@ -29,6 +29,7 @@
 #include <QColorDialog>
 #include <QStandardPaths>
 #include <QMessageBox>
+#include <QInputDialog>
 #include <QSettings>
 #include <QUrl>
 #include <QDebug>
@@ -324,6 +325,11 @@ void MainWindow::contextMenu_show(const QPoint &pos)
     QAction * deleteAction = contextMenu.addAction("Delete");
     contextMenu.addSeparator();
     QAction * alignAction = contextMenu.addAction("Align");
+    contextMenu.addAction(ui->actionRotatePlus90);
+    contextMenu.addAction(ui->actionRotateMinus90);
+    contextMenu.addAction(ui->actionRotateFree);
+    contextMenu.addAction(ui->actionFlipHorizontal);
+    contextMenu.addAction(ui->actionFlipVertical);
     contextMenu.addSeparator();
     contextMenu.addMenu(ui->menuNodes);
     contextMenu.addMenu(ui->menuWalls);
@@ -2798,6 +2804,30 @@ void MainWindow::on_actionAlign_triggered()
 {
     pushUndoState();
     editor.align();
+}
+
+void MainWindow::transformSelection(std::function<void()> apply)
+{
+    pushUndoState();
+    apply();
+    pushUndoState();
+    updateAllProperties();
+}
+
+void MainWindow::on_actionRotatePlus90_triggered() {transformSelection([]{editor.rotate(90.0f);});}
+void MainWindow::on_actionRotateMinus90_triggered() {transformSelection([]{editor.rotate(-90.0f);});}
+void MainWindow::on_actionFlipHorizontal_triggered() {transformSelection([]{editor.flip(true);});}
+void MainWindow::on_actionFlipVertical_triggered() {transformSelection([]{editor.flip(false);});}
+
+void MainWindow::on_actionRotateFree_triggered()
+{
+    static double lastAngle = 45.0;
+    bool ok = false;
+    double a = QInputDialog::getDouble(this, "Rotate", "Angle (degrees, counterclockwise):",
+                                       lastAngle, -360.0, 360.0, 2, &ok);
+    if (!ok) return;
+    lastAngle = a;
+    transformSelection([a]{editor.rotate((float)a);});
 }
 
 void MainWindow::on_actionSplit2_triggered()
