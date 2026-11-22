@@ -12,17 +12,23 @@ for building 2.5D games.
 
 ![Waller editor Linux](screenshot-linux.png)
 
+## Download
+
+Ready-to-run builds of Waller for **Windows x64** and **Linux x64** are on the
+[Releases](https://github.com/Marzac/die/releases) page, each with notes on what changed.
+
 ## What's inside
 
 - **DIE** : the renderer and runtime, in `common/engine`.
-- **Waller** : the map editor, in `editor/`.  
+- **Waller** : the map editor, in `editor/`.
+- **Rigger** : a bones animation editor, in `animator/`. It's still in development and not usable for production yet, so it's source only for now.
 
 Waller is the real strength of the toolkit: a full Qt-based level editor for building maps for the engine.
 
 ## The renderer
 
 The renderer is sorta unique. It's software-based and works a bit like a futuristic raycaster,
-I'm writing a paper about it to describe its inner in more details.
+I'm writing a paper about it to describe its inner workings in more detail.
 
 Also, it's not yet fully portable, since a lot of the core rendering code relies on SSE4 arithmetic.
 That said, it shouldn't be too hard to make a portable version with the tools available today.
@@ -30,7 +36,7 @@ That said, it shouldn't be too hard to make a portable version with the tools av
 ## A weird codebase
 
 This codebase ranges from pure SSE intrinsics for rasterizing, to fairly advanced C++ with seamless
-multithreading. It's a strange mix, of modern and retro tech, what I personally love and hopefully
+multithreading. It's a strange mix of modern and retro tech, what I personally love and hopefully
 a good mix!
 
 ## Building
@@ -42,8 +48,8 @@ even though this project itself is MIT licensed.
 
 ### Windows
 
-Grab the [Qt Online Installer](https://www.qt.io/download-qt-installer-oss) and install Qt 6 with a
-MinGW (or LLVM-MinGW) kit. Then just open `editor/waller.pro` in Qt Creator, pick that kit, and build.
+Grab the [Qt Online Installer](https://www.qt.io/download-qt-installer-oss) and install Qt 6 with an
+MSVC 2022 or MinGW (or LLVM-MinGW) kit. Then just open `editor/waller.pro` in Qt Creator, pick that kit, and build.
 
 > If you also have MSYS2 installed, make sure Qt's own MinGW/LLVM-MinGW `bin` folder (e.g.
 > `C:\Qt\Tools\llvm-mingw1706_64\bin`) comes first in your `PATH` — mixing MSYS2's toolchain in will
@@ -68,7 +74,14 @@ IDE, also install `qtcreator` (Ubuntu/Debian) or `qt-creator` (Fedora).
 ### All platforms
 
 Open `editor/waller.pro` (in Qt Creator, or via `qmake`/`qmake6` followed by `make`/`mingw32-make`),
-pick a kit using GCC, Clang or MinGW, and compile.
+pick a kit using GCC, Clang, MSVC or MinGW, and compile.
+
+CMake works too, and it's what the release builds use:
+
+```
+cmake -B build -S editor -DCMAKE_BUILD_TYPE=Release
+cmake --build build --parallel
+```
 
 Bob's your uncle!
 
@@ -85,7 +98,7 @@ To regenerate it yourself, run `doxygen Doxyfile` from the `docs/` folder.
 ## License
 
 This project is **MIT licensed**
-=> I don't expect anything in return. I'm using it myself for my in-development indy game.
+=> I don't expect anything in return. I'm using it myself for my in-development indie game.
 
 Feel free to fork it, have a go, build your own game with it, and have a blast.
 Just don't forget to credit my work ;-)
