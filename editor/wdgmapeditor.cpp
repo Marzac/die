@@ -481,6 +481,8 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             if (!shift && !inRegion) editor.wallDeselectAll();
             selectRegionStart = false;
             mainWindow->pushUndoState();
+        // Ends the wall chain
+            editor.selectedNode = EDIT_UNSELECTED;
             editor.selectedWall = wId;
             editor.editedMap->walls[wId].selected = true;
 
