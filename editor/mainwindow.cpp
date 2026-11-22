@@ -2825,6 +2825,14 @@ void MainWindow::on_actionMerge_triggered()
     updateAllProperties();
 }
 
+void MainWindow::on_actionCollapse_triggered()
+{
+    pushUndoState();
+    editor.nodeCollapse();
+    pushUndoState();
+    updateAllProperties();
+}
+
 /*****************************************************************************/
 void MainWindow::on_pushTextureBrowse_clicked()
 {
