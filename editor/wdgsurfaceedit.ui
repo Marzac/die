@@ -16,9 +16,9 @@
   <widget class="QDoubleSpinBox" name="spinShiftY">
    <property name="geometry">
     <rect>
-     <x>69</x>
+     <x>59</x>
      <y>220</y>
-     <width>91</width>
+     <width>101</width>
      <height>22</height>
     </rect>
    </property>
@@ -40,7 +40,7 @@
     <rect>
      <x>10</x>
      <y>190</y>
-     <width>61</width>
+     <width>51</width>
      <height>21</height>
     </rect>
    </property>
@@ -53,7 +53,7 @@
     <rect>
      <x>10</x>
      <y>130</y>
-     <width>61</width>
+     <width>51</width>
      <height>21</height>
     </rect>
    </property>
@@ -66,7 +66,7 @@
     <rect>
      <x>10</x>
      <y>160</y>
-     <width>61</width>
+     <width>51</width>
      <height>21</height>
     </rect>
    </property>
@@ -77,9 +77,9 @@
   <widget class="QDoubleSpinBox" name="spinShiftX">
    <property name="geometry">
     <rect>
-     <x>69</x>
+     <x>59</x>
      <y>190</y>
-     <width>91</width>
+     <width>101</width>
      <height>22</height>
     </rect>
    </property>
@@ -101,7 +101,7 @@
     <rect>
      <x>10</x>
      <y>220</y>
-     <width>61</width>
+     <width>51</width>
      <height>21</height>
     </rect>
    </property>
@@ -112,14 +112,14 @@
   <widget class="QDoubleSpinBox" name="spinScaleY">
    <property name="geometry">
     <rect>
-     <x>69</x>
+     <x>59</x>
      <y>160</y>
-     <width>91</width>
+     <width>101</width>
      <height>22</height>
     </rect>
    </property>
    <property name="decimals">
-    <number>4</number>
+    <number>6</number>
    </property>
    <property name="minimum">
     <double>-1024.000000000000000</double>
@@ -134,14 +134,14 @@
   <widget class="QDoubleSpinBox" name="spinScaleX">
    <property name="geometry">
     <rect>
-     <x>69</x>
+     <x>59</x>
      <y>130</y>
-     <width>91</width>
+     <width>101</width>
      <height>22</height>
     </rect>
    </property>
    <property name="decimals">
-    <number>4</number>
+    <number>6</number>
    </property>
    <property name="minimum">
     <double>-1024.000000000000000</double>
