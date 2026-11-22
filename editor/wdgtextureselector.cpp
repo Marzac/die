@@ -61,12 +61,12 @@ void WdgTextureSelector::paintEvent(QPaintEvent *)
     }
     painter.restore();
 
-    QBrush brush = QBrush(QColor(255, 255, 255, 128));
-    painter.setPen(Qt::NoPen);
-    painter.setBrush(brush);
+// Light tint and a frame, so the texture stays visible
+    painter.setPen(QPen(QColor(255, 255, 255, 192), 2));
+    painter.setBrush(QColor(255, 255, 255, 40));
 
     int x = editor.selectedTextureID * tileWidth - offset;
-    QRect selection = QRect(x, 0, tileWidth, tileWidth);
+    QRect selection = QRect(x + 1, 1, tileWidth - 2, tileWidth - 2);
     painter.drawRect(selection);
 }
 
