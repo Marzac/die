@@ -54,6 +54,7 @@ private:
     QVector2D selectRegionC1;
     QVector2D selectRegionC2;
     bool mouseLeftWasPressed;
+    bool pressDeselected;
 
     static QBrush gridMajor;
     static QBrush gridMinor;

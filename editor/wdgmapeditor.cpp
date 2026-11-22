@@ -63,7 +63,8 @@ WdgMapEditor::WdgMapEditor(QWidget *parent) :
     selectRegion(false),
     selectRegionStart(false),
     selectRegionC1(), selectRegionC2(),
-    mouseLeftWasPressed(false)
+    mouseLeftWasPressed(false),
+    pressDeselected(false)
 {
     setFocusPolicy(Qt::ClickFocus);
     if (pictoSubmap.isNull()) pictoSubmap = QImage(":/Icons/tools-submap.png");
@@ -448,6 +449,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
 
     selectRegionStart = true;
     selectRegionC1 = selectRegionC2 = click;
+    pressDeselected = false;
 
     if (editor.editMode == EDIT_MODE_NODES ||
         editor.editMode == EDIT_MODE_PATHS) {
@@ -461,6 +463,9 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
             editor.editedMap->nodes[nId].selected = true;
 
         }else if (!shift) {
+            pressDeselected = editor.selectedNode != EDIT_UNSELECTED ||
+                std::any_of(editor.editedMap->nodes.begin(), editor.editedMap->nodes.end(),
+                            [](const Node & n) {return n.selected;});
             editor.selectedNode = EDIT_UNSELECTED;
             editor.nodeDeselectAll();
         }
@@ -756,8 +761,7 @@ void WdgMapEditor::mouseReleaseCreate(QMouseEvent *)
     if (editor.editMode == EDIT_MODE_NODES ||
         editor.editMode == EDIT_MODE_PATHS) {
         bool selected = editor.selectedNode != EDIT_UNSELECTED;
-        //editor.nodeDeselectAll();
-        if (selected) return;
+        if (selected || pressDeselected) return;
 
         int nId = 0;
         QVector3D mark(cursor.x(), 0.0f, cursor.y());
