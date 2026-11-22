@@ -13,7 +13,6 @@ var mapobjects_8h =
     [ "Path", "struct_path.html", "struct_path" ],
     [ "DOOR_FLAGS", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343", [
       [ "DOOR_FLAG_FREE", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343a5445af86146f8c8a60a5bf81b5e315ff", null ],
-      [ "DOOR_FLAG_ALPHA", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343ab0e60a5d79c63f42d84ec6d42299a35b", null ],
       [ "DOOR_FLAG_OPENING", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343a2bbca09f30f5bbc6689e4ed294b1451f", null ],
       [ "DOOR_FLAG_CLOSING", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343a6facd015743da45bdeefc7c18f5f4ca6", null ],
       [ "DOOR_FLAG_SHAKING", "mapobjects_8h.html#a990d2e8f3fb0eb4bec23151a69884343a7603da3ee1d4ccef88b9790bb9e4f6a5", null ],
@@ -33,7 +32,6 @@ var mapobjects_8h =
     ] ],
     [ "LIFT_FLAGS", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0b", [
       [ "LIFT_FLAG_FREE", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba91255881243cf843407214619d1b1fb4", null ],
-      [ "LIFT_FLAG_ALPHA", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba1f97393a91504e5d025e21dfe1c9e383", null ],
       [ "LIFT_FLAG_HALTABLE", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0bae1a44b0b0a92cd58c2e9834710b24300", null ],
       [ "LIFT_FLAG_CONTINUOUS", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba3b63d2bf16ecf749ddb6f143e8e8abef", null ],
       [ "LIFT_FLAG_RETURN", "mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba2c2d80c8a1de06b29f3f40cca9d37c0d", null ],
@@ -97,11 +95,20 @@ var mapobjects_8h =
       [ "STAIRCASE_SURFACE_SIDES", "mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa11dcb57f5e14ab052ce109ba78b91684", null ],
       [ "STAIRCASE_SURFACES_COUNT", "mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa36c9e1e834ef53adf7b618e3c0174c6b", null ]
     ] ],
+    [ "SURFACE_FLAGS", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21", [
+      [ "SURFACE_FLAG_REGULAR", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a46b2d3872029ff66b7f147e5d7ef02b3", null ],
+      [ "SURFACE_FLAG_ALPHA", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a85cd8cfb111fa6d23a4b63193dbfa323", null ],
+      [ "SURFACE_FLAG_NO_ENV_LIGHT", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21aa6ee28eb9ecf038ad44345ead71b904f", null ],
+      [ "SURFACE_FLAG_NO_GLOW", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21ad0cf532a6b0bd4d2801c98bea03308a1", null ],
+      [ "SURFACE_FLAG_NO_FOG", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a298e733984bb56207f6877722f95b601", null ],
+      [ "SURFACE_FLAG_NO_BLEED", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a35a18f2812a1c9ec4e840181f8592cd2", null ],
+      [ "SURFACE_FLAG_NO_AMBIENT", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a5bb86f0ee36aa05628df78715d010ac3", null ],
+      [ "SURFACE_FLAG_NO_RAY", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959", null ]
+    ] ],
     [ "WALL_FLAGS", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266b", [
       [ "WALL_FLAG_FREE", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266baf205dbfb79751d222716ba8cd099423c", null ],
       [ "WALL_FLAG_INVISIBLE", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266badba8826727f1c51001ef66ef00746e86", null ],
       [ "WALL_FLAG_BACKCULLED", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266bad4d48846bfed6a99eef8df044af3e02d", null ],
-      [ "WALL_FLAG_ALPHA", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266ba52ea9109f3b670154e62647aa11e7a83", null ],
       [ "WALL_FLAG_NO_SHADOW", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266ba988daf618fe7094ce976d6faef685f69", null ],
       [ "WALL_FLAG_FLOOR_FRONT", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266ba9e76853a344c30bfa7071f885edd1493", null ],
       [ "WALL_FLAG_FLOOR_BACK", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266ba019657520859744a05f4842a32ab1443", null ],

@@ -1,18 +1,10 @@
 var searchData=
 [
-  ['capturestate_0',['captureState',['../class_map.html#aec0970ab17296ba1254b2d1d0e57d092',1,'Map']]],
-  ['checkflag_1',['checkFlag',['../class_renderer.html#a6775374a14f9249e26772694e5c2414b',1,'Renderer']]],
-  ['clear_2',['clear',['../class_tags.html#a64bf07ae387a1ded1f77852da378f6ec',1,'Tags']]],
-  ['clearselection_3',['clearSelection',['../class_editor.html#acf8e872afee87e772a44f89782ac9b34',1,'Editor']]],
-  ['clickgetwallid_4',['clickGetWallID',['../class_renderer.html#a56ea2478521322772594f0946a68ad7a',1,'Renderer']]],
-  ['clickregister_5',['clickRegister',['../class_renderer.html#a1b547a5b3d9f56d24d5e922a509e9696',1,'Renderer']]],
-  ['colorslinearsse4_6',['colorsLinearSSE4',['../colors_8h.html#a6e16900eddf3340e350e0e72b25ceab7',1,'colors.h']]],
-  ['colorsmultiplysse4_7',['colorsMultiplySSE4',['../colors_8h.html#a7a22e90d76dfa924c382f856490edc5f',1,'colors.h']]],
-  ['colorsscaleaccumulatesse4_8',['colorsScaleAccumulateSSE4',['../colors_8h.html#a18b398230dd72c2f5a60c7ddc5e7b343',1,'colors.h']]],
-  ['colorsscalesse4_9',['colorsScaleSSE4',['../colors_8h.html#adcb0b6f6fa670c07541e32dafcf9384c',1,'colors.h']]],
-  ['computeallwalls_10',['computeAllWalls',['../class_map.html#aff04e5ce71a1cb245a1eeeeccb43492a',1,'Map']]],
-  ['computewall_11',['computeWall',['../class_map.html#a08a53d507f3237b1ed2ea6c213531f2e',1,'Map']]],
-  ['concat_12',['concat',['../class_wdg_tex_selector.html#a5c833c436cb70e52c64bda9b6898f38c',1,'WdgTexSelector']]],
-  ['copy_13',['copy',['../class_editor.html#a1741858b2cd61f83f41446fb8514a6c7',1,'Editor']]],
-  ['cut_14',['cut',['../class_editor.html#af219441f0b9b9ad3940fa82aab4657ee',1,'Editor']]]
+  ['boneadd_0',['boneAdd',['../class_rigger.html#a0416737664df2327ed3c277e4db8d557',1,'Rigger']]],
+  ['bonedelete_1',['boneDelete',['../class_rigger.html#a1007cf5402361956fec08fb1150141d2',1,'Rigger']]],
+  ['bonedeselectall_2',['boneDeselectAll',['../class_rigger.html#a9635cbf872b0ab5374561f51386eae41',1,'Rigger']]],
+  ['bonefindincircle_3',['boneFindInCircle',['../class_rigger.html#a21062e7b5a93ecc5ef7021bbc45966df',1,'Rigger']]],
+  ['bonefindinrect_4',['boneFindInRect',['../class_rigger.html#a0f2555d8b906ae0bc42e8f749df4dc4b',1,'Rigger']]],
+  ['boneselect_5',['boneSelect',['../class_rigger.html#a5a8b2939ff52b6ca64f9c85387250101',1,'Rigger']]],
+  ['boneselectall_6',['boneSelectAll',['../class_rigger.html#a5e3ba4fe4387f9167dbe082c0677968d',1,'Rigger']]]
 ];

@@ -24,7 +24,5 @@ var editor_8h =
     ] ],
     [ "EDIT_UNSELECTED", "editor_8h.html#acb4ee439365fb5deb4191ddd57515350", null ],
     [ "editor", "editor_8h.html#aaf05829bfbd0bd059896c8523e22dfd5", null ],
-    [ "EDITOR_NODE_RADIUS", "editor_8h.html#a218839a3fadfaffc8f594183810df5e6", null ],
-    [ "EDITOR_SPRITE_RADIUS", "editor_8h.html#a274db1be2955ea789c3187c15edf65e1", null ],
-    [ "EDITOR_WALL_RADIUS", "editor_8h.html#a01ab9f71150e51d484fc57d4346dd0ca", null ]
+    [ "EDITOR_PICK_RADIUS", "editor_8h.html#a0f3e310735943d94529141093168da30", null ]
 ];

@@ -1,13 +1,23 @@
 var searchData=
 [
   ['camerapitch_0',['cameraPitch',['../class_walker.html#a54dd18727a1b0f266156781d4b95132d',1,'Walker']]],
-  ['clicknowall_1',['ClickNoWall',['../class_renderer.html#a587eb3480183c9df807a47f255ac23cb',1,'Renderer']]],
-  ['collisions_2',['collisions',['../class_editor.html#aff1902f69c00e5b4d610c775458a58e7',1,'Editor']]],
-  ['color_3',['color',['../struct_fog.html#a3f3148819c54bf0cf5676d40ea6b9c2b',1,'Fog::color'],['../struct_light.html#a9bc04bf8deb7052c0cb982ec5477db0a',1,'Light::color'],['../struct_renderer_1_1_light.html#a7b82d6a03b62941f36950ce74fb8f5ca',1,'Renderer::Light::color']]],
-  ['colora_4',['colorA',['../struct_light.html#a220d9c07429ae6f0149840cb0c12388f',1,'Light']]],
-  ['colorb_5',['colorB',['../struct_light.html#a89579220adee85f74609efab794802e7',1,'Light']]],
-  ['copynodeids_6',['copyNodeIDs',['../class_editor.html#a12826fd2606c8dd665737cd84448503b',1,'Editor']]],
-  ['copynodes_7',['copyNodes',['../class_editor.html#a49281c91337a22a7869076d8152624a8',1,'Editor']]],
-  ['copywalls_8',['copyWalls',['../class_editor.html#abffafeca283df8f6964b85133a56bebc',1,'Editor']]],
-  ['count_9',['count',['../struct_renderer_1_1_texture.html#a6d8eec69feaba7eff7db9e07c0b1b111',1,'Renderer::Texture']]]
+  ['ceiling_1',['ceiling',['../struct_renderer_1_1_levels.html#a762d6e5712f4333032409150f510fc4a',1,'Renderer::Levels']]],
+  ['ceilingbackdrop_2',['ceilingBackDrop',['../struct_wall.html#af129091f62de49a209060d5a9a4c865f',1,'Wall::ceilingBackDrop'],['../struct_renderer_1_1_wall.html#a50645593dbdaa56c9eb0277a58b0d733',1,'Renderer::Wall::ceilingBackDrop']]],
+  ['ceilingfrontdrop_3',['ceilingFrontDrop',['../struct_wall.html#aba384f9a9f4901501d00698e0cb877ea',1,'Wall::ceilingFrontDrop'],['../struct_renderer_1_1_wall.html#a919468d2308aff97158fd716c7e58b30',1,'Renderer::Wall::ceilingFrontDrop']]],
+  ['clicknowall_4',['ClickNoWall',['../class_renderer.html#a587eb3480183c9df807a47f255ac23cb',1,'Renderer']]],
+  ['collisions_5',['collisions',['../class_editor.html#aff1902f69c00e5b4d610c775458a58e7',1,'Editor']]],
+  ['color_6',['color',['../struct_fog.html#a3f3148819c54bf0cf5676d40ea6b9c2b',1,'Fog::color'],['../struct_light.html#a9bc04bf8deb7052c0cb982ec5477db0a',1,'Light::color'],['../struct_renderer_1_1_light.html#a7b82d6a03b62941f36950ce74fb8f5ca',1,'Renderer::Light::color']]],
+  ['colora_7',['colorA',['../struct_light.html#a220d9c07429ae6f0149840cb0c12388f',1,'Light']]],
+  ['colorb_8',['colorB',['../struct_light.html#a89579220adee85f74609efab794802e7',1,'Light']]],
+  ['copydoors_9',['copyDoors',['../class_editor.html#a98be9503b2b02355ea4eb5e267fa0f07',1,'Editor']]],
+  ['copylifts_10',['copyLifts',['../class_editor.html#aed2e53e9736136cf6c5e7a7163019b7a',1,'Editor']]],
+  ['copylights_11',['copyLights',['../class_editor.html#af4b4a91cf5c1c82c1dcc9b9d22218d4e',1,'Editor']]],
+  ['copynodeids_12',['copyNodeIDs',['../class_editor.html#a12826fd2606c8dd665737cd84448503b',1,'Editor']]],
+  ['copynodes_13',['copyNodes',['../class_editor.html#a49281c91337a22a7869076d8152624a8',1,'Editor']]],
+  ['copysprites_14',['copySprites',['../class_editor.html#a0c07d434c44f1c690f6e3a2bcaf10ad3',1,'Editor']]],
+  ['copystaircases_15',['copyStaircases',['../class_editor.html#a2e997d28693368d22d8f1e1a44d29942',1,'Editor']]],
+  ['copywalls_16',['copyWalls',['../class_editor.html#abffafeca283df8f6964b85133a56bebc',1,'Editor']]],
+  ['count_17',['count',['../struct_texture.html#ad257e48b6aa86479146291f408facd8d',1,'Texture']]],
+  ['currentanimation_18',['currentAnimation',['../class_rig.html#abb8ef222a478e7e63f200d7debf6d500',1,'Rig']]],
+  ['currentframe_19',['currentFrame',['../class_rig.html#ae6a201d27bb809ec41f9b45059e20388',1,'Rig']]]
 ];

@@ -4,6 +4,7 @@ var struct_light =
     [ "color", "struct_light.html#a9bc04bf8deb7052c0cb982ec5477db0a", null ],
     [ "colorA", "struct_light.html#a220d9c07429ae6f0149840cb0c12388f", null ],
     [ "colorB", "struct_light.html#a89579220adee85f74609efab794802e7", null ],
+    [ "falloff", "struct_light.html#ae0d1b643bb7ce302ecd9a0fe78d12335", null ],
     [ "flags", "struct_light.html#a288df4f16d5f6135b940d93cfc9f55a7", null ],
     [ "nodeID", "struct_light.html#a77db3523e54b007f1c9f62dad7e1f4d7", null ],
     [ "phase", "struct_light.html#ad518849fb296aeb5d7d09a3aa820888c", null ],

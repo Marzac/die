@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['renderer_0',['Renderer',['../class_renderer.html',1,'']]],
-  ['renderwindow_1',['RenderWindow',['../class_render_window.html',1,'']]]
+  ['node_0',['Node',['../struct_node.html',1,'Node'],['../struct_renderer_1_1_node.html',1,'Renderer::Node']]]
 ];

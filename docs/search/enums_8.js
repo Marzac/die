@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['wall_5fflags_0',['WALL_FLAGS',['../mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266b',1,'mapobjects.h']]],
-  ['wall_5fsurfaces_1',['WALL_SURFACES',['../mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3d',1,'mapobjects.h']]]
+  ['rig_5fflags_0',['RIG_FLAGS',['../rigger_8h.html#ac95c8ad127392173831bcec1680219a3',1,'rigger.h']]],
+  ['rig_5fmodes_1',['RIG_MODES',['../rigger_8h.html#ac768e808e076de05c5650d05eef496fa',1,'rigger.h']]]
 ];

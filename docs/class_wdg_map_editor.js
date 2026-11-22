@@ -4,6 +4,7 @@ var class_wdg_map_editor =
     [ "getCursor", "class_wdg_map_editor.html#a52a5ec94739a4f2d13a9d1f787e7ff5e", null ],
     [ "getOffsetX", "class_wdg_map_editor.html#a2e03d7839761a007402a75813641d9b0", null ],
     [ "getOffsetZ", "class_wdg_map_editor.html#aa6a6e642229c8e2a8f96feaa2b0b0b76", null ],
+    [ "keyPressEvent", "class_wdg_map_editor.html#a27cf3d85c2b9d952580134a2cf61d87c", null ],
     [ "mouseMoveEvent", "class_wdg_map_editor.html#a3e3e27fc07c35701f4c497b5973051d7", null ],
     [ "mousePressEvent", "class_wdg_map_editor.html#a21271bd14cd9b599af2a32dedce9b2d4", null ],
     [ "mouseReleaseEvent", "class_wdg_map_editor.html#aed865f55b99a1b826d3fa4d55e8b405f", null ],
