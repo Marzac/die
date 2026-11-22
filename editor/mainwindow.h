@@ -361,8 +361,9 @@ private slots:
     void on_actionSave_submap_as_triggered();
     void on_actionQuit_triggered();
 
-    void on_pushTextureBrowse_clicked();
-    void on_pushTextureAdd_clicked();
+    void on_actionTexturesImport_triggered();
+    void on_actionTexturesExport_triggered();
+    void on_actionTexturesAppend_triggered();
     void on_pushMapCenter_clicked();
     void on_scrollMapH_sliderMoved(int position);
     void on_scrollMapV_sliderMoved(int position);
