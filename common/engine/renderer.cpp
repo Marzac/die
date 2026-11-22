@@ -56,16 +56,17 @@ struct SurfaceLighting {
     bool occlusion;     ///< ambient occlusion allowed
 };
 
-static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 envLight, __m128 bleed, bool sunBleed)
+static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 ambient, __m128 ray, __m128 bleed, bool sunBleed)
 {
-    bool noEnv = surfaceFlags & SURFACE_FLAG_NO_ENV_LIGHT;
+    bool noAmbient = surfaceFlags & SURFACE_FLAG_NO_AMBIENT;
+    bool noRay = surfaceFlags & SURFACE_FLAG_NO_RAY;
     bool noGlow = surfaceFlags & SURFACE_FLAG_NO_GLOW;
 
 // Fullbright: the texels as they are
-    if (noEnv && noGlow) return {unitWhite, fullBlack, fullBlack, false, false};
+    if (noAmbient && noRay && noGlow) return {unitWhite, fullBlack, fullBlack, false, false};
 
     SurfaceLighting l;
-    l.env = noEnv ? fullBlack : envLight;
+    l.env = _mm_add_ps(noAmbient ? fullBlack : ambient, noRay ? fullBlack : ray);
     l.bleed = (surfaceFlags & SURFACE_FLAG_NO_BLEED) ? fullBlack : bleed;
     l.bleedEnv = sunBleed ? l.env : fullBlack;
     l.glow = !noGlow;
@@ -1116,7 +1117,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
 
     __m128 ray = unpackColorToVectorSSE4(below ? floorRay : ceilingRay);
-    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed, flags & Renderer::FLAG_SUN_BLEED);
+    const SurfaceLighting sl = surfaceLighting(s.flags, sunAmbientArgb, ray, glowBleed, flags & Renderer::FLAG_SUN_BLEED);
     const __m128 ill = sl.env;
     const __m128 bleed = sl.bleed;
     const __m128 bleedEnv = sl.bleedEnv;
@@ -1317,7 +1318,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
 
 // Compute lights
     __m128 ray = unpackColorToVectorSSE4(strip.back ? w.rayBack : w.rayFront);
-    const SurfaceLighting sl = surfaceLighting(s.flags, _mm_add_ps(sunAmbientArgb, ray), glowBleed, flags & Renderer::FLAG_SUN_BLEED);
+    const SurfaceLighting sl = surfaceLighting(s.flags, sunAmbientArgb, ray, glowBleed, flags & Renderer::FLAG_SUN_BLEED);
     const __m128 sun = sl.env;
     const __m128 bleed = sl.bleed;
 

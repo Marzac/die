@@ -31,7 +31,7 @@ TEX_CHECKER, TEX_BRICK, TEX_STONE, TEX_WOOD, TEX_MARBLE, TEX_SKY = 0, 1, 2, 3, 4
 TEX_SCALE = 16.0
 
 # Surface flags
-SURFACE_NO_ENV_LIGHT, SURFACE_NO_GLOW = 0x0008, 0x0010
+SURFACE_NO_GLOW, SURFACE_NO_AMBIENT, SURFACE_NO_RAY = 0x0010, 0x0080, 0x0100
 
 # Wall flags
 WALL_INVISIBLE, WALL_BACKCULLED, WALL_NO_SHADOW = 0x0001, 0x0002, 0x0008
@@ -158,7 +158,7 @@ class MapWriter:
             f.write("# == DIE MAP == \n")
             for line in header:
                 f.write(f"# {line}\n")
-            f.write("# 21.11.26 - V1.3\n")
+            f.write("# 22.11.26 - V1.4\n")
             f.write("# == NODES ==\n")
             f.write("# format: N x, y, z, metaA, metaB, metaC, tag, flags\n")
             for x, y, z in self.nodes:
@@ -397,7 +397,7 @@ corners = [(-SKY_HALF, -SKY_HALF), (-SKY_HALF, SKY_HALF), (SKY_HALF, SKY_HALF), 
 for i in range(4):
     m.wall(corners[i], corners[(i + 1) % 4], GROUNDS, (0, 0), None, SKY_BASE, flat(SKY),
            WALL_BACKCULLED | WALL_NO_SHADOW, face_tex=TEX_SKY, scale=TEX_SCALE / 16.0,
-           surf_flags=SURFACE_NO_ENV_LIGHT | SURFACE_NO_GLOW)
+           surf_flags=SURFACE_NO_AMBIENT | SURFACE_NO_RAY | SURFACE_NO_GLOW)
 
 # Lights ---------------------------------------------------------------------------
 m.light(-16, -56, 0xffd8a0, 1.5, 48)        # hall

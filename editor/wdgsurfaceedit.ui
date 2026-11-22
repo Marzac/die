@@ -170,48 +170,64 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="checkAlpha">
-   <property name="toolTip">
-    <string>Magenta texels are transparent</string>
-   </property>
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>6</x>
      <y>248</y>
-     <width>91</width>
+     <width>78</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>Magenta texels are transparent</string>
    </property>
    <property name="text">
     <string>alpha</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkNoEnvLight">
+  <widget class="QCheckBox" name="checkNoAmbient">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>266</y>
-     <width>91</width>
+     <x>84</x>
+     <y>248</y>
+     <width>84</width>
      <height>20</height>
     </rect>
    </property>
    <property name="toolTip">
-    <string>Ignore the sun light. With no glow: texture as is</string>
+    <string>Ignore the sun ambient light</string>
    </property>
    <property name="text">
-    <string>no env light</string>
+    <string>no ambient</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkNoRay">
+   <property name="geometry">
+    <rect>
+     <x>84</x>
+     <y>266</y>
+     <width>84</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="toolTip">
+    <string>Ignore the sun ray light</string>
+   </property>
+   <property name="text">
+    <string>no ray</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="checkNoGlow">
    <property name="geometry">
     <rect>
-     <x>70</x>
+     <x>84</x>
      <y>284</y>
-     <width>91</width>
+     <width>84</width>
      <height>20</height>
     </rect>
    </property>
    <property name="toolTip">
-    <string>Ignore the local lights. With no env light: texture as is</string>
+    <string>Ignore the local lights. With no ambient and no ray: texture as is</string>
    </property>
    <property name="text">
     <string>no glow</string>
@@ -220,9 +236,9 @@
   <widget class="QCheckBox" name="checkNoBleed">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>302</y>
-     <width>91</width>
+     <x>6</x>
+     <y>266</y>
+     <width>78</width>
      <height>20</height>
     </rect>
    </property>
@@ -244,16 +260,16 @@
    </property>
   </widget>
   <widget class="QCheckBox" name="checkNoFog">
-   <property name="toolTip">
-    <string>Not affected by the fog</string>
-   </property>
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>320</y>
-     <width>91</width>
+     <x>6</x>
+     <y>284</y>
+     <width>78</width>
      <height>20</height>
     </rect>
+   </property>
+   <property name="toolTip">
+    <string>Not affected by the fog</string>
    </property>
    <property name="text">
     <string>no fog</string>

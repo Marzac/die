@@ -30,7 +30,8 @@ private slots:
     void on_spinShiftY_valueChanged(double arg1);
 
     void on_checkAlpha_toggled(bool checked);
-    void on_checkNoEnvLight_toggled(bool checked);
+    void on_checkNoAmbient_toggled(bool checked);
+    void on_checkNoRay_toggled(bool checked);
     void on_checkNoGlow_toggled(bool checked);
     void on_checkNoBleed_toggled(bool checked);
     void on_checkNoFog_toggled(bool checked);
