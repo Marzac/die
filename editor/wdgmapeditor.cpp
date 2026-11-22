@@ -17,6 +17,7 @@
 
 #include <QPainter>
 #include <QMouseEvent>
+#include <QKeyEvent>
 
 #include <math.h>
 #include <algorithm>
@@ -64,6 +65,7 @@ WdgMapEditor::WdgMapEditor(QWidget *parent) :
     selectRegionC1(), selectRegionC2(),
     mouseLeftWasPressed(false)
 {
+    setFocusPolicy(Qt::ClickFocus);
     if (pictoSubmap.isNull()) pictoSubmap = QImage(":/Icons/tools-submap.png");
     if (pictoDoor.isNull()) pictoDoor = QImage(":/Icons/tools-door.png");
     if (pictoLift.isNull()) pictoLift = QImage(":/Icons/tools-lift.png");
@@ -910,6 +912,25 @@ void WdgMapEditor::mouseMoveEvent(QMouseEvent *event)
 }
 
 /*****************************************************************************/
+void WdgMapEditor::keyPressEvent(QKeyEvent *event)
+{
+    QVector2D d;
+    switch (event->key()) {
+        case Qt::Key_Left: d = QVector2D(-1.0f, 0.0f); break;
+        case Qt::Key_Right: d = QVector2D(1.0f, 0.0f); break;
+        case Qt::Key_Up: d = QVector2D(0.0f, -1.0f); break;
+        case Qt::Key_Down: d = QVector2D(0.0f, 1.0f); break;
+        default: QWidget::keyPressEvent(event); return;
+    }
+
+// Move by one snap step
+    mainWindow->pushUndoState();
+    editor.nudge(Editor::to3D(mode, d * editor.effectiveGridSize(), QVector3D()));
+    mainWindow->pushUndoState();
+    mainWindow->updateAllProperties();
+    update();
+}
+
 void WdgMapEditor::wheelEvent(QWheelEvent *event)
 {
     float lastZoom = editor.getZoom();
