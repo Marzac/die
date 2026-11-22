@@ -2567,8 +2567,6 @@ void MainWindow::resizeUI()
     refY += 22;
 
     ui->widgetTextureSelector->setGeometry(220, refY, viewPortWidth + 21, 51);
-    ui->pushTextureBrowse->setGeometry(viewPortWidth - 10, 20, 21, 21);
-    ui->pushTextureAdd->setGeometry(viewPortWidth - 32, 20, 21, 21);
     refY += 54;
     ui->scrollTextures->setGeometry(220, refY, viewPortWidth + 21, 18);
     refY += 20;
@@ -2880,16 +2878,16 @@ void MainWindow::on_actionCollapse_triggered()
 }
 
 /*****************************************************************************/
-void MainWindow::on_pushTextureBrowse_clicked()
+void MainWindow::on_actionTexturesImport_triggered()
 {
     QString path = QDir::currentPath();
-    QString file = QFileDialog::getOpenFileName(this, "Open texture strip", path, "Image File (*.bmp *.png *.jpg)");
+    QString file = QFileDialog::getOpenFileName(this, "Import textures", path, "Image File (*.bmp *.png *.jpg)");
     if (file.isEmpty()) return;
     if (!editor.editedMap) return;
 
     QImage strip(file);
     if (strip.isNull()) {
-        QMessageBox::warning(this, "Open texture strip", "Could not read the image:\n" + QDir::toNativeSeparators(file));
+        QMessageBox::warning(this, "Import textures", "Could not read the image:\n" + QDir::toNativeSeparators(file));
         return;
     }
     editor.editedMap->setTextures(strip);
@@ -2897,10 +2895,20 @@ void MainWindow::on_pushTextureBrowse_clicked()
     ui->widgetTextureSelector->setScroll(0);
 }
 
-void MainWindow::on_pushTextureAdd_clicked()
+void MainWindow::on_actionTexturesExport_triggered()
+{
+    if (!editor.editedMap || editor.editedMap->textures.isNull()) return;
+    QString file = QFileDialog::getSaveFileName(this, "Export textures", QDir::current().filePath("textures.png"),
+                                                "PNG image (*.png);;BMP image (*.bmp)");
+    if (file.isEmpty()) return;
+    if (!editor.editedMap->textures.save(file))
+        QMessageBox::warning(this, "Export textures", "Could not write the image:\n" + QDir::toNativeSeparators(file));
+}
+
+void MainWindow::on_actionTexturesAppend_triggered()
 {
     if (!editor.editedMap) return;
-    QStringList files = QFileDialog::getOpenFileNames(this, "Add textures", QDir::currentPath(), "Image File (*.bmp *.png *.jpg)");
+    QStringList files = QFileDialog::getOpenFileNames(this, "Append textures", QDir::currentPath(), "Image File (*.bmp *.png *.jpg)");
     if (files.isEmpty()) return;
 
     const QImage & strip = editor.editedMap->textures;
@@ -2931,7 +2939,7 @@ void MainWindow::on_pushTextureAdd_clicked()
     for (const QImage & t : tiles) if (t.width() != size) mismatched++;
     if (mismatched) {
         QString question = QString("%1 image(s) are not %2 x %2, the tile size of the texture strip.\nRescale them to %2 x %2?").arg(mismatched).arg(size);
-        bool rescale = QMessageBox::question(this, "Add textures", question) == QMessageBox::Yes;
+        bool rescale = QMessageBox::question(this, "Append textures", question) == QMessageBox::Yes;
         for (int i = tiles.count() - 1; i >= 0; i--) {
             if (tiles[i].width() == size) continue;
             if (rescale) {
@@ -2947,7 +2955,7 @@ void MainWindow::on_pushTextureAdd_clicked()
     if (!tiles.isEmpty()) {
         QImage grown = Editor::textureStripAppend(strip, tiles);
         if (!Editor::textureStripFits(grown)) {
-            QMessageBox::warning(this, "Add textures", "The texture strip would be too large to be saved in the map (16 MB at most): no texture added.");
+            QMessageBox::warning(this, "Append textures", "The texture strip would be too large to be saved in the map (16 MB at most): no texture added.");
             return;
         }
         int first = strip.isNull() ? 0 : strip.height() / size;
@@ -2957,7 +2965,7 @@ void MainWindow::on_pushTextureAdd_clicked()
     }
 
     if (!rejected.isEmpty())
-        QMessageBox::warning(this, "Add textures", "Some images were not added:\n" + rejected.join("\n"));
+        QMessageBox::warning(this, "Append textures", "Some images were not added:\n" + rejected.join("\n"));
 }
 
 /*****************************************************************************/

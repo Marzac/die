@@ -39,35 +39,6 @@
       <height>51</height>
      </rect>
     </property>
-    <widget class="QPushButton" name="pushTextureBrowse">
-     <property name="geometry">
-      <rect>
-       <x>730</x>
-       <y>20</y>
-       <width>21</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushTextureAdd">
-     <property name="geometry">
-      <rect>
-       <x>708</x>
-       <y>20</y>
-       <width>21</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="toolTip">
-      <string>Add textures: square images, rescaled to the tile size if needed</string>
-     </property>
-     <property name="text">
-      <string>+</string>
-     </property>
-    </widget>
    </widget>
    <widget class="QGroupBox" name="groupViewer">
     <property name="geometry">
@@ -553,7 +524,7 @@
      <enum>QTabWidget::TabShape::Rounded</enum>
     </property>
     <property name="currentIndex">
-     <number>12</number>
+     <number>11</number>
     </property>
     <widget class="QWidget" name="nodes">
      <attribute name="icon">
@@ -5447,6 +5418,15 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuTextures">
+    <property name="title">
+     <string>Textures</string>
+    </property>
+    <addaction name="actionTexturesImport"/>
+    <addaction name="actionTexturesExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionTexturesAppend"/>
+   </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
      <string>Help</string>
@@ -5458,17 +5438,6 @@
     <property name="title">
      <string>Edit</string>
     </property>
-    <addaction name="actionUndo"/>
-    <addaction name="actionRedo"/>
-    <addaction name="separator"/>
-    <addaction name="actionSelectAll"/>
-    <addaction name="actionDeselect"/>
-    <addaction name="separator"/>
-    <addaction name="actionCut"/>
-    <addaction name="actionCopy"/>
-    <addaction name="actionPaste"/>
-    <addaction name="actionDelete"/>
-    <addaction name="separator"/>
     <widget class="QMenu" name="menuNodes">
      <property name="title">
       <string>Nodes</string>
@@ -5483,6 +5452,17 @@
      <addaction name="actionSplit2"/>
      <addaction name="actionSplit3"/>
     </widget>
+    <addaction name="actionUndo"/>
+    <addaction name="actionRedo"/>
+    <addaction name="separator"/>
+    <addaction name="actionSelectAll"/>
+    <addaction name="actionDeselect"/>
+    <addaction name="separator"/>
+    <addaction name="actionCut"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
+    <addaction name="actionDelete"/>
+    <addaction name="separator"/>
     <addaction name="actionAlign"/>
     <addaction name="actionRotatePlus90"/>
     <addaction name="actionRotateMinus90"/>
@@ -5495,6 +5475,7 @@
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuTextures"/>
    <addaction name="menuHelp"/>
   </widget>
   <action name="actionNew">
@@ -5605,6 +5586,30 @@
   <action name="actionDelete">
    <property name="text">
     <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionTexturesImport">
+   <property name="text">
+    <string>Import...</string>
+   </property>
+   <property name="toolTip">
+    <string>Replace the texture strip with an image</string>
+   </property>
+  </action>
+  <action name="actionTexturesExport">
+   <property name="text">
+    <string>Export...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save the texture strip as an image, to edit it outside</string>
+   </property>
+  </action>
+  <action name="actionTexturesAppend">
+   <property name="text">
+    <string>Append...</string>
+   </property>
+   <property name="toolTip">
+    <string>Add textures: square images, rescaled to the tile size if needed</string>
    </property>
   </action>
   <action name="actionAlign">
