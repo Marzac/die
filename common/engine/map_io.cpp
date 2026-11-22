@@ -44,7 +44,7 @@ static Glowmap sanitizeGlowmap(int reso, float area)
 // Surface line, same layout for every object: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags
 static void writeSurface(FILE * file, int index, const Surface & s)
 {
-    fprintf(file, "\tS %02d, %04hu, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %04hx\n", index, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
+    fprintf(file, "\tS %02d, %04hu, %+.6f, %+.6f, %+4.4f, %+4.4f, %04hx\n", index, s.id, s.scaleX, s.scaleY, s.shiftX, s.shiftY, s.flags);
 }
 
 // Reads the rest of a surface line, with shifts (V1.2) or without (older doors / lifts / staircases)
