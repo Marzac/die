@@ -372,6 +372,7 @@ private slots:
     void on_actionSplit2_triggered();
     void on_actionSplit3_triggered();
     void on_actionMerge_triggered();
+    void on_actionCollapse_triggered();
 
     void on_actionUndo_triggered();
     void on_actionRedo_triggered();

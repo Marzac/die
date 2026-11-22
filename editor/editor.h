@@ -109,6 +109,7 @@ public:
     void align();
     void wallSplit(int parts);
     void nodeMerge();
+    void nodeCollapse();
 
 // Per-object operations.
     void nodeSelect(int nId);

@@ -357,6 +357,55 @@ void Editor::nodeMerge()
     editedMap->computeAllWalls();
 }
 
+void Editor::nodeCollapse()
+{
+    QList<Node> & nodes = editedMap->nodes;
+    QList<Wall> & walls = editedMap->walls;
+
+// Highest index first, so lower ids stay valid
+    for (int c = nodes.count() - 1; c >= 0; c--) {
+        if (!nodes[c].selected) continue;
+
+        int first = -1;
+        for (int i = 0; i < walls.count() && first < 0; i++)
+            if (walls[i].nodeID1 == c || walls[i].nodeID2 == c) first = i;
+        if (first < 0) {nodeDelete(c); continue;}
+
+    // The far end of the first wall anchors the others
+        int anchor = walls[first].nodeID1 == c ? walls[first].nodeID2 : walls[first].nodeID1;
+        float shift = QVector2D(nodes[c].pos.x() - nodes[anchor].pos.x(),
+                                nodes[c].pos.z() - nodes[anchor].pos.z()).length();
+        wallDelete(first);
+
+        for (int i = 0; i < walls.count(); i++) {
+            Wall & w = walls[i];
+            if (w.nodeID2 == c) w.nodeID2 = anchor;
+            if (w.nodeID1 == c) {
+            // Keep the texture in place
+                w.nodeID1 = anchor;
+                w.surfaces[WALL_SURFACE_FRONT].shiftX -= shift;
+                w.surfaces[WALL_SURFACE_BACK].shiftX -= shift;
+            }
+            if (w.nodeID1 == w.nodeID2) wallDelete(i--);
+        }
+
+    // Move the node's objects to the anchor
+        for (Submap & m : editedMap->submaps) if (m.nodeID == c) m.nodeID = anchor;
+        for (Door & d : editedMap->doors) if (d.nodeID == c) d.nodeID = anchor;
+        for (Lift & e : editedMap->lifts) if (e.nodeID == c) e.nodeID = anchor;
+        for (Sprite & b : editedMap->sprites) if (b.nodeID == c) b.nodeID = anchor;
+        for (Staircase & h : editedMap->staircases) if (h.nodeID == c) h.nodeID = anchor;
+        for (Light & l : editedMap->lights) if (l.nodeID == c) l.nodeID = anchor;
+        for (Speaker & a : editedMap->speakers) if (a.nodeID == c) a.nodeID = anchor;
+
+        nodeDelete(c);
+    }
+
+    nodeDeselectAll();
+    selectedNode = EDIT_UNSELECTED;
+    editedMap->computeAllWalls();
+}
+
 /*****************************************************************************/
 void Editor::nodeSelect(int nId)
 {

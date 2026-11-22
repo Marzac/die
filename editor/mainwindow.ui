@@ -5474,6 +5474,7 @@
       <string>Nodes</string>
      </property>
      <addaction name="actionMerge"/>
+     <addaction name="actionCollapse"/>
     </widget>
     <widget class="QMenu" name="menuWalls">
      <property name="title">
@@ -5619,6 +5620,11 @@
   <action name="actionMerge">
    <property name="text">
     <string>Merge</string>
+   </property>
+  </action>
+  <action name="actionCollapse">
+   <property name="text">
+    <string>Collapse</string>
    </property>
   </action>
   <action name="actionUndo">
