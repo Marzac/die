@@ -56,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     uiEditMode(EDIT_MODE_NODES), once(true),
     renderTimer(nullptr), uiTimer(nullptr),
-    renderWindow(nullptr),
+    renderWindow(nullptr), wallPickPending(false),
     undoIndex(-1), undoDebounceTimer(nullptr),
     ui(new Ui::MainWindow)
 {
@@ -360,6 +360,21 @@ void MainWindow::contextMenu_show(const QPoint &pos)
 }
 
 /*****************************************************************************/
+void MainWindow::resolveWallPick()
+{
+    if (!wallPickPending) return;
+    wallPickPending = false;
+    editor.wallDeselectAll();
+
+    uint16_t wid = renderer.clickGetWallID();
+    if (wid != Renderer::ClickNoWall) {
+    // Switch mode first: the switch deselects everything
+        if (editor.editMode != EDIT_MODE_WALLS) setEditMode(EDIT_MODE_WALLS);
+        editor.wallSelect(wid);
+    }
+    updateWallProperties();
+}
+
 void MainWindow::timerRender_tick()
 {
     walker.update();
@@ -371,6 +386,7 @@ void MainWindow::timerRender_tick()
     renderClock.start();
     renderer.render(editor.viewPoint);
     updateRenderMetrics(renderClock.nsecsElapsed());
+    resolveWallPick();
 
     ui->widgetMap4->repaint();
     if (renderWindow) renderWindow->repaint();

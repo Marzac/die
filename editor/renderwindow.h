@@ -14,6 +14,8 @@
 
 #include <QWidget>
 
+#include "wdgmapview.h"
+
 namespace Ui {class RenderWindow;}
 
 class RenderWindow : public QWidget
@@ -26,9 +28,14 @@ public:
 
 protected:
     void paintEvent(QPaintEvent * event) override;
+    void mousePressEvent(QMouseEvent *event) override {mouse.press(event);}
+    void mouseMoveEvent(QMouseEvent *event) override {mouse.move(event);}
+    void mouseReleaseEvent(QMouseEvent *event) override {mouse.release(this, event);}
+    void wheelEvent(QWheelEvent *event) override {mouse.wheel(event);}
 
 private:
     Ui::RenderWindow *ui;
+    ViewMouse mouse;
 };
 
 #endif // RENDERWINDOW_H
