@@ -1,10 +1,10 @@
 var searchData=
 [
-  ['walker_0',['Walker',['../class_walker.html',1,'']]],
-  ['wall_1',['Wall',['../struct_renderer_1_1_wall.html',1,'Renderer::Wall'],['../struct_wall.html',1,'Wall']]],
-  ['wdgmapeditor_2',['WdgMapEditor',['../class_wdg_map_editor.html',1,'']]],
-  ['wdgmapview_3',['WdgMapView',['../class_wdg_map_view.html',1,'']]],
-  ['wdgtexselector_4',['WdgTexSelector',['../class_wdg_tex_selector.html',1,'']]],
-  ['wdgtexview_5',['WdgTexView',['../class_wdg_tex_view.html',1,'']]],
-  ['workerpool_6',['WorkerPool',['../class_worker_pool.html',1,'']]]
+  ['speaker_0',['Speaker',['../struct_speaker.html',1,'']]],
+  ['sprite_1',['Sprite',['../struct_sprite.html',1,'']]],
+  ['staircase_2',['Staircase',['../struct_staircase.html',1,'']]],
+  ['submap_3',['Submap',['../struct_submap.html',1,'']]],
+  ['sun_4',['Sun',['../struct_sun.html',1,'']]],
+  ['surface_5',['Surface',['../struct_surface.html',1,'']]],
+  ['surfacelighting_6',['SurfaceLighting',['../struct_surface_lighting.html',1,'']]]
 ];

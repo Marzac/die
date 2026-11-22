@@ -1,15 +1,20 @@
 var searchData=
 [
-  ['darken4sse4_0',['darken4SSE4',['../postfx_8h.html#aa41b2a762451977ab4c6c87a912596ac',1,'postfx.h']]],
-  ['deselect_1',['deselect',['../class_editor.html#ae39868b5c49a826452014b870487b3f7',1,'Editor']]],
-  ['dooradd_2',['doorAdd',['../class_editor.html#a94579e7a617c80996a2b56586d255335',1,'Editor']]],
-  ['doorclose_3',['doorClose',['../class_map.html#a622029440c60a3a1ee7986d2bc7af8a2',1,'Map']]],
-  ['doordelete_4',['doorDelete',['../class_editor.html#ab1c268c030dd47994358012430623663',1,'Editor']]],
-  ['doordeselectall_5',['doorDeselectAll',['../class_editor.html#ac5e9ca077dde13e6480ea8447b884fd8',1,'Editor']]],
-  ['doorfindincircle_6',['doorFindInCircle',['../class_editor.html#affa3b076c4ce7c6d56a418c74bf89ddf',1,'Editor']]],
-  ['doorfindinrect_7',['doorFindInRect',['../class_editor.html#aac3060045dde20872fdd9cc5e5ad8d02',1,'Editor']]],
-  ['dooropen_8',['doorOpen',['../class_map.html#ae5e066c2fb383cde3b1b7f31aec494ed',1,'Map']]],
-  ['doorselect_9',['doorSelect',['../class_editor.html#a57357ad2015118cdd72f4d9e4dbdf131',1,'Editor']]],
-  ['doorselectall_10',['doorSelectAll',['../class_editor.html#a71ee0c0c7bfd567508dbf5609245f841',1,'Editor']]],
-  ['doorshake_11',['doorShake',['../class_map.html#a27072f58c7e73be5a6ddf951fe321afb',1,'Map']]]
+  ['capturestate_0',['captureState',['../class_map.html#aec0970ab17296ba1254b2d1d0e57d092',1,'Map']]],
+  ['checkflag_1',['checkFlag',['../class_renderer.html#a1f0c49800e1b601aaafc58545804fc67',1,'Renderer']]],
+  ['clear_2',['clear',['../class_tags.html#a64bf07ae387a1ded1f77852da378f6ec',1,'Tags']]],
+  ['clickgetwallid_3',['clickGetWallID',['../class_renderer.html#a56ea2478521322772594f0946a68ad7a',1,'Renderer']]],
+  ['clickregister_4',['clickRegister',['../class_renderer.html#a1b547a5b3d9f56d24d5e922a509e9696',1,'Renderer']]],
+  ['colorsalphablendsse4_5',['colorsAlphaBlendSSE4',['../colors_8h.html#a61db527911951d20a89c22a9a4bbf7f3',1,'colors.h']]],
+  ['colorslinearsse4_6',['colorsLinearSSE4',['../colors_8h.html#a6e16900eddf3340e350e0e72b25ceab7',1,'colors.h']]],
+  ['colorsmultiplysse4_7',['colorsMultiplySSE4',['../colors_8h.html#a7a22e90d76dfa924c382f856490edc5f',1,'colors.h']]],
+  ['colorsscaleaccumulatesse4_8',['colorsScaleAccumulateSSE4',['../colors_8h.html#a18b398230dd72c2f5a60c7ddc5e7b343',1,'colors.h']]],
+  ['colorsscalesse4_9',['colorsScaleSSE4',['../colors_8h.html#adcb0b6f6fa670c07541e32dafcf9384c',1,'colors.h']]],
+  ['computeallwalls_10',['computeAllWalls',['../class_map.html#aff04e5ce71a1cb245a1eeeeccb43492a',1,'Map']]],
+  ['computewall_11',['computeWall',['../class_map.html#a08a53d507f3237b1ed2ea6c213531f2e',1,'Map']]],
+  ['concat_12',['concat',['../class_wdg_texture_selector.html#ac5bdffa5db11a0595f3c3e34e36454e3',1,'WdgTextureSelector']]],
+  ['copy_13',['copy',['../class_rigger.html#ab5efeb2ed999f8fe047d4b541c5b151f',1,'Rigger::copy()'],['../class_editor.html#a1741858b2cd61f83f41446fb8514a6c7',1,'Editor::copy()']]],
+  ['currentanimationptr_14',['currentAnimationPtr',['../class_rig.html#adab5cd76a9b0a0e14fa90eb51e5b27ea',1,'Rig']]],
+  ['currentframeptr_15',['currentFramePtr',['../class_rig.html#a6207d7dfac20467d62ed456f779c1d99',1,'Rig']]],
+  ['cut_16',['cut',['../class_rigger.html#a3179e25545ef92e03a7a9ba3214f942f',1,'Rigger::cut()'],['../class_editor.html#af219441f0b9b9ad3940fa82aab4657ee',1,'Editor::cut()']]]
 ];

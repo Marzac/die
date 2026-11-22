@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['z_0',['z',['../struct_renderer_1_1_light.html#a3ddfef4596960883e5c7fc25214bf8f2',1,'Renderer::Light']]],
-  ['zoom_1',['zoom',['../class_editor.html#a5ba3b38d930a69602b517d3d66bfa8e7',1,'Editor']]]
+  ['y_0',['y',['../struct_viewpoint_ortho.html#ad12c18a4cbcc6e3a46429b02e9e24b3e',1,'ViewpointOrtho']]],
+  ['ys_1',['ys',['../struct_quad.html#ac8d30cd38fad1e0ec7659000f800f404',1,'Quad::ys'],['../struct_triangle.html#a03396531e8d9a630e0738f13f435e4e2',1,'Triangle::ys']]]
 ];

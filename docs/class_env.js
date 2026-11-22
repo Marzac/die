@@ -5,5 +5,6 @@ var class_env =
     [ "pass", "class_env.html#ac512ded41c6be3d240acd66aa1e2e525", null ],
     [ "terminate", "class_env.html#ab854152f10ff9198f3e705a8b4b2e954", null ],
     [ "fog", "class_env.html#a3ed7663902f022485ec6880cd57de332", null ],
+    [ "glowmap", "class_env.html#a75eee0683ed417b6ca124c692d0e74a6", null ],
     [ "sun", "class_env.html#a1581e4dbc97f0f4ecba32f73ca9287f1", null ]
 ];

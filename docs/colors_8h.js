@@ -1,5 +1,6 @@
 var colors_8h =
 [
+    [ "colorsAlphaBlendSSE4", "colors_8h.html#a61db527911951d20a89c22a9a4bbf7f3", null ],
     [ "colorsLinearSSE4", "colors_8h.html#a6e16900eddf3340e350e0e72b25ceab7", null ],
     [ "colorsMultiplySSE4", "colors_8h.html#a7a22e90d76dfa924c382f856490edc5f", null ],
     [ "colorsScaleAccumulateSSE4", "colors_8h.html#a18b398230dd72c2f5a60c7ddc5e7b343", null ],

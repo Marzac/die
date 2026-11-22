@@ -1,4 +1,20 @@
 var searchData=
 [
-  ['operator_3d_3d_0',['operator==',['../env_8h.html#a563797cbb1a7c24c874077993c53cd4a',1,'operator==(const Sun &amp;a, const Sun &amp;b):&#160;env.h'],['../env_8h.html#a704fc701a744496dfffa9a30895b1c40',1,'operator==(const Fog &amp;a, const Fog &amp;b):&#160;env.h'],['../map_8cpp.html#a8958de737697e764cf48c1aede2cacb5',1,'operator==(const MapState &amp;a, const MapState &amp;b):&#160;map.cpp'],['../map_8h.html#a8958de737697e764cf48c1aede2cacb5',1,'operator==(const MapState &amp;a, const MapState &amp;b):&#160;map.cpp'],['../mapobjects__eq_8h.html#a5b5a4f00b7c98ce7569cfaa8e8ff314c',1,'operator==(const Surface &amp;a, const Surface &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a319b4b50110d730d74080dedcd20d273',1,'operator==(const Node &amp;a, const Node &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a9c81977c52be7f4c2d034668d4d1058e',1,'operator==(const Wall &amp;a, const Wall &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a9e13288ff8af3ea000beada9e3e1c7bc',1,'operator==(const Submap &amp;a, const Submap &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a3aff24d9eb37ee226b49d9c99c8bd077',1,'operator==(const Door &amp;a, const Door &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a1fe97a10b431cabb7c14e31c7bd81ae1',1,'operator==(const Lift &amp;a, const Lift &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#ae70e18c41494f4af909c3ef4dbdf28e3',1,'operator==(const Sprite &amp;a, const Sprite &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#af35ec69cc3df470901d9f65d12796f10',1,'operator==(const Staircase &amp;a, const Staircase &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a728d6c9733641fac2bed1c7992b71572',1,'operator==(const Light &amp;a, const Light &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a72984a6e1cbcf77e16cd1487426ba662',1,'operator==(const Speaker &amp;a, const Speaker &amp;b):&#160;mapobjects_eq.h'],['../mapobjects__eq_8h.html#a30c93fb5000eed1d3da891f5a7dcb519',1,'operator==(const Path &amp;a, const Path &amp;b):&#160;mapobjects_eq.h']]]
+  ['liftadd_0',['liftAdd',['../class_editor.html#a0a06610bb5faa06f119c96dc4c076515',1,'Editor']]],
+  ['liftdelete_1',['liftDelete',['../class_editor.html#ac917e782b20da543857cf9ce6b340158',1,'Editor']]],
+  ['liftdeselectall_2',['liftDeselectAll',['../class_editor.html#a9ef0b262b5702ae8c5e1490236281c01',1,'Editor']]],
+  ['liftfindincircle_3',['liftFindInCircle',['../class_editor.html#a4a2ac23c218c68c670048ba6f0b4a0a6',1,'Editor']]],
+  ['liftfindinrect_4',['liftFindInRect',['../class_editor.html#a87deb900f9fed8cdca01e5df2092fd9a',1,'Editor']]],
+  ['liftselect_5',['liftSelect',['../class_editor.html#abbd3f7635c57f1631bf7c3a4360a35ba',1,'Editor']]],
+  ['liftselectall_6',['liftSelectAll',['../class_editor.html#a2b274a1f9a50b1aa529f28c2c64abee7',1,'Editor']]],
+  ['liftstart_7',['liftStart',['../class_map.html#af3d5c3cff8e1331fe946684d2ba38acd',1,'Map']]],
+  ['liftstop_8',['liftStop',['../class_map.html#a5231e49558ea04e1ddd1b51d79e6252b',1,'Map']]],
+  ['lightadd_9',['lightAdd',['../class_editor.html#ab85260be4ecd8921980ff97fd1279c4b',1,'Editor']]],
+  ['lightdelete_10',['lightDelete',['../class_editor.html#ab48f21e9566e917987b805544fd1f76a',1,'Editor']]],
+  ['lightdeselectall_11',['lightDeselectAll',['../class_editor.html#a774601e625a53e2f1ad7263117ea77c5',1,'Editor']]],
+  ['lightfindincircle_12',['lightFindInCircle',['../class_editor.html#a24f37a38dd1ddfcd83e7342c4d948f5c',1,'Editor']]],
+  ['lightfindinrect_13',['lightFindInRect',['../class_editor.html#a41fea1dd010d41c55ccdc801f13e941b',1,'Editor']]],
+  ['lightselect_14',['lightSelect',['../class_editor.html#a8ebc814047d6bea10d1a816f1db43152',1,'Editor']]],
+  ['lightselectall_15',['lightSelectAll',['../class_editor.html#a0caf30589dca866b5751407b02c9622c',1,'Editor']]],
+  ['load_16',['load',['../class_map.html#a6235e2095db52bd289f802326be97b3a',1,'Map::load()'],['../class_rig.html#a837f0cc058932b5883090478c062c472',1,'Rig::load()'],['../class_tags.html#a7f9ac9420b368a633a83cb02fd642720',1,'Tags::load()']]]
 ];

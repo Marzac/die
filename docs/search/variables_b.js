@@ -1,11 +1,17 @@
 var searchData=
 [
-  ['mainwindow_0',['mainWindow',['../globals_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp']]],
+  ['mainwindow_0',['mainWindow',['../animator_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../animator_2mainwindow_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../globals_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../editor_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp']]],
   ['maps_1',['maps',['../class_map.html#a8d5db9e5fd488b4ff2788f61c540471b',1,'Map']]],
-  ['mask_2',['mask',['../struct_renderer_1_1_texture.html#aa7c2bbd6754dacdcd1ae32a9fae2576f',1,'Renderer::Texture']]],
+  ['mask_2',['mask',['../struct_texture.html#adae4372246a3a80a71bfa38dac05b020',1,'Texture']]],
   ['metaa_3',['metaA',['../struct_node.html#ac14345606f0801cde94ec95915d6853d',1,'Node']]],
   ['metab_4',['metaB',['../struct_node.html#a773b0abb31ad722b860a4fe4b10babc5',1,'Node']]],
   ['metac_5',['metaC',['../struct_node.html#a817b90da8de25c33e9edad361eed0ed9',1,'Node']]],
-  ['mode_6',['mode',['../struct_door.html#af81cb6c341f0d04e4b8b819cbb6188bf',1,'Door::mode'],['../struct_lift.html#aadfb2e217632473176eb8cd682e5cc99',1,'Lift::mode']]],
-  ['motionblurfactor_7',['motionBlurFactor',['../class_renderer.html#a7aab16581f6b4f2aa78a57272d17c9af',1,'Renderer']]]
+  ['metricsclock_6',['metricsClock',['../class_main_window.html#ac906f30064664136e9455e6fdaf495a3',1,'MainWindow']]],
+  ['metricsframes_7',['metricsFrames',['../class_main_window.html#afa3b978df5eaa8362505ea3605f0a654',1,'MainWindow']]],
+  ['metricsmax_8',['metricsMax',['../class_main_window.html#af2572b24f327e0165fdc52953e33ccc7',1,'MainWindow']]],
+  ['metricsmin_9',['metricsMin',['../class_main_window.html#a18a47243f911faa300d54a1eba75740a',1,'MainWindow']]],
+  ['metricssum_10',['metricsSum',['../class_main_window.html#a2866eaba4dfed11ab1494e9517f6cefe',1,'MainWindow']]],
+  ['minwidth_11',['minWidth',['../struct_bone.html#a37f68877dd9da51a29d8bc76a645dfd2',1,'Bone']]],
+  ['mode_12',['mode',['../class_rigger.html#aa7b864e422f56b8815a1b2e12e445e9e',1,'Rigger::mode'],['../struct_door.html#af81cb6c341f0d04e4b8b819cbb6188bf',1,'Door::mode'],['../struct_lift.html#aadfb2e217632473176eb8cd682e5cc99',1,'Lift::mode']]],
+  ['motionblurfactor_13',['motionBlurFactor',['../class_renderer.html#a7aab16581f6b4f2aa78a57272d17c9af',1,'Renderer']]]
 ];

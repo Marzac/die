@@ -2,6 +2,7 @@ var struct_map_state =
 [
     [ "doors", "struct_map_state.html#ab821a9496af4bce93abb506a09f16dc1", null ],
     [ "fog", "struct_map_state.html#ae5a9442069972d0d119ddec02371865c", null ],
+    [ "glowmap", "struct_map_state.html#afa3186c1384b036249b32edebc93e550", null ],
     [ "lifts", "struct_map_state.html#a0e9ca9fbb413ec409cce878091604827", null ],
     [ "lights", "struct_map_state.html#a1350508b3c0178fba72138d529bcc2a3", null ],
     [ "nodes", "struct_map_state.html#a084b2a99642c2971391a821b5ad20260", null ],

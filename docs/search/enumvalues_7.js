@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['view_5f3d_0',['VIEW_3D',['../editor_8h.html#ade00fbf792f87faddb77086173288a2da4375a60e14fef53ba84b94d09ac91af9',1,'editor.h']]],
-  ['view_5ffront_1',['VIEW_FRONT',['../editor_8h.html#ade00fbf792f87faddb77086173288a2da80bf480600ad5510f0a7fc818487b300',1,'editor.h']]],
-  ['view_5fside_2',['VIEW_SIDE',['../editor_8h.html#ade00fbf792f87faddb77086173288a2da3902519c5d10995009774a195c2720c1',1,'editor.h']]],
-  ['view_5ftop_3',['VIEW_TOP',['../editor_8h.html#ade00fbf792f87faddb77086173288a2da72ac0da8f5b0f9f4e68f0a61ccdb0869',1,'editor.h']]]
+  ['node_5fflag_5ffree_0',['NODE_FLAG_FREE',['../mapobjects_8h.html#a0a15ec02016d95773bd85299ec3b1891a90b6d064518137d1e82b063fe563f358',1,'mapobjects.h']]],
+  ['node_5fflag_5fused_1',['NODE_FLAG_USED',['../mapobjects_8h.html#a0a15ec02016d95773bd85299ec3b1891a1cfe22e81ebac5a2458dc55178868442',1,'mapobjects.h']]]
 ];

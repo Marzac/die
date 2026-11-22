@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['r2d_0',['R2D',['../renderer_8h.html#ae9d3173f4fbdb4770ac5e49b7875a74d',1,'renderer.h']]],
+  ['r2d_0',['R2D',['../primitives_8h.html#ae9d3173f4fbdb4770ac5e49b7875a74d',1,'primitives.h']]],
   ['radius_1',['radius',['../class_walker.html#ab5e44a943df4ad4d6584b8c8941c2099',1,'Walker']]],
   ['rayback_2',['rayBack',['../struct_renderer_1_1_wall.html#aa9e349155a55f88e8cb49365e8b12d2b',1,'Renderer::Wall']]],
   ['raycolor_3',['rayColor',['../struct_sun.html#af499aa29b097fb7b44239961abb5cbd9',1,'Sun']]],
@@ -11,7 +11,14 @@ var searchData=
   ['rendertimer_8',['renderTimer',['../class_main_window.html#a0c56512f2a1234b6a4df52b2af7f8b29',1,'MainWindow']]],
   ['renderwindow_9',['renderWindow',['../class_main_window.html#aabdf5aaf57876bfeaaef61d5024c0fc4',1,'MainWindow']]],
   ['renderworkers_10',['renderWorkers',['../renderer_8cpp.html#a2a0b96248e52c1adf4c8bef80abd2bff',1,'renderer.cpp']]],
-  ['rightx_11',['rightX',['../class_gamepad.html#a17919c2679070b8d17c44ee60f4382dd',1,'Gamepad']]],
-  ['righty_12',['rightY',['../class_gamepad.html#a140dc1104fcc9a052c18fd9f9fc2eecc',1,'Gamepad']]],
-  ['rootmap_13',['rootMap',['../class_editor.html#a3319fc35ac9b4f9ab3bf8c201ea6ce13',1,'Editor']]]
+  ['reso_11',['reso',['../struct_glowmap.html#afd563287feb1229842c305d1e81c6788',1,'Glowmap']]],
+  ['rig_12',['rig',['../class_rigger.html#abfb1c4117fc9643b5c41d8eaec2e36e0',1,'Rigger']]],
+  ['rigger_13',['rigger',['../rigger_8cpp.html#ae5dc9369c4e8f46d694a272f2c8040ad',1,'rigger:&#160;rigger.cpp'],['../rigger_8h.html#ae5dc9369c4e8f46d694a272f2c8040ad',1,'rigger:&#160;rigger.cpp']]],
+  ['rigger_5fbone_5fradius_14',['RIGGER_BONE_RADIUS',['../rigger_8h.html#a3df23c8fcf6a5f7a2b38a35e109cc2e7',1,'rigger.h']]],
+  ['rigger_5fjoint_5fradius_15',['RIGGER_JOINT_RADIUS',['../rigger_8h.html#aeef8f52731204388d45d74ea1301f39f',1,'rigger.h']]],
+  ['rigger_5fview_5fscale_16',['RIGGER_VIEW_SCALE',['../rigger_8h.html#afc8465be8d8cbdcc2e17f085b72ef49f',1,'rigger.h']]],
+  ['rightx_17',['rightX',['../class_gamepad.html#a17919c2679070b8d17c44ee60f4382dd',1,'Gamepad']]],
+  ['righty_18',['rightY',['../class_gamepad.html#a140dc1104fcc9a052c18fd9f9fc2eecc',1,'Gamepad']]],
+  ['rigview_19',['rigView',['../class_rigger.html#a2ad2b35286274832e97bd1c4830bc297',1,'Rigger']]],
+  ['rootmap_20',['rootMap',['../class_editor.html#a3319fc35ac9b4f9ab3bf8c201ea6ce13',1,'Editor']]]
 ];

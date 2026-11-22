@@ -1,10 +1,14 @@
 var searchData=
 [
-  ['redo_0',['redo',['../class_main_window.html#a21b622c0f1855274d69f32421f10b251',1,'MainWindow']]],
-  ['refreshtagcombos_1',['refreshTagCombos',['../class_main_window.html#ac7286d5652c65d712e59d371a2362a96',1,'MainWindow']]],
-  ['render_2',['render',['../class_renderer.html#a5273a66f5f05f666de8532a69a7a7f75',1,'Renderer']]],
-  ['renderer_3',['Renderer',['../class_renderer.html#a7ebf46f54dab9905f79b80f7fddb76a6',1,'Renderer']]],
-  ['renderwindow_4',['RenderWindow',['../class_render_window.html#a867a2fc1d34a0fe9dc288ec4badba044',1,'RenderWindow']]],
-  ['resolverelativepath_5',['resolveRelativePath',['../class_map.html#a4be25c56f14b2a1ef2c3205f57a93258',1,'Map']]],
-  ['restorestate_6',['restoreState',['../class_map.html#af3d9e6e149fe57e97a1e1b1d3e7fbf1b',1,'Map']]]
+  ['namefortag_0',['nameForTag',['../class_tags.html#a0c74cda11276dd2f438786bd6f264254',1,'Tags']]],
+  ['nodeadd_1',['nodeAdd',['../class_editor.html#ac8bc7b419f1579a1ae1e9d8e85b76756',1,'Editor']]],
+  ['nodecollapse_2',['nodeCollapse',['../class_editor.html#a1b3f7cdc81a42e7599409eca59e221bd',1,'Editor']]],
+  ['nodedelete_3',['nodeDelete',['../class_editor.html#a9ee52b911abe86c4e3c0fc442a21de06',1,'Editor']]],
+  ['nodedeselectall_4',['nodeDeselectAll',['../class_editor.html#a04df37cb21d2f28a7bc6bdd2af6ce674',1,'Editor']]],
+  ['nodefindincircle_5',['nodeFindInCircle',['../class_editor.html#a0b73a8f5879579fc2c867783a5bde386',1,'Editor']]],
+  ['nodefindinrect_6',['nodeFindInRect',['../class_editor.html#a9e7b05c744a09c45f0d48aa92888f36a',1,'Editor']]],
+  ['nodemerge_7',['nodeMerge',['../class_editor.html#aac2833193f00bab0eb2d5ea276b06264',1,'Editor']]],
+  ['nodeselect_8',['nodeSelect',['../class_editor.html#a2b3551c8f8497fd0799500775ef2c82f',1,'Editor']]],
+  ['nodeselectall_9',['nodeSelectAll',['../class_editor.html#a30acc7ff36c3af843f8feec28fa6d033',1,'Editor']]],
+  ['nudge_10',['nudge',['../class_editor.html#a4bda7e754189fdff9b23cc814196302d',1,'Editor']]]
 ];
