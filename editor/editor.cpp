@@ -15,6 +15,7 @@
 
 #include <QBuffer>
 #include <QColorSpace>
+#include <QSet>
 #include <QTransform>
 
 #include <algorithm>
@@ -403,6 +404,46 @@ void Editor::nodeCollapse()
 
     nodeDeselectAll();
     selectedNode = EDIT_UNSELECTED;
+    editedMap->computeAllWalls();
+}
+
+QSet<int> Editor::selectedNodeSet() const
+{
+    QSet<int> moved;
+    auto add = [&](const auto & items) {
+        for (const auto & item : items)
+            if (item.selected) moved.insert(item.nodeID);
+    };
+
+    switch (editMode) {
+        case EDIT_MODE_NODES:
+        case EDIT_MODE_PATHS:
+            for (int i = 0; i < editedMap->nodes.count(); i++)
+                if (editedMap->nodes[i].selected) moved.insert(i);
+            break;
+        case EDIT_MODE_WALLS:
+            for (const Wall & w : editedMap->walls) {
+                if (!w.selected) continue;
+                moved.insert(w.nodeID1);
+                moved.insert(w.nodeID2);
+            }
+            break;
+        case EDIT_MODE_SUBMAPS: add(editedMap->submaps); break;
+        case EDIT_MODE_DOORS: add(editedMap->doors); break;
+        case EDIT_MODE_LIFTS: add(editedMap->lifts); break;
+        case EDIT_MODE_SPRITES: add(editedMap->sprites); break;
+        case EDIT_MODE_STAIRCASES: add(editedMap->staircases); break;
+        case EDIT_MODE_LIGHTS: add(editedMap->lights); break;
+        case EDIT_MODE_SPEAKERS: add(editedMap->speakers); break;
+        default: break;
+    }
+    return moved;
+}
+
+void Editor::nudge(const QVector3D & dp)
+{
+    for (int id : selectedNodeSet())
+        editedMap->nodes[id].pos += dp;
     editedMap->computeAllWalls();
 }
 

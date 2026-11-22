@@ -19,6 +19,7 @@
 #include <QVector2D>
 #include <QVector3D>
 #include <QList>
+#include <QSet>
 
 #include <functional>
 #include <stdint.h>
@@ -110,6 +111,7 @@ public:
     void wallSplit(int parts);
     void nodeMerge();
     void nodeCollapse();
+    void nudge(const QVector3D & dp);
 
 // Per-object operations.
     void nodeSelect(int nId);
@@ -193,6 +195,7 @@ public:
     void snapCoords(QVector2D & pos);
     bool inScissor(const QVector3D & pos) const;
     float getZoom() const;
+    float effectiveGridSize() const;
 
     static QVector2D to2D(VIEW_MODES mode, const QVector3D & pos);
     static QVector3D to3D(VIEW_MODES mode, const QVector2D & pos, const QVector3D & ref);
@@ -202,7 +205,7 @@ public:
 
 private:
     int findCopiedNodeID(uint16_t id);
-    float effectiveGridSize() const;
+    QSet<int> selectedNodeSet() const;
 
 // Copy / paste / delete of the node-bound objects (door, lift, sprite, ...).
     template <typename T>
