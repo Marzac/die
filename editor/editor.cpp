@@ -268,6 +268,48 @@ void Editor::align()
 }
 
 /*****************************************************************************/
+void Editor::wallSplit(int parts)
+{
+    QList<Node> & nodes = editedMap->nodes;
+    QList<Wall> & walls = editedMap->walls;
+
+    int count = walls.count();
+    for (int i = 0; i < count; i++) {
+        if (!walls[i].selected) continue;
+        Wall src = walls[i];
+        QVector3D p1 = nodes[src.nodeID1].pos;
+        QVector3D p2 = nodes[src.nodeID2].pos;
+        float length = QVector2D(p2.x() - p1.x(), p2.z() - p1.z()).length();
+
+    // Original wall keeps n1 and ends on the first new node
+        int prev = src.nodeID1;
+        for (int k = 1; k <= parts; k++) {
+            int next = src.nodeID2;
+            if (k < parts) {
+                Node n = nodes[src.nodeID1];
+                n.pos = p1 + (p2 - p1) * (float(k) / parts);
+                n.selected = false;
+                nodes.append(n);
+                next = nodes.count() - 1;
+            }
+            if (k == 1) walls[i].nodeID2 = next;
+            else {
+            // Shift the textures to keep them continuous
+                Wall w = src;
+                w.nodeID1 = prev;
+                w.nodeID2 = next;
+                float shift = length * (k - 1) / parts;
+                w.surfaces[WALL_SURFACE_FRONT].shiftX += shift;
+                w.surfaces[WALL_SURFACE_BACK].shiftX += shift;
+                walls.append(w);
+            }
+            prev = next;
+        }
+    }
+    editedMap->computeAllWalls();
+}
+
+/*****************************************************************************/
 void Editor::nodeSelect(int nId)
 {
     if (nId >= editedMap->nodes.count()) return;

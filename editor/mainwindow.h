@@ -369,6 +369,8 @@ private slots:
     void on_actionPaste_triggered();
     void on_actionDelete_triggered();
     void on_actionAlign_triggered();
+    void on_actionSplit2_triggered();
+    void on_actionSplit3_triggered();
 
     void on_actionUndo_triggered();
     void on_actionRedo_triggered();

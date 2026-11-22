@@ -5469,7 +5469,16 @@
     <addaction name="actionPaste"/>
     <addaction name="actionDelete"/>
     <addaction name="separator"/>
+    <widget class="QMenu" name="menuWalls">
+     <property name="title">
+      <string>Walls</string>
+     </property>
+     <addaction name="actionSplit2"/>
+     <addaction name="actionSplit3"/>
+    </widget>
     <addaction name="actionAlign"/>
+    <addaction name="separator"/>
+    <addaction name="menuWalls"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -5588,6 +5597,16 @@
   <action name="actionAlign">
    <property name="text">
     <string>Align</string>
+   </property>
+  </action>
+  <action name="actionSplit2">
+   <property name="text">
+    <string>Split2</string>
+   </property>
+  </action>
+  <action name="actionSplit3">
+   <property name="text">
+    <string>Split3</string>
    </property>
   </action>
   <action name="actionUndo">
