@@ -370,6 +370,7 @@ void MainWindow::resolveWallPick()
     if (wid != Renderer::ClickNoWall) {
     // Switch mode first: the switch deselects everything
         if (editor.editMode != EDIT_MODE_WALLS) setEditMode(EDIT_MODE_WALLS);
+        editor.selectedNode = EDIT_UNSELECTED;
         editor.wallSelect(wid);
     }
     updateWallProperties();
