@@ -128,8 +128,8 @@ public:
 
     QString path;
     QImage textures;
-    std::vector<uint32_t> mipmaps;  ///< Chained mipmap levels of textures (see Striper)
-    Texture textureLayout{};        ///< Layout of mipmaps for the renderer, pixels left out
+    std::vector<uint32_t> mipmaps;  ///< textures with their mipmap levels
+    Texture textureLayout{};        ///< mipmaps layout, pixels unset
     Sun sun;
     Fog fog;
     Glowmap glowmap;

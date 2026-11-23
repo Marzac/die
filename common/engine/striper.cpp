@@ -176,7 +176,7 @@ void Striper::halveBilinear(const uint32_t * src, uint32_t * dst, int size)
         const uint32_t * r1 = r0 + size;
         uint32_t * d = dst + y * half;
 
-    // Two output pixels per pass: 4 x 2 source pixels summed in 16-bit lanes
+    // Two output pixels per pass, summed in 16-bit lanes
         int x = 0;
         for (; x + 2 <= half; x += 2) {
             __m128i a = _mm_loadu_si128((const __m128i *) (r0 + 2 * x));
@@ -189,7 +189,7 @@ void Striper::halveBilinear(const uint32_t * src, uint32_t * dst, int size)
             _mm_storel_epi64((__m128i *) (d + x), _mm_packus_epi16(sum, zero));
         }
 
-    // Odd remainder (the 2x2 to 1x1 level)
+    // Last odd pixel (2x2 to 1x1)
         for (; x < half; x++) {
             uint32_t p0 = r0[2 * x], p1 = r0[2 * x + 1], p2 = r1[2 * x], p3 = r1[2 * x + 1];
             uint32_t out = 0;
@@ -214,7 +214,7 @@ std::vector<uint32_t> Striper::makeMipmaps(const QImage & strip, Halver halver)
     int n = levels(size);
     buffer.resize(levelOffset(size, count, n));
 
-// Level 0 is the strip as is, each next level is halved from the previous one
+// Level 0 is the strip, each next level halves the previous one
     size_t block = (size_t) size * size * count;
     memcpy(buffer.data(), strip.constBits(), block * sizeof(uint32_t));
 

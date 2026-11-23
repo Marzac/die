@@ -39,7 +39,7 @@
         uint16_t size;
         uint16_t count;
         uint16_t mask;
-        uint16_t mmLevels;  ///< mipmap levels, level 0 included (1: no mipmaps)
+        uint16_t mmLevels;  ///< mipmap levels, level 0 included
         uint32_t block;
         uint32_t mmOffsets[TEXTURE_LEVELS_MAX];    ///< pixel offset of each mipmap level
     } Texture;

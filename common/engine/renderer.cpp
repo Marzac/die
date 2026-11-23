@@ -45,7 +45,7 @@ static inline int floorToInt(float x)
     return _mm_cvtss_si32(_mm_floor_ss(v, v));
 }
 
-/// \brief Index of the leftmost set bit, x must not be 0
+/// \brief Index of the highest set bit (x > 0)
 static inline int highestBit(uint32_t x)
 {
 #ifdef _MSC_VER
@@ -1089,7 +1089,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     float uScale = s.scaleX * sizeScale;
     float vScale = s.scaleY * sizeScale;
 
-// Texel coordinates along the ray, at mipmap level 0: u = uOrigin0 + uRay0 * adjacent
+// Level 0 texel along the ray: u = uOrigin0 + uRay0 * adjacent
     float uOrigin0 = (state.casterPos.x() + w.offset.x() + s.shiftX) * uScale;
     float vOrigin0 = (state.casterPos.z() + w.offset.z() + s.shiftY) * vScale;
     float uRay0 = state.casterRayX * uScale;
@@ -1147,8 +1147,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
                        : std::clamp(yAoEndRaw, yEnd, yStart);
     }
 
-// Mipmap sections: the texels per column grow linearly with the distance, rate = adjacent * mmRate
-// Level L (rate < 1: 0, rate < 2: 1, rate < 4: 2...) ends where adjacent drops under 2^(L-1) / mmRate
+// Mipmap level from the texels per column, adjacent * mmRate: < 1: 0, < 2: 1, < 4: 2...
     int mmMax = (flags & Renderer::FLAG_MIPMAPPING) ? t.mmLevels - 1 : 0;
     float mmRate = std::max(fabsf(uScale), fabsf(vScale)) / (state.casterPC * state.casterProjectionX);
 
@@ -1242,7 +1241,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
         for (int k = 0; k < skip; k++)
             drawPlain(fovDistanceFar);
 
-    // Walk a zone, far to near, stepping the mipmap level down at each section end
+    // Walk a zone far to near, one mipmap level down at each section end
         float denom = denomStart;
         int y = yStart;
         setLevel(levelAt(adjacentStart), y);
@@ -1257,7 +1256,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
             }
         };
 
-    // Ambient occlusion zone at the wall-base edge, then the plain zone
+    // AO zone at the wall base, then the plain zone
         walk(yAoEnd, drawAmbientOcclusion);
         walk(yEnd, drawPlain);
     };
@@ -1337,7 +1336,8 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     float sizeScale = t.size * 0x1p-8f;
     float uScale = s.scaleX * sizeScale;
     float vScale = s.scaleY * sizeScale;
-// V sampled at the row bottom edges, like the strip coverage (16.16 fixed point)
+
+// V sampled at the row bottom edges
     float vPerRow = (strip.vBot - strip.vTop) / (strip.yBot - strip.yTop);
     float vStart = strip.vTop + (scanTop + 1.0f - strip.yTop) * vPerRow;
     int32_t vFixed = floorToInt((vStart + s.shiftY) * vScale * 0x1p16f);
@@ -1380,8 +1380,8 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     __m128 bleedLight = _mm_add_ps(glowLocal, sl.bleedEnv);
     __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bleedLight, bleedLight), bleed);     // constant along the strip
 
-// Mipmap level: the first one under a texel per row (vStep < 1: 0, vStep < 2: 1, vStep < 4: 2...)
-// Masked surfaces stay on level 0, their key color must not blend
+// Mipmap level from the texels per row, vStep: < 1: 0, < 2: 1, < 4: 2...
+// Masked surfaces stay on level 0: their key color must not blend
     int level = 0;
     uint32_t vStepAbs = (uint32_t) std::abs(vStep);
     if ((flags & Renderer::FLAG_MIPMAPPING) && !(s.flags & SURFACE_FLAG_ALPHA) && vStepAbs >= 0x10000)
