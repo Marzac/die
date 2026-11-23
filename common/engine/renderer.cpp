@@ -1136,11 +1136,12 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     float adjacentAoEnd = adjacentStart - occlusionLength;
     float aoScale = occlusionLength > 0.0f ? occlusionDarken / occlusionLength : 0.0f;
 
-// No AO along a masked wall: it lets the light through
-    bool masked = w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA;
+// No AO along a masked or invisible wall: it lets the light through
+    bool seeThrough = (w.flags & WALL_FLAG_INVISIBLE)
+                   || (w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA);
 
     int yAoEnd;
-    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_NO_SHADOW) || masked || !sl.occlusion)
+    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_NO_SHADOW) || seeThrough || !sl.occlusion)
         yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
