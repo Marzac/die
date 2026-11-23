@@ -202,9 +202,6 @@ public:
     static QVector2D to2D(VIEW_MODES mode, const QVector3D & pos);
     static QVector3D to3D(VIEW_MODES mode, const QVector2D & pos, const QVector3D & ref);
 
-    static QImage textureStripAppend(const QImage & strip, const QList<QImage> & tiles);
-    static bool textureStripFits(const QImage & strip);
-
 private:
     int findCopiedNodeID(uint16_t id);
     QSet<int> selectedNodeSet() const;

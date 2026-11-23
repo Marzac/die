@@ -24,9 +24,6 @@
 
 class QSpatialSound;
 
-// Maximum size of an embedded texture strip (base64 data)
-static constexpr uint64_t TEXTURE_DATA_MAX = 16ull << 20;
-
 /*****************************************************************************/
 /**
     \brief Snapshot of the persistent map data, used for the undo history

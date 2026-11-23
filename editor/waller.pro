@@ -50,6 +50,7 @@ SOURCES += \
     ../common/engine/audio.cpp \
     ../common/engine/map.cpp \
     ../common/engine/map_io.cpp \
+    ../common/engine/striper.cpp \
     ../common/engine/tags.cpp \
     ../common/engine/env.cpp \
     ../common/engine/workerpool.cpp \
@@ -71,6 +72,7 @@ HEADERS += \
     ../common/engine/renderer.h \
     ../common/engine/audio.h \
     ../common/engine/map.h \
+    ../common/engine/striper.h \
     ../common/engine/tags.h \
     ../common/engine/env.h \
     ../common/engine/mapobjects.h \

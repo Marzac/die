@@ -13,10 +13,7 @@
 
 #include "audio.h"
 
-#include <QBuffer>
-#include <QColorSpace>
 #include <QSet>
-#include <QTransform>
 
 #include <algorithm>
 #include <stdint.h>
@@ -1344,41 +1341,6 @@ QVector3D Editor::to3D(VIEW_MODES mode, const QVector2D & pos, const QVector3D &
     if (mode == VIEW_SIDE) return QVector3D(ref.x(), -pos.y(), -pos.x());
     if (mode == VIEW_FRONT) return QVector3D(pos.x(), -pos.y(), ref.z());
     return ref;
-}
-
-/*****************************************************************************/
-QImage Editor::textureStripAppend(const QImage & strip, const QList<QImage> & tiles)
-{
-    if (tiles.isEmpty()) return strip;
-    int size = strip.isNull() ? tiles.first().width() : strip.width();
-    int count = strip.isNull() ? 0 : strip.height() / size;
-
-    bool alpha = strip.hasAlphaChannel();
-    for (const QImage & t : tiles) alpha |= t.hasAlphaChannel();
-    QImage grown(size, (count + tiles.count()) * size, alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
-    if (!strip.isNull()) grown.setColorSpace(strip.colorSpace());
-
-    auto copy = [&](const QImage & src, int rows, int y0) {
-        QImage s = src.convertToFormat(grown.format());
-        for (int y = 0; y < rows; y++)
-            memcpy(grown.scanLine(y0 + y), s.constScanLine(y), size * sizeof(uint32_t));
-    };
-    if (count) copy(strip, count * size, 0);
-
-// Tiles are stored rotated a quarter-turn
-    for (int i = 0; i < tiles.count(); i++)
-        copy(tiles[i].transformed(QTransform().rotate(90)), size, (count + i) * size);
-    return grown;
-}
-
-bool Editor::textureStripFits(const QImage & strip)
-{
-    QByteArray png;
-    QBuffer buffer(&png);
-    buffer.open(QIODevice::WriteOnly);
-    strip.save(&buffer, "PNG");
-    uint64_t base64Size = ((uint64_t) png.size() + 2) / 3 * 4;
-    return base64Size <= TEXTURE_DATA_MAX;
 }
 
 /*****************************************************************************/

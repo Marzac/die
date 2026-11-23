@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include "rigger.h"
+#include "striper.h"
 
 #include <QResizeEvent>
 #include <QDoubleSpinBox>
@@ -445,7 +446,9 @@ void MainWindow::on_pushTextureBrowse_clicked()
     QString file = QFileDialog::getOpenFileName(this, "Open texture strip", path, "Image File (*.bmp *.png *.jpg)");
     if (file.isEmpty()) return;
 
-    rigger.rig.textures.load(file);
+    QImage strip = Striper::load(file);
+    if (strip.isNull()) return;
+    rigger.rig.textures = strip;
     rigger.selectedTextureID = 0;
     ui->widgetTextureSelector->setScroll(0);
     ui->widgetTextureSelector->update();

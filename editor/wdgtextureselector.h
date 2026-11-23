@@ -23,12 +23,6 @@ public:
     void setScroll(int scroll);
     int getScroll() {return scroll;}
 
-    /// \brief Export every tile as a 3x3 mosaik PNG (for seamless painting)
-    void slice(const QString & path);
-
-    /// \brief Rebuild the strip from 3x3 mosaik PNGs (centre tile of each)
-    void concat(const QString & path);
-
 private:
     int scroll;
 

@@ -16,6 +16,7 @@
 #include "audio.h"
 #include "easings.h"
 #include "tags.h"
+#include "striper.h"
 
 #include <QVector3D>
 
@@ -79,10 +80,7 @@ void Map::init()
 
 void Map::setTextures(const QImage & strip)
 {
-// The renderer reads 32-bit pixels
-    QImage::Format f = strip.format();
-    if (strip.isNull() || f == QImage::Format_RGB32 || f == QImage::Format_ARGB32) textures = strip;
-    else textures = strip.convertToFormat(strip.hasAlphaChannel() ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+    textures = Striper::normalize(strip);
 }
 
 void Map::terminate()

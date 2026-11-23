@@ -27,6 +27,7 @@ set(SOURCES
     ../common/engine/audio.cpp
     ../common/engine/map.cpp
     ../common/engine/map_io.cpp
+    ../common/engine/striper.cpp
     ../common/engine/tags.cpp
     ../common/engine/env.cpp
     ../common/engine/workerpool.cpp

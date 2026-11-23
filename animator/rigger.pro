@@ -28,7 +28,8 @@ SOURCES += \
     wdgtexview.cpp \
     ../common/engine/rig.cpp \
     ../common/engine/rig_io.cpp \
-    ../common/engine/drawer.cpp
+    ../common/engine/drawer.cpp \
+    ../common/engine/striper.cpp
 
 HEADERS += \
     mainwindow.h \
@@ -40,7 +41,8 @@ HEADERS += \
     ../common/engine/rig.h \
     ../common/engine/rigobjects.h \
     ../common/engine/drawer.h \
-    ../common/engine/primitives.h
+    ../common/engine/primitives.h \
+    ../common/engine/striper.h
 
 FORMS += \
     mainwindow.ui
