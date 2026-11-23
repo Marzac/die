@@ -4854,7 +4854,7 @@
        <string>Set</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="checkRendererAlphaFeatures">
+     <widget class="QCheckBox" name="checkRendererMipmapping">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -4864,10 +4864,10 @@
        </rect>
       </property>
       <property name="toolTip">
-       <string>Not implemented yet</string>
+       <string>Distant textures read the smaller mipmap levels</string>
       </property>
       <property name="text">
-       <string>alpha features</string>
+       <string>mipmapping</string>
       </property>
       <property name="checked">
        <bool>false</bool>

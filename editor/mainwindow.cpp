@@ -960,7 +960,7 @@ void MainWindow::updateEngineProperties()
     setCheckboxStateSilently(ui->checkRendererOcclusionEnable, flags & Renderer::FLAG_AMBIENT_OCCLUSION);
     setCheckboxStateSilently(ui->checkRendererMotionblur, flags & Renderer::FLAG_MOTIONBLUR);
     setCheckboxStateSilently(ui->checkRendererVignetting, flags & Renderer::FLAG_VIGNETTE);
-    setCheckboxStateSilently(ui->checkRendererAlphaFeatures, flags & Renderer::FLAG_ALPHA_FEATURES);
+    setCheckboxStateSilently(ui->checkRendererMipmapping, flags & Renderer::FLAG_MIPMAPPING);
     setCheckboxStateSilently(ui->checkRendererSunBleed, flags & Renderer::FLAG_SUN_BLEED);
     setCheckboxStateSilently(ui->checkRendererGamma, flags & Renderer::FLAG_GAMMA);
 
@@ -3027,9 +3027,9 @@ void MainWindow::on_checkRendererVignetting_toggled(bool checked)
     renderer.checkFlag(Renderer::FLAG_VIGNETTE, checked);
 }
 
-void MainWindow::on_checkRendererAlphaFeatures_toggled(bool checked)
+void MainWindow::on_checkRendererMipmapping_toggled(bool checked)
 {
-    renderer.checkFlag(Renderer::FLAG_ALPHA_FEATURES, checked);
+    renderer.checkFlag(Renderer::FLAG_MIPMAPPING, checked);
 }
 
 void MainWindow::on_checkRendererSunBleed_toggled(bool checked)

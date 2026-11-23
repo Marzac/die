@@ -96,7 +96,7 @@ public:
         FLAG_VIGNETTE           = 0x0200,
         FLAG_GAMMA              = 0x0400,
         FLAG_MULTITHREADING     = 0x1000,
-        FLAG_ALPHA_FEATURES     = 0x2000,
+        FLAG_MIPMAPPING         = 0x2000,   ///< distant textures read the smaller mipmap levels
         FLAGS_DEFAULT           = FLAG_WALLS | FLAG_SURFACES | FLAG_LIGHTS | FLAG_AMBIENT_OCCLUSION | FLAG_GAMMA,
     } FLAGS;
 
