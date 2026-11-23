@@ -1125,11 +1125,11 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
 
     __m128 ray = unpackColorToVectorSSE4(below ? floorRay : ceilingRay);
     const SurfaceLighting sl = surfaceLighting(s.flags, sunAmbientArgb, ray, glowBleed, flags & Renderer::FLAG_SUN_BLEED);
-    const __m128 ill = sl.env;
+    const __m128 env = sl.env;
     const __m128 bleed = sl.bleed;
     const __m128 bleedEnv = sl.bleedEnv;
     bool noGlow = !sl.glow;
-    __m128 fog = unpackColorToVectorSSE4(fogFarColor);
+    __m128 fogColor = unpackColorToVectorSSE4(fogFarColor);
 
 // Compute AO zone boundary in screen space.
 // Inverting adjacent = opposite / denom:
@@ -1202,8 +1202,8 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     // Lambda: write the lit pixel, blending fog in
         auto shade = [&](__m128 lit, float adjacent) {
             if constexpr (ApplyFog::value) {
-                float ff = std::clamp((fogDistanceOffset - adjacent) * fogDistanceInv, 0.0f, 1.0f);
-                *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fog, 1.0f - ff * ff));
+                float clearness = std::clamp((fogDistanceOffset - adjacent) * fogDistanceInv, 0.0f, 1.0f);
+                *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, 1.0f - clearness * clearness));
             } else {
                 *ptr32 = packVectorToColorSSE4(lit);
             }
@@ -1213,14 +1213,14 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
         auto drawAmbientOcclusion = [&](float adjacent) {
             int u = floorToInt(uOrigin + uRay * adjacent);
             int v = floorToInt(vOrigin + vRay * adjacent);
-            uint32_t co = tex[(u & mask) * size + (v & mask)];
-            __m128 v4 = unpackColorToVectorSSE4(co);
-            __m128 gm = sampleGlow(adjacent);
-            __m128 glow = _mm_add_ps(gm, ill);
+            uint32_t texel = tex[(u & mask) * size + (v & mask)];
+            __m128 color = unpackColorToVectorSSE4(texel);
+            __m128 glowLocal = sampleGlow(adjacent);
+            __m128 light = _mm_add_ps(glowLocal, env);
             float aoFactor = (1.0f - occlusionDarken) + (adjacentStart - adjacent) * aoScale;
-            v4 = _mm_mul_ps(v4, _mm_set1_ps(aoFactor));
-            __m128 bl = _mm_add_ps(gm, bleedEnv);
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(bl, bl), bleed));
+            color = _mm_mul_ps(color, _mm_set1_ps(aoFactor));
+            __m128 bleedLight = _mm_add_ps(glowLocal, bleedEnv);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), _mm_mul_ps(_mm_mul_ps(bleedLight, bleedLight), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1229,12 +1229,12 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
         auto drawPlain = [&](float adjacent) {
             int u = floorToInt(uOrigin + uRay * adjacent);
             int v = floorToInt(vOrigin + vRay * adjacent);
-            uint32_t co = tex[(u & mask) * size + (v & mask)];
-            __m128 v4 = unpackColorToVectorSSE4(co);
-            __m128 gm = sampleGlow(adjacent);
-            __m128 glow = _mm_add_ps(gm, ill);
-            __m128 bl = _mm_add_ps(gm, bleedEnv);
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), _mm_mul_ps(_mm_mul_ps(bl, bl), bleed));
+            uint32_t texel = tex[(u & mask) * size + (v & mask)];
+            __m128 color = unpackColorToVectorSSE4(texel);
+            __m128 glowLocal = sampleGlow(adjacent);
+            __m128 light = _mm_add_ps(glowLocal, env);
+            __m128 bleedLight = _mm_add_ps(glowLocal, bleedEnv);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), _mm_mul_ps(_mm_mul_ps(bleedLight, bleedLight), bleed));
             shade(lit, adjacent);
             ptr32 += frameResoX * yInc;
         };
@@ -1355,19 +1355,18 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         fogColor = unpackColorToVectorSSE4(0x00AAAAAA);
 
     }else if (fogFlags && !noFog) {
-        float f = (fogDistanceOffset - strip.dist) * fogDistanceInv;
-        float d = std::clamp(f, 0.0f, 1.0f);
-        fogFactor = 1.0f - d * d;
+        float clearness = std::clamp((fogDistanceOffset - strip.dist) * fogDistanceInv, 0.0f, 1.0f);
+        fogFactor = 1.0f - clearness * clearness;
         fogColor = unpackColorToVectorSSE4(fogFarColor);
     }
 
 // Compute lights
     __m128 ray = unpackColorToVectorSSE4(strip.back ? w.rayBack : w.rayFront);
     const SurfaceLighting sl = surfaceLighting(s.flags, sunAmbientArgb, ray, glowBleed, flags & Renderer::FLAG_SUN_BLEED);
-    const __m128 sun = sl.env;
+    const __m128 env = sl.env;
     const __m128 bleed = sl.bleed;
 
-    __m128 gm = fullBlack;
+    __m128 glowLocal = fullBlack;
     if (sl.glow) {
         Segment & seg = segments[strip.wallId];
         float wallX = seg.beginX + strip.k * seg.deltaX;
@@ -1377,11 +1376,11 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         float glowSide = strip.back ? -GlowSampleDistance : GlowSampleDistance;
         glowX += seg.deltaZ * seg.invLen * glowSide;
         glowZ -= seg.deltaX * seg.invLen * glowSide;
-        gm = sampleGlowmap(glowX, glowZ);
+        glowLocal = sampleGlowmap(glowX, glowZ);
     }
-    __m128 glow = _mm_add_ps(sun, gm);
-    __m128 bl = _mm_add_ps(gm, sl.bleedEnv);
-    __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bl, bl), bleed);     // constant along the strip
+    __m128 light = _mm_add_ps(env, glowLocal);
+    __m128 bleedLight = _mm_add_ps(glowLocal, sl.bleedEnv);
+    __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bleedLight, bleedLight), bleed);     // constant along the strip
 
 // Mipmap level: the first one under a texel per row (vStep < 1: 0, vStep < 2: 1, vStep < 4: 2...)
 // Masked surfaces stay on level 0, their key color must not blend
@@ -1404,10 +1403,10 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     if (s.flags & SURFACE_FLAG_ALPHA) {
     // Lambda: alpha-masked strip / no ambient occlusion, transparent pixels skipped
         auto drawAlpha = [&]() {
-            uint32_t co = tex[(vFixed >> 16) & mask];
-            if (co != 0xFFFF00FF) {
-                __m128 v4  = unpackColorToVectorSSE4(co);
-                __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
+            uint32_t texel = tex[(vFixed >> 16) & mask];
+            if (texel != 0xFFFF00FF) {
+                __m128 color  = unpackColorToVectorSSE4(texel);
+                __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), glowBled);
                 *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             }
             ptr32 += frameResoX;
@@ -1417,9 +1416,9 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     }else{
     // Lambda: ambient occlusion scaling applied after lighting
         auto drawAmbientOcclusion = [&](float aoFactor) {
-            uint32_t co = tex[(vFixed >> 16) & mask];
-            __m128 v4  = _mm_mul_ps(unpackColorToVectorSSE4(co), _mm_set1_ps(aoFactor));
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
+            uint32_t texel = tex[(vFixed >> 16) & mask];
+            __m128 color  = _mm_mul_ps(unpackColorToVectorSSE4(texel), _mm_set1_ps(aoFactor));
+            __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), glowBled);
             *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             ptr32 += frameResoX;
             vFixed += vStep;
@@ -1427,9 +1426,9 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
 
     // Lambda: normal path
         auto drawPlain = [&]() {
-            uint32_t co = tex[(vFixed >> 16) & mask];
-            __m128 v4  = unpackColorToVectorSSE4(co);
-            __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
+            uint32_t texel = tex[(vFixed >> 16) & mask];
+            __m128 color  = unpackColorToVectorSSE4(texel);
+            __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), glowBled);
             *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             ptr32 += frameResoX;
             vFixed += vStep;
