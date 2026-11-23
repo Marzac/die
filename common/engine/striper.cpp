@@ -203,6 +203,53 @@ void Striper::halveBilinear(const uint32_t * src, uint32_t * dst, int size)
 }
 
 /*****************************************************************************/
+static bool hasKey(const uint32_t * tile, size_t pixels)
+{
+    for (size_t i = 0; i < pixels; i++)
+        if (tile[i] == TEXTURE_KEY_COLOR) return true;
+    return false;
+}
+
+// Key texels take the average of their opaque neighbours, so no key blends into the edges
+static void padKeys(const uint32_t * tile, uint32_t * padded, int size)
+{
+    int mask = size - 1;
+    for (int y = 0; y < size; y++)
+        for (int x = 0; x < size; x++) {
+            uint32_t p = tile[y * size + x];
+            if (p != TEXTURE_KEY_COLOR) {padded[y * size + x] = p; continue;}
+
+            uint32_t sum[4] = {0, 0, 0, 0};
+            uint32_t n = 0;
+            for (int dy = -1; dy <= 1; dy++)
+                for (int dx = -1; dx <= 1; dx++) {
+                    uint32_t q = tile[((y + dy) & mask) * size + ((x + dx) & mask)];   // tiles wrap
+                    if (q == TEXTURE_KEY_COLOR) continue;
+                    for (int c = 0; c < 4; c++) sum[c] += (q >> (8 * c)) & 0xFF;
+                    n++;
+                }
+
+        // No opaque neighbour: its 2x2 block is all key, a hole anyway
+            uint32_t out = 0;
+            if (n) for (int c = 0; c < 4; c++) out |= ((sum[c] + n / 2) / n) << (8 * c);
+            padded[y * size + x] = out;
+        }
+}
+
+// A 2x2 block with 3 or 4 key texels stays a hole
+static void voteKeys(const uint32_t * tile, uint32_t * dst, int size)
+{
+    int half = size >> 1;
+    for (int y = 0; y < half; y++)
+        for (int x = 0; x < half; x++) {
+            const uint32_t * p = tile + 2 * y * size + 2 * x;
+            int keys = (p[0] == TEXTURE_KEY_COLOR) + (p[1] == TEXTURE_KEY_COLOR)
+                     + (p[size] == TEXTURE_KEY_COLOR) + (p[size + 1] == TEXTURE_KEY_COLOR);
+            if (keys >= 3) dst[y * half + x] = TEXTURE_KEY_COLOR;
+        }
+}
+
+/*****************************************************************************/
 std::vector<uint32_t> Striper::makeMipmaps(const QImage & strip, Halver halver)
 {
     std::vector<uint32_t> buffer;
@@ -218,13 +265,22 @@ std::vector<uint32_t> Striper::makeMipmaps(const QImage & strip, Halver halver)
     size_t block = (size_t) size * size * count;
     memcpy(buffer.data(), strip.constBits(), block * sizeof(uint32_t));
 
+    std::vector<uint32_t> padded((size_t) size * size);
     const uint32_t * src = buffer.data();
     uint32_t * dst = buffer.data() + block;
     for (int l = 1, s = size; l < n; l++, s >>= 1) {
         size_t srcTile = (size_t) s * s;
         size_t dstTile = srcTile / 4;
-        for (int i = 0; i < count; i++)
-            halver(src + i * srcTile, dst + i * dstTile, s);
+        for (int i = 0; i < count; i++) {
+            const uint32_t * tile = src + i * srcTile;
+            uint32_t * out = dst + i * dstTile;
+        // Masked tile: halve it padded, then put the holes back
+            if (hasKey(tile, srcTile)) {
+                padKeys(tile, padded.data(), s);
+                halver(padded.data(), out, s);
+                voteKeys(tile, out, s);
+            } else halver(tile, out, s);
+        }
         src = dst;
         dst += dstTile * count;
     }

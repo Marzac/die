@@ -33,6 +33,7 @@
     } ViewpointOrtho;
 
     constexpr int TEXTURE_LEVELS_MAX = 16;
+    constexpr uint32_t TEXTURE_KEY_COLOR = 0xFFFF00FF;  ///< reserved: masked texels
 
     typedef struct {
         uint32_t * pixels;
