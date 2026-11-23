@@ -330,12 +330,12 @@ void Map::pass(const QVector3D & camPos)
 
 void Map::passAsSub(const QVector3D & camPos)
 {
-// Register texture: the engine always reads the mipmap chain
+// Register texture
     int textureBase = 0;
     if (!mipmaps.empty()) {
         auto & et = renderer.textures[renderer.texturesCount++];
         et = textureLayout;
-    // Set each frame: the buffer moves when the Map is copied (submaps live in a QList)
+    // Not cached: the buffer moves when the Map is copied
         et.pixels = mipmaps.data();
         textureBase = renderer.texturesCount - 1;
     }
