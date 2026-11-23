@@ -29,7 +29,7 @@
 
     A strip stacks square power-of-two tiles, rotated a quarter-turn, in 32-bit (A)RGB.
     Mipmaps chain its levels in one buffer: level 0, then halved down to 1x1.
-    Key color texels are holes, kept through the levels.
+    Key color texels are holes in every level.
 */
 class Striper
 {
