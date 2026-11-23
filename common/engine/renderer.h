@@ -425,7 +425,7 @@ private:
     void sceneGetCoords(const float x, const float z, float & xs, float & zs);
     void worldGetCoords(const float xs, const float zs, float & x, float & z);
 
-    __m128 sampleGlowmap(float gx, float gy);
+    __m128 sampleGlowmap(float glowX, float glowZ);
 
     void configInit();
     bool configLoad(const QString & filename);
