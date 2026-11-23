@@ -304,10 +304,10 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 // Recopy only the dirty regions
     if (!still) {
         for (const BoundingBox & r : glowmapDirtyBoxes) {
-            int szMin = std::max(r.beginZ, z1);
-            int szMax = std::min(r.endZ, z2);
-            for (int sz = szMin; sz < szMax; sz++) {
-                int row = sz * glowmapReso;
+            int cellZMin = std::max(r.beginZ, z1);
+            int cellZMax = std::min(r.endZ, z2);
+            for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
+                int row = cellZ * glowmapReso;
                 memcpy(&gm[row + r.beginX], &glowmapStill[row + r.beginX], (r.endX - r.beginX) * sizeof(__m128));
             }
         }
@@ -317,16 +317,16 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
         const Light & l = lights[j];
         if (l.still != still) continue;
 
-        int szMin = std::max(l.boundingBox.beginZ, z1);
-        int szMax = std::min(l.boundingBox.endZ, z2);
+        int cellZMin = std::max(l.boundingBox.beginZ, z1);
+        int cellZMax = std::min(l.boundingBox.endZ, z2);
 
-        for (int sz = szMin; sz < szMax; sz++) {
-            __m128 * row = &gm[sz * glowmapReso];
-            for (int sx = l.boundingBox.beginX; sx < l.boundingBox.endX; sx++) {
+        for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
+            __m128 * row = &gm[cellZ * glowmapReso];
+            for (int cellX = l.boundingBox.beginX; cellX < l.boundingBox.endX; cellX++) {
                 float x, z;
-                worldGetCoords(sx, sz, x, z);
-                float rdx = l.x - x;
-                float rdz = l.z - z;
+                worldGetCoords(cellX, cellZ, x, z);
+                float toLightX = l.x - x;
+                float toLightZ = l.z - z;
 
                 bool masked = false;
                 for (int i = 0; i < wallsCount; i++) {
@@ -334,14 +334,14 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
                     if (w.flags & WALL_FLAG_NO_SHADOW) continue;
 
                     const Segment & s = segments[i];
-                    float div = rdx * s.deltaZ - rdz * s.deltaX;
+                    float div = toLightX * s.deltaZ - toLightZ * s.deltaX;
                     if (fabs(div) < epsilon) continue;
                     if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
 
                     float scale = 1.0f / div;
                     float t = ((s.beginX - x) * s.deltaZ - (s.beginZ - z) * s.deltaX) * scale;
                     if (t < 0.0f || t > 1.0f) continue;
-                    float u = ((s.beginX - x) * rdz - (s.beginZ - z) * rdx) * scale;
+                    float u = ((s.beginX - x) * toLightZ - (s.beginZ - z) * toLightX) * scale;
                     if (u < 0.0f || u > 1.0f) continue;
                     masked = true;
                     break;
@@ -349,9 +349,9 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 
                 if (masked) continue;
 
-                float d2 = rdx * rdx + rdz * rdz;
-                float lf = 1.0f / (1.0f + GlowFalloffSharpness * d2 * l.falloffInv2);
-                row[sx] = _mm_add_ps(row[sx], _mm_mul_ps(l.argb, _mm_set1_ps(lf)));
+                float dist2 = toLightX * toLightX + toLightZ * toLightZ;
+                float falloff = 1.0f / (1.0f + GlowFalloffSharpness * dist2 * l.falloffInv2);
+                row[cellX] = _mm_add_ps(row[cellX], _mm_mul_ps(l.argb, _mm_set1_ps(falloff)));
             }
         }
     }
@@ -769,11 +769,11 @@ Renderer::Level Renderer::capLevel(const Context & state, const Strip & strip, b
     float drop = ceiling ? (back ? w.ceilingBackDrop : w.ceilingFrontDrop)
                          : (back ? w.floorBackDrop : w.floorFrontDrop);
     drop *= 0x1p-3f;
-    float ux = s.deltaX * s.invLen;
-    float uz = s.deltaZ * s.invLen;
-    float nx = back ? -uz : uz;     // front normal is (uz, -ux)
-    float nz = back ? ux : -ux;
-    return {cap.h0, rise * ux - drop * nx, rise * uz - drop * nz};
+    float dirX = s.deltaX * s.invLen;
+    float dirZ = s.deltaZ * s.invLen;
+    float nx = back ? -dirZ : dirZ;     // front normal is (dirZ, -dirX)
+    float nz = back ? dirX : -dirX;
+    return {cap.h0, rise * dirX - drop * nx, rise * dirZ - drop * nz};
 }
 
 /*****************************************************************************/
@@ -1162,17 +1162,17 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     int yLevelEnd = yEnd;
     uint16_t mask = t.mask, size = t.size;
     float uOrigin = uOrigin0, vOrigin = vOrigin0, uRay = uRay0, vRay = vRay0;    // at the current level
-    auto setLevel = [&](int l, int yFrom) {
-        level = l;
-        float scale = 1.0f / (float) (1 << l);
+    auto setLevel = [&](int newLevel, int yFrom) {
+        level = newLevel;
+        float scale = 1.0f / (float) (1 << newLevel);
         uOrigin = uOrigin0 * scale; vOrigin = vOrigin0 * scale;
         uRay = uRay0 * scale; vRay = vRay0 * scale;
-        mask = t.mask >> l;
-        size = t.size >> l;
-        tex = &t.pixels[t.mmOffsets[l] + s.id * (t.block >> (2 * l))];
-        if (!l) {yLevelEnd = yEnd; return;}
+        mask = t.mask >> newLevel;
+        size = t.size >> newLevel;
+        tex = &t.pixels[t.mmOffsets[newLevel] + s.id * (t.block >> (2 * newLevel))];
+        if (!newLevel) {yLevelEnd = yEnd; return;}
     // Same inversion as the AO boundary
-        float adjacent = (float) (1 << (l - 1)) / mmRate;
+        float adjacent = (float) (1 << (newLevel - 1)) / mmRate;
         float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / adjacent - slopePC);
         int yLevelEndRaw = (int) std::clamp(yTarget, -2.0f, frameResoY + 1.0f);
         yLevelEnd = below ? std::clamp(yLevelEndRaw, yFrom, yEnd) : std::clamp(yLevelEndRaw, yEnd, yFrom);
