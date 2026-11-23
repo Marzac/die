@@ -32,6 +32,8 @@
         float y;            ///< vertical offset
     } ViewpointOrtho;
 
+    constexpr int TEXTURE_LEVELS_MAX = 16;
+
     typedef struct {
         uint32_t * pixels;
         uint16_t size;
@@ -39,6 +41,7 @@
         uint16_t mask;
         uint16_t mmLevels;  ///< mipmap levels, level 0 included (1: no mipmaps)
         uint32_t block;
+        uint32_t mmOffsets[TEXTURE_LEVELS_MAX];    ///< pixel offset of each mipmap level
     } Texture;
 
     typedef struct {

@@ -320,6 +320,7 @@ private:
         float casterHorizon;
         float casterVShift;
         float casterProjection;
+        float casterProjectionX;    ///< columns per unit of tan(pan)
 
         Strip vStrips[StripsMax];
         uint16_t vStripsMap[StripsMax];
