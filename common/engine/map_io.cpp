@@ -13,8 +13,7 @@
 
 #include "audio.h"
 #include "tags.h"
-
-#include <QBuffer>
+#include "striper.h"
 #include <QFileInfo>
 #include <QDir>
 #include <QUrl>
@@ -208,11 +207,7 @@ bool Map::save(const QString & filename, bool submap)
         fprintf(file, "# == TEXTURE STRIP ==\n");
         fprintf(file, "# format: T type, length, data\n");
 
-        QByteArray imageData;
-        QBuffer buffer(&imageData);
-        buffer.open(QIODevice::WriteOnly);
-        textures.save(&buffer, "PNG");
-        QByteArray base64Data = imageData.toBase64();
+        QByteArray base64Data = Striper::encode(textures);
 
         fprintf(file, "T %02d, %llx\n", 0, (unsigned long long) base64Data.size());
         fwrite(base64Data.constData(), base64Data.size(), 1, file);
@@ -420,7 +415,7 @@ bool Map::load(const QString & filename)
             uint16_t type = 0;
             uint64_t size = 0;
             fscanf(file, "%hu, %llx\n", &type, &size);
-            if (type > 0 || size == 0 || size > TEXTURE_DATA_MAX) {
+            if (type > 0 || size == 0 || size > Striper::DataMax) {
                 skipLine(file);
                 continue;
             }
@@ -432,7 +427,7 @@ bool Map::load(const QString & filename)
             }
             skipLine(file);
 
-            QImage strip = QImage::fromData(QByteArray::fromBase64(base64Data), "PNG");
+            QImage strip = Striper::decode(base64Data);
             if (!strip.isNull()) setTextures(strip);
         }
     }

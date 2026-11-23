@@ -17,6 +17,7 @@
 #include "editor.h"
 #include "walker.h"
 #include "tags.h"
+#include "striper.h"
 
 #include "wdgutilities.h"
 #include "buildinfo.h"
@@ -2886,7 +2887,7 @@ void MainWindow::on_actionTexturesImport_triggered()
     if (file.isEmpty()) return;
     if (!editor.editedMap) return;
 
-    QImage strip(file);
+    QImage strip = Striper::load(file);
     if (strip.isNull()) {
         QMessageBox::warning(this, "Import textures", "Could not read the image:\n" + QDir::toNativeSeparators(file));
         return;
@@ -2902,7 +2903,7 @@ void MainWindow::on_actionTexturesExport_triggered()
     QString file = QFileDialog::getSaveFileName(this, "Export textures", QDir::current().filePath("textures.png"),
                                                 "PNG image (*.png);;BMP image (*.bmp)");
     if (file.isEmpty()) return;
-    if (!editor.editedMap->textures.save(file))
+    if (!Striper::save(editor.editedMap->textures, file))
         QMessageBox::warning(this, "Export textures", "Could not write the image:\n" + QDir::toNativeSeparators(file));
 }
 
@@ -2954,8 +2955,8 @@ void MainWindow::on_actionTexturesAppend_triggered()
     }
 
     if (!tiles.isEmpty()) {
-        QImage grown = Editor::textureStripAppend(strip, tiles);
-        if (!Editor::textureStripFits(grown)) {
+        QImage grown = Striper::append(strip, tiles);
+        if (!Striper::fits(grown)) {
             QMessageBox::warning(this, "Append textures", "The texture strip would be too large to be saved in the map (16 MB at most): no texture added.");
             return;
         }

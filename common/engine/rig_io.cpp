@@ -10,16 +10,13 @@
 */
 
 #include "rig.h"
+#include "striper.h"
 
-#include <QBuffer>
 #include <QDebug>
 
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-
-// Maximum size of an embedded texture strip (base64 data)
-static constexpr uint64_t TEXTURE_DATA_MAX = 16ull << 20;
 
 /*****************************************************************************/
 static void skipLine(FILE * file)
@@ -75,11 +72,7 @@ bool Rig::save(const QString & filename)
     fprintf(file, "# == TEXTURE STRIP ==\n");
     fprintf(file, "# format: T type, length, data\n");
 
-    QByteArray imageData;
-    QBuffer buffer(&imageData);
-    buffer.open(QIODevice::WriteOnly);
-    textures.save(&buffer, "PNG");
-    QByteArray base64Data = imageData.toBase64();
+    QByteArray base64Data = Striper::encode(textures);
 
     fprintf(file, "T %02d, %llx\n", 0, (unsigned long long) base64Data.size());
     fwrite(base64Data.constData(), base64Data.size(), 1, file);
@@ -157,7 +150,7 @@ bool Rig::load(const QString & filename)
             uint16_t type = 0;
             uint64_t size = 0;
             fscanf(file, "%hu, %llx\n", &type, &size);
-            if (type > 0 || size == 0 || size > TEXTURE_DATA_MAX) {
+            if (type > 0 || size == 0 || size > Striper::DataMax) {
                 skipLine(file);
                 continue;
             }
@@ -169,8 +162,7 @@ bool Rig::load(const QString & filename)
             }
             skipLine(file);
 
-            QByteArray imageData = QByteArray::fromBase64(base64Data);
-            textures.loadFromData(imageData, "PNG");
+            textures = Striper::decode(base64Data);
         }
     }
 

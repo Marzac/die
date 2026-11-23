@@ -21,6 +21,7 @@ set(SOURCES
     ../common/engine/rig.cpp
     ../common/engine/rig_io.cpp
     ../common/engine/drawer.cpp
+    ../common/engine/striper.cpp
     mainwindow.ui
 )
 
