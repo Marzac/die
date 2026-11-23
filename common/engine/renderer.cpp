@@ -629,7 +629,7 @@ void Renderer::castStrips(Context & state)
 
     for (int i = 0; i < wallsCount; i++) {
         Segment & s = segments[i];
-        float z = 0.0f;
+        float dist = 0.0f;
         float k = 0.0f;
 
     // Find intersection with wall
@@ -641,7 +641,7 @@ void Renderer::castStrips(Context & state)
             if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
             else {if (kd > 0.0f || kd < delta) continue;}
             k = kd / delta;
-            z = ((s.beginX - casterX) + k * s.deltaX) * invRayX;
+            dist = ((s.beginX - casterX) + k * s.deltaX) * invRayX;
 
         }else{
             float ratio = state.casterRayX * invRayZ;
@@ -651,16 +651,16 @@ void Renderer::castStrips(Context & state)
             if (delta > 0.0f) {if (kd < 0.0f || kd > delta) continue;}
             else {if (kd > 0.0f || kd < delta) continue;}
             k = kd / delta;
-            z = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
+            dist = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
         }
 
     // Clipping the intersection
-        if (z < fovDistanceNear) continue;
-        if (z > fovDistanceFar) continue;
+        if (dist < fovDistanceNear) continue;
+        if (dist > fovDistanceFar) continue;
 
     // Find wall height
         Wall & w = walls[i];
-        float div = (state.casterPC * state.casterProjectionY) / z;
+        float rowsPerUnit = (state.casterPC * state.casterProjectionY) / dist;
         float bot1 = nodes[w.nodeID1].pos.y();
         float bot2 = nodes[w.nodeID2].pos.y();
         float bot = bot1 + (bot2 - bot1) * k;
@@ -669,18 +669,18 @@ void Renderer::castStrips(Context & state)
     // Create a strip object
         Strip & strip = state.vStrips[state.vStripsCount];
         strip.k = k;
-        strip.yTop = state.casterHorizon - (top - casterY) * div;
-        strip.yBot = state.casterHorizon - (bot - casterY) * div;
+        strip.yTop = state.casterHorizon - (top - casterY) * rowsPerUnit;
+        strip.yBot = state.casterHorizon - (bot - casterY) * rowsPerUnit;
         strip.yNoclipTop = strip.yTop;
         strip.yNoclipBot = strip.yBot;
-        strip.yDarkenTop = strip.yTop + occlusionLength * div;
-        strip.yDarkenBot = strip.yBot - occlusionLength * div;
+        strip.yDarkenTop = strip.yTop + occlusionLength * rowsPerUnit;
+        strip.yDarkenBot = strip.yBot - occlusionLength * rowsPerUnit;
         strip.hTop = top;
         strip.hBot = bot;
         strip.vTop = top - bot;
         strip.vBot = 0.0f;
         strip.u = k * s.length;
-        strip.dist = z;
+        strip.dist = dist;
         strip.wallId = i;
         strip.back = (state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) > 0.0f;
 
@@ -707,7 +707,7 @@ void Renderer::castStrips(Context & state)
 
     // Prepare the sorting
         state.vStripsMap[state.vStripsCount] = state.vStripsCount;
-        state.vStripsZOrders[state.vStripsCount++] = z * z;
+        state.vStripsZOrders[state.vStripsCount++] = dist * dist;
     }
 
 // Sort the strips per depth
@@ -736,8 +736,8 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
     static constexpr int LevelsMax = 2 * StripsMax;
     Level found[LevelsMax];
     int foundCount = 0;
-    for (int s = state.vStripsCount - 1; s >= 0; s--) {
-        const Strip & strip = state.vStrips[state.vStripsMap[s]];
+    for (int depth = state.vStripsCount - 1; depth >= 0; depth--) {
+        const Strip & strip = state.vStrips[state.vStripsMap[depth]];
         for (int i = foundCount - 1; i >= 0; i--) {
             const Level & l = found[i];
             float h = l.h + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
@@ -885,8 +885,8 @@ void Renderer::renderVertical(Context & state, int depth,
         if (strip.yTop > scanTop) {
             int bot = std::min((int)strip.yTop, scanBot);
         // A ceiling on the lower bound is passed over: handle it as no ceiling
-            bool ceiling = (strip.flags & VSTRIP_FLAG_HASCEILING) && wTop - lowerBound > 2.0f * epsilon;
-            if (ceiling) {
+            bool hasCeiling = (strip.flags & VSTRIP_FLAG_HASCEILING) && wTop - lowerBound > 2.0f * epsilon;
+            if (hasCeiling) {
             // The ceiling hides everything above the edge, draw it from below only
             // (from above is case 2)
                 if ((flags & Renderer::FLAG_SURFACES) &&
@@ -906,8 +906,8 @@ void Renderer::renderVertical(Context & state, int depth,
         if (strip.yBot < scanBot) {
             int top = std::max((int)strip.yBot, scanTop);
         // A floor on the upper bound is passed under: handle it as no floor
-            bool floor = (strip.flags & VSTRIP_FLAG_HASFLOOR) && upperBound - wBot > 2.0f * epsilon;
-            if (floor) {
+            bool hasFloor = (strip.flags & VSTRIP_FLAG_HASFLOOR) && upperBound - wBot > 2.0f * epsilon;
+            if (hasFloor) {
             // The floor hides everything below the edge, draw it from above only
             // (from below is case 1)
                 if ((flags & Renderer::FLAG_SURFACES) &&
@@ -1075,8 +1075,8 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     Cap cap = (sID == WALL_SURFACE_FLOOR) ? capFloorHeight(state, strip, strip.back)
                                           : capCeilingHeight(state, strip, strip.back);
     float slope = cap.slope;
-    float dy = state.casterPos.y() - cap.h0;
-    bool below = dy > 0.0f;
+    float heightAbove = state.casterPos.y() - cap.h0;
+    bool below = heightAbove > 0.0f;
 
     int yStart = below ? scanTop : scanBot - 1;
     int yInc = below ? 1 : -1;
@@ -1099,7 +1099,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
 
 // Ray distance per row: adjacent = opposite / denom, denom being linear in y
 // Rays go through the row bottom edge, matching the (int) truncation of the wall strips
-    float opposite = dy * state.casterPC;
+    float opposite = heightAbove * state.casterPC;
     if (opposite == 0.0f) return;
 
     float slopePC = slope * state.casterPC;
