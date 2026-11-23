@@ -1087,14 +1087,15 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     uint32_t * tex = &t.pixels[s.id * t.block];
 
 // Compute texture coordinates
-    float ts = t.size * 0x1p-8f;
-    float sx = s.scaleX * ts;
-    float sy = s.scaleY * ts;
+    float sizeScale = t.size * 0x1p-8f;
+    float uScale = s.scaleX * sizeScale;
+    float vScale = s.scaleY * sizeScale;
 
-    float ox = (state.casterPos.x() + w.offset.x() + s.shiftX) * sx;
-    float oz = (state.casterPos.z() + w.offset.z() + s.shiftY) * sy;
-    float rx = state.casterRayX * sx;
-    float rz = state.casterRayZ * sy;
+// Texel coordinates along the ray, at mipmap level 0: u = uOrigin0 + uRay0 * adjacent
+    float uOrigin0 = (state.casterPos.x() + w.offset.x() + s.shiftX) * uScale;
+    float vOrigin0 = (state.casterPos.z() + w.offset.z() + s.shiftY) * vScale;
+    float uRay0 = state.casterRayX * uScale;
+    float vRay0 = state.casterRayZ * vScale;
 
 // Ray distance per row: adjacent = opposite / denom, denom being linear in y
 // Rays go through the row bottom edge, matching the (int) truncation of the wall strips
@@ -1115,10 +1116,10 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     denomStart += skip * denomInc;
 
 // Compute light
-    float gox = state.casterPos.x() * glowmapScale + glowmapReso * 0.5f;
-    float goz = state.casterPos.z() * glowmapScale + glowmapReso * 0.5f;
-    float grx = state.casterRayX * glowmapScale;
-    float grz = state.casterRayZ * glowmapScale;
+    float glowOriginX = state.casterPos.x() * glowmapScale + glowmapReso * 0.5f;
+    float glowOriginZ = state.casterPos.z() * glowmapScale + glowmapReso * 0.5f;
+    float glowRayX = state.casterRayX * glowmapScale;
+    float glowRayZ = state.casterRayZ * glowmapScale;
 
     bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
 
@@ -1151,7 +1152,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
 // Mipmap sections: the texels per column grow linearly with the distance, rate = adjacent * mmRate
 // Level L (rate < 1: 0, rate < 2: 1, rate < 4: 2...) ends where adjacent drops under 2^(L-1) / mmRate
     int mmMax = (flags & Renderer::FLAG_MIPMAPPING) ? t.mmLevels - 1 : 0;
-    float mmRate = std::max(fabsf(sx), fabsf(sy)) / (state.casterPC * state.casterProjectionX);
+    float mmRate = std::max(fabsf(uScale), fabsf(vScale)) / (state.casterPC * state.casterProjectionX);
 
     auto levelAt = [&](float adjacent) -> int {
         float rate = adjacent * mmRate;
@@ -1162,21 +1163,21 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     int level = 0;
     int yLevelEnd = yEnd;
     uint16_t mask = t.mask, size = t.size;
-    float oxL = ox, ozL = oz, rxL = rx, rzL = rz;
+    float uOrigin = uOrigin0, vOrigin = vOrigin0, uRay = uRay0, vRay = vRay0;    // at the current level
     auto setLevel = [&](int l, int yFrom) {
         level = l;
         float scale = 1.0f / (float) (1 << l);
-        oxL = ox * scale; ozL = oz * scale;
-        rxL = rx * scale; rzL = rz * scale;
+        uOrigin = uOrigin0 * scale; vOrigin = vOrigin0 * scale;
+        uRay = uRay0 * scale; vRay = vRay0 * scale;
         mask = t.mask >> l;
         size = t.size >> l;
         tex = &t.pixels[t.mmOffsets[l] + s.id * (t.block >> (2 * l))];
         if (!l) {yLevelEnd = yEnd; return;}
     // Same inversion as the AO boundary
-        float a = (float) (1 << (l - 1)) / mmRate;
-        float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / a - slopePC);
-        int yRaw = (int) std::clamp(yTarget, -2.0f, frameResoY + 1.0f);
-        yLevelEnd = below ? std::clamp(yRaw, yFrom, yEnd) : std::clamp(yRaw, yEnd, yFrom);
+        float adjacent = (float) (1 << (l - 1)) / mmRate;
+        float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / adjacent - slopePC);
+        int yLevelEndRaw = (int) std::clamp(yTarget, -2.0f, frameResoY + 1.0f);
+        yLevelEnd = below ? std::clamp(yLevelEndRaw, yFrom, yEnd) : std::clamp(yLevelEndRaw, yEnd, yFrom);
     };
 
     uint32_t * ptr32 = &frame[state.casterColumn + frameResoX * yFar];
@@ -1192,9 +1193,9 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             if constexpr (NoGlow::value) {
                 return fullBlack;
             } else {
-                float gx = gox + grx * adjacent;
-                float gz = goz + grz * adjacent;
-                return sampleGlowmap(gx, gz);
+                float glowX = glowOriginX + glowRayX * adjacent;
+                float glowZ = glowOriginZ + glowRayZ * adjacent;
+                return sampleGlowmap(glowX, glowZ);
             }
         };
 
@@ -1210,8 +1211,8 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
 
     // Lambda: one surface pixel with AO darkening (adjacentStart - adjacent) / occlusionLength, no clamping needed
         auto drawAmbientOcclusion = [&](float adjacent) {
-            int u = floorToInt(oxL + rxL * adjacent);
-            int v = floorToInt(ozL + rzL * adjacent);
+            int u = floorToInt(uOrigin + uRay * adjacent);
+            int v = floorToInt(vOrigin + vRay * adjacent);
             uint32_t co = tex[(u & mask) * size + (v & mask)];
             __m128 v4 = unpackColorToVectorSSE4(co);
             __m128 gm = sampleGlow(adjacent);
@@ -1226,8 +1227,8 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
 
     // Lambda: one surface pixel with no AO overhead (hot path)
         auto drawPlain = [&](float adjacent) {
-            int u = floorToInt(oxL + rxL * adjacent);
-            int v = floorToInt(ozL + rzL * adjacent);
+            int u = floorToInt(uOrigin + uRay * adjacent);
+            int v = floorToInt(vOrigin + vRay * adjacent);
             uint32_t co = tex[(u & mask) * size + (v & mask)];
             __m128 v4 = unpackColorToVectorSSE4(co);
             __m128 gm = sampleGlow(adjacent);
@@ -1335,14 +1336,14 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     const Texture & t = textures[w.textureID];
 
 // Compute texture coords
-    float ts = t.size * 0x1p-8f;
-    float sx = s.scaleX * ts;
-    float sy = s.scaleY * ts;
+    float sizeScale = t.size * 0x1p-8f;
+    float uScale = s.scaleX * sizeScale;
+    float vScale = s.scaleY * sizeScale;
 // V sampled at the row bottom edges, like the strip coverage (16.16 fixed point)
-    float dvdy = (strip.vBot - strip.vTop) / (strip.yBot - strip.yTop);
-    float vStart = strip.vTop + (scanTop + 1.0f - strip.yTop) * dvdy;
-    int32_t v1 = floorToInt((vStart + s.shiftY) * sy * 0x1p16f);
-    int32_t dv = (int32_t) (dvdy * sy * 0x1p16f);
+    float vPerRow = (strip.vBot - strip.vTop) / (strip.yBot - strip.yTop);
+    float vStart = strip.vTop + (scanTop + 1.0f - strip.yTop) * vPerRow;
+    int32_t vFixed = floorToInt((vStart + s.shiftY) * vScale * 0x1p16f);
+    int32_t vStep = (int32_t) (vPerRow * vScale * 0x1p16f);
 
     bool noFog = s.flags & SURFACE_FLAG_NO_FOG;
 
@@ -1369,31 +1370,31 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     __m128 gm = fullBlack;
     if (sl.glow) {
         Segment & seg = segments[strip.wallId];
-        float bx = seg.beginX + strip.k * seg.deltaX;
-        float bz = seg.beginZ + strip.k * seg.deltaZ;
-        float gx = bx * glowmapScale + glowmapReso * 0.5f;
-        float gz = bz * glowmapScale + glowmapReso * 0.5f;
-        float gside = strip.back ? -GlowSampleDistance : GlowSampleDistance;
-        gx += seg.deltaZ * seg.invLen * gside;
-        gz -= seg.deltaX * seg.invLen * gside;
-        gm = sampleGlowmap(gx, gz);
+        float wallX = seg.beginX + strip.k * seg.deltaX;
+        float wallZ = seg.beginZ + strip.k * seg.deltaZ;
+        float glowX = wallX * glowmapScale + glowmapReso * 0.5f;
+        float glowZ = wallZ * glowmapScale + glowmapReso * 0.5f;
+        float glowSide = strip.back ? -GlowSampleDistance : GlowSampleDistance;
+        glowX += seg.deltaZ * seg.invLen * glowSide;
+        glowZ -= seg.deltaX * seg.invLen * glowSide;
+        gm = sampleGlowmap(glowX, glowZ);
     }
     __m128 glow = _mm_add_ps(sun, gm);
     __m128 bl = _mm_add_ps(gm, sl.bleedEnv);
     __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bl, bl), bleed);     // constant along the strip
 
-// Mipmap level: the first one under a texel per row (dv < 1: 0, dv < 2: 1, dv < 4: 2...)
+// Mipmap level: the first one under a texel per row (vStep < 1: 0, vStep < 2: 1, vStep < 4: 2...)
 // Masked surfaces stay on level 0, their key color must not blend
     int level = 0;
-    uint32_t dvAbs = (uint32_t) std::abs(dv);
-    if ((flags & Renderer::FLAG_MIPMAPPING) && !(s.flags & SURFACE_FLAG_ALPHA) && dvAbs >= 0x10000)
-        level = std::min(highestBit(dvAbs) - 15, t.mmLevels - 1);
-    v1 >>= level;
-    dv >>= level;
+    uint32_t vStepAbs = (uint32_t) std::abs(vStep);
+    if ((flags & Renderer::FLAG_MIPMAPPING) && !(s.flags & SURFACE_FLAG_ALPHA) && vStepAbs >= 0x10000)
+        level = std::min(highestBit(vStepAbs) - 15, t.mmLevels - 1);
+    vFixed >>= level;
+    vStep >>= level;
     uint16_t mask = t.mask >> level;
 
 // Configure the pointers
-    int32_t u = floorToInt((strip.u + s.shiftX) * sx) >> level;
+    int32_t u = floorToInt((strip.u + s.shiftX) * uScale) >> level;
     uint32_t * tex = &t.pixels[t.mmOffsets[level] + s.id * (t.block >> (2 * level))];
     tex = &tex[(u & mask) * (t.size >> level)];
 
@@ -1403,35 +1404,35 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     if (s.flags & SURFACE_FLAG_ALPHA) {
     // Lambda: alpha-masked strip / no ambient occlusion, transparent pixels skipped
         auto drawAlpha = [&]() {
-            uint32_t co = tex[(v1 >> 16) & mask];
+            uint32_t co = tex[(vFixed >> 16) & mask];
             if (co != 0xFFFF00FF) {
                 __m128 v4  = unpackColorToVectorSSE4(co);
                 __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
                 *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             }
             ptr32 += frameResoX;
-            v1 += dv;
+            vFixed += vStep;
         };
         for (int y = scanTop; y < scanBot; y++) drawAlpha();
     }else{
     // Lambda: ambient occlusion scaling applied after lighting
         auto drawAmbientOcclusion = [&](float aoFactor) {
-            uint32_t co = tex[(v1 >> 16) & mask];
+            uint32_t co = tex[(vFixed >> 16) & mask];
             __m128 v4  = _mm_mul_ps(unpackColorToVectorSSE4(co), _mm_set1_ps(aoFactor));
             __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
             *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             ptr32 += frameResoX;
-            v1 += dv;
+            vFixed += vStep;
         };
 
     // Lambda: normal path
         auto drawPlain = [&]() {
-            uint32_t co = tex[(v1 >> 16) & mask];
+            uint32_t co = tex[(vFixed >> 16) & mask];
             __m128 v4  = unpackColorToVectorSSE4(co);
             __m128 lit = _mm_add_ps(_mm_mul_ps(v4, glow), glowBled);
             *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
             ptr32 += frameResoX;
-            v1 += dv;
+            vFixed += vStep;
         };
 
     // Occlusion boundaries, clamped to rendered range
