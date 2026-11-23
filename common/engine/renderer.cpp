@@ -493,24 +493,6 @@ void Renderer::wallsMash()
 }
 
 /*****************************************************************************/
-void Renderer::texturesMash()
-{
-    for (int i = 0; i < texturesCount; i++) {
-        Texture & t = textures[i];
-        t.block = t.size * t.size;
-        t.mask = t.size - 1;
-
-    // Mipmap levels follow each other, each a quarter of the previous one
-        t.mmLevels = std::clamp<uint16_t>(t.mmLevels, 1, TEXTURE_LEVELS_MAX);
-        uint32_t offset = 0;
-        for (int l = 0; l < t.mmLevels; l++) {
-            t.mmOffsets[l] = offset;
-            offset += (t.block >> (2 * l)) * t.count;
-        }
-    }
-}
-
-/*****************************************************************************/
 void Renderer::fogSunMash()
 {
     if (fogDistanceFar > fogDistanceNear) {
@@ -545,7 +527,6 @@ void Renderer::render(Viewpoint & vp)
 // Render pre-compute
     fogSunMash();
     wallsMash();
-    texturesMash();
     lightsMash();
 
 // Render frame
@@ -601,8 +582,8 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
     state.casterVShift = frameResoY * viewPoint.tilt / angle;
     state.casterVShift = std::clamp(state.casterVShift, -0.5f * frameResoY, 0.5f * frameResoY);
     state.casterHorizon = frameResoY * 0.5f + state.casterVShift;
-    state.casterProjection = frameResoY / tanf(angle * 0.5f);
-    state.casterProjectionX = 0.5f * frameResoX / tanf(angle * 0.5f);
+    state.casterProjectionX = projectionX();
+    state.casterProjectionY = projectionY();
     state.casterPos = viewPoint.pos + viewPoint.offset;
 
 // Create the strips map
@@ -679,7 +660,7 @@ void Renderer::castStrips(Context & state)
 
     // Find wall height
         Wall & w = walls[i];
-        float div = (state.casterPC * state.casterProjection) / z;
+        float div = (state.casterPC * state.casterProjectionY) / z;
         float bot1 = nodes[w.nodeID1].pos.y();
         float bot2 = nodes[w.nodeID2].pos.y();
         float bot = bot1 + (bot2 - bot1) * k;
@@ -746,8 +727,8 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
     state.casterRayX = cosf(pan);
     state.casterRayZ = sinf(pan);
     state.casterPC = 1.0f;
-    state.casterProjection = 1.0f;
     state.casterProjectionX = 1.0f;
+    state.casterProjectionY = 1.0f;
     state.casterHorizon = 0.0f;
     castStrips(state);
 
@@ -1121,7 +1102,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
     if (opposite == 0.0f) return;
 
     float slopePC = slope * state.casterPC;
-    float invProj = 1.0f / state.casterProjection;
+    float invProj = 1.0f / state.casterProjectionY;
     float denomStart = (yStart + 1.0f - state.casterHorizon) * invProj + slopePC;
     float denomInc = yInc * invProj;
 
@@ -1161,7 +1142,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
         yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
-        float yTarget = state.casterHorizon - 1.0f + state.casterProjection * (opposite / adjacentAoEnd - slopePC);
+        float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / adjacentAoEnd - slopePC);
         int yAoEndRaw = (int)yTarget;
         yAoEnd = below ? std::clamp(yAoEndRaw, yStart, yEnd)
                        : std::clamp(yAoEndRaw, yEnd, yStart);
@@ -1192,8 +1173,8 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
         tex = &t.pixels[t.mmOffsets[l] + s.id * (t.block >> (2 * l))];
         if (!l) {yLevelEnd = yEnd; return;}
     // Same inversion as the AO boundary
-        float a = ldexpf(1.0f, l - 1) / mmRate;
-        float yTarget = state.casterHorizon - 1.0f + state.casterProjection * (opposite / a - slopePC);
+        float a = (float) (1 << (l - 1)) / mmRate;
+        float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / a - slopePC);
         int yRaw = (int) std::clamp(yTarget, -2.0f, frameResoY + 1.0f);
         yLevelEnd = below ? std::clamp(yRaw, yFrom, yEnd) : std::clamp(yRaw, yEnd, yFrom);
     };
@@ -1491,11 +1472,20 @@ void Renderer::buildTables()
     if (!panTable) return;
 
 // Horizontal pan table (lens corrected)
-    const float angle = fovAngle * D2R;
-    const float refX = 0.5f * frameResoX / tanf(angle * 0.5f);
+    const float refX = projectionX();
     const float midX = frameResoX * 0.5f - 0.5f;
     for (int x = 0; x < frameResoX; x++) {
         float pan = atanf((x - midX) / refX);
         panTable[x] = pan;
     }
+}
+
+float Renderer::projectionX() const
+{
+    return 0.5f * frameResoX / tanf(fovAngle * D2R * 0.5f);
+}
+
+float Renderer::projectionY() const
+{
+    return frameResoY / tanf(fovAngle * D2R * 0.5f); // absence of 0.5f is a choice
 }

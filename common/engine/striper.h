@@ -12,6 +12,8 @@
 #ifndef STRIPER_H
 #define STRIPER_H
 
+#include "primitives.h"
+
 #include <QImage>
 #include <QList>
 #include <QByteArray>
@@ -67,6 +69,8 @@ public:
     static int levels(int size);
     /// \brief Pixel offset of a mipmap level in the chained buffer
     static size_t levelOffset(int size, int count, int level);
+    /// \brief Fill the layout of a chained strip texture, all but its pixels
+    static void describe(Texture & texture, int size, int count, int levels);
 
     /// \brief Bilinear halving, which at exactly 2:1 is the 2x2 average
     static void halveBilinear(const uint32_t * src, uint32_t * dst, int size);

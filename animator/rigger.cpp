@@ -11,6 +11,7 @@
 
 #include "rigger.h"
 #include "drawer.h"
+#include "striper.h"
 
 #include <algorithm>
 #include <stdint.h>
@@ -342,13 +343,9 @@ void Rigger::renderFlesh(QImage & image, const QVector2D & org, float zoom, cons
     int count = strip.height() / size;
     if (count <= 0) return;
 
-    Texture texture;
+    Texture texture{};
+    Striper::describe(texture, size, count, 1);
     texture.pixels = reinterpret_cast<uint32_t *>(strip.bits());
-    texture.size   = (uint16_t) size;
-    texture.count  = (uint16_t) count;
-    texture.mask   = (uint16_t) (size - 1);
-    texture.mmLevels = 1;
-    texture.block  = (uint32_t) (size * size);
 
     for (int i = 0; i < rig.bones.count(); i++) {
         const Bone & b = rig.bones[i];

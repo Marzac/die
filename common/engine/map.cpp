@@ -82,6 +82,11 @@ void Map::setTextures(const QImage & strip)
 {
     textures = Striper::normalize(strip);
     mipmaps = Striper::makeMipmaps(textures);
+    textureLayout = {};
+    if (!mipmaps.empty()) {
+        int size = textures.width();
+        Striper::describe(textureLayout, size, textures.height() / size, Striper::levels(size));
+    }
 }
 
 void Map::terminate()
@@ -329,11 +334,9 @@ void Map::passAsSub(const QVector3D & camPos)
     int textureBase = 0;
     if (!mipmaps.empty()) {
         auto & et = renderer.textures[renderer.texturesCount++];
-        int width = textures.width();
+        et = textureLayout;
+    // Set each frame: the buffer moves when the Map is copied (submaps live in a QList)
         et.pixels = mipmaps.data();
-        et.size = width;
-        et.count = textures.height() / width;
-        et.mmLevels = Striper::levels(width);
         textureBase = renderer.texturesCount - 1;
     }
 

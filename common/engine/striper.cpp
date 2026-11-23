@@ -18,6 +18,7 @@
 #include <QTransform>
 
 #include <emmintrin.h>
+#include <algorithm>
 #include <cstring>
 
 /*****************************************************************************/
@@ -150,6 +151,17 @@ size_t Striper::levelOffset(int size, int count, int level)
         offset += s * s * count;
     }
     return offset;
+}
+
+void Striper::describe(Texture & texture, int size, int count, int levels)
+{
+    texture.size = (uint16_t) size;
+    texture.count = (uint16_t) count;
+    texture.mask = (uint16_t) (size - 1);
+    texture.block = (uint32_t) (size * size);
+    texture.mmLevels = (uint16_t) std::clamp(levels, 1, TEXTURE_LEVELS_MAX);
+    for (int l = 0; l < texture.mmLevels; l++)
+        texture.mmOffsets[l] = (uint32_t) levelOffset(size, count, l);
 }
 
 /*****************************************************************************/

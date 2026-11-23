@@ -319,8 +319,8 @@ private:
         float casterPC;
         float casterHorizon;
         float casterVShift;
-        float casterProjection;
-        float casterProjectionX;    ///< columns per unit of tan(pan)
+        float casterProjectionX;    ///< columns per unit of tan(angle), see projectionX()
+        float casterProjectionY;    ///< rows per unit of tan(angle), see projectionY()
 
         Strip vStrips[StripsMax];
         uint16_t vStripsMap[StripsMax];
@@ -397,7 +397,6 @@ private:
     void lightsMash();
     void glowmapChunk(__m128 * gm, bool still, int z1, int z2);
     void glowmapConcurrent(__m128 * gm, bool still);
-    void texturesMash();
 
     void castStrips(Context & state);
     Level capLevel(const Context & state, const Strip & strip, bool back, bool ceiling);
@@ -416,6 +415,10 @@ private:
     bool edgeUpperBound(const Context & state, const Strip & strip, Cap & bound);
 
     void buildTables();
+
+    /// \brief Screen pixels per unit of tan(angle): across the columns (X) and the rows (Y)
+    float projectionX() const;
+    float projectionY() const;
 
     void sceneBoundsInit();
     void sceneBoundsRegister(float x, float z);
