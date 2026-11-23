@@ -14,6 +14,7 @@
 
 #include "mapobjects_eq.h"
 #include "env.h"
+#include "primitives.h"
 
 #include <QList>
 #include <QVector3D>
@@ -128,6 +129,7 @@ public:
     QString path;
     QImage textures;
     std::vector<uint32_t> mipmaps;  ///< Chained mipmap levels of textures (see Striper)
+    Texture textureLayout{};        ///< Layout of mipmaps for the renderer, pixels left out
     Sun sun;
     Fog fog;
     Glowmap glowmap;
