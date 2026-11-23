@@ -325,15 +325,15 @@ void Map::pass(const QVector3D & camPos)
 
 void Map::passAsSub(const QVector3D & camPos)
 {
-// Register texture
+// Register texture: the engine always reads the mipmap chain
     int textureBase = 0;
-    if (!textures.isNull()) {
+    if (!mipmaps.empty()) {
         auto & et = renderer.textures[renderer.texturesCount++];
         int width = textures.width();
-        et.pixels = mipmaps.empty() ? (uint32_t *) textures.constBits() : mipmaps.data();
+        et.pixels = mipmaps.data();
         et.size = width;
         et.count = textures.height() / width;
-        et.mmLevels = mipmaps.empty() ? 1 : Striper::levels(width);
+        et.mmLevels = Striper::levels(width);
         textureBase = renderer.texturesCount - 1;
     }
 
