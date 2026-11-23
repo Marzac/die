@@ -333,6 +333,7 @@ void Map::passAsSub(const QVector3D & camPos)
         et.pixels = mipmaps.empty() ? (uint32_t *) textures.constBits() : mipmaps.data();
         et.size = width;
         et.count = textures.height() / width;
+        et.mmLevels = mipmaps.empty() ? 1 : Striper::levels(width);
         textureBase = renderer.texturesCount - 1;
     }
 
