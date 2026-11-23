@@ -1381,10 +1381,9 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     __m128 glowBled = _mm_mul_ps(_mm_mul_ps(bleedLight, bleedLight), bleed);     // constant along the strip
 
 // Mipmap level from the texels per row, vStep: < 1: 0, < 2: 1, < 4: 2...
-// Masked surfaces stay on level 0: their key color must not blend
     int level = 0;
     uint32_t vStepAbs = (uint32_t) std::abs(vStep);
-    if ((flags & Renderer::FLAG_MIPMAPPING) && !(s.flags & SURFACE_FLAG_ALPHA) && vStepAbs >= 0x10000)
+    if ((flags & Renderer::FLAG_MIPMAPPING) && vStepAbs >= 0x10000)
         level = std::min(highestBit(vStepAbs) - 15, t.mmLevels - 1);
     vFixed >>= level;
     vStep >>= level;
@@ -1402,7 +1401,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     // Lambda: alpha-masked strip / no ambient occlusion, transparent pixels skipped
         auto drawAlpha = [&]() {
             uint32_t texel = tex[(vFixed >> 16) & mask];
-            if (texel != 0xFFFF00FF) {
+            if (texel != TEXTURE_KEY_COLOR) {
                 __m128 color  = unpackColorToVectorSSE4(texel);
                 __m128 lit = _mm_add_ps(_mm_mul_ps(color, light), glowBled);
                 *ptr32 = packVectorToColorSSE4(vectorLinearSSE4(lit, fogColor, fogFactor));
