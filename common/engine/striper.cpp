@@ -210,7 +210,7 @@ static bool hasKey(const uint32_t * tile, size_t pixels)
     return false;
 }
 
-// Key texels take the average of their opaque neighbours, so no key blends into the edges
+// Key texels take their opaque neighbours' average: no key blends into the edges
 static void padKeys(const uint32_t * tile, uint32_t * padded, int size)
 {
     int mask = size - 1;
@@ -229,14 +229,14 @@ static void padKeys(const uint32_t * tile, uint32_t * padded, int size)
                     n++;
                 }
 
-        // No opaque neighbour: its 2x2 block is all key, a hole anyway
+        // No opaque neighbour: its block becomes a hole anyway
             uint32_t out = 0;
             if (n) for (int c = 0; c < 4; c++) out |= ((sum[c] + n / 2) / n) << (8 * c);
             padded[y * size + x] = out;
         }
 }
 
-// A 2x2 block with 2 or more key texels stays a hole
+// 2x2 blocks with 2 or more key texels become holes
 static void voteKeys(const uint32_t * tile, uint32_t * dst, int size)
 {
     int half = size >> 1;
@@ -274,7 +274,7 @@ std::vector<uint32_t> Striper::makeMipmaps(const QImage & strip, Halver halver)
         for (int i = 0; i < count; i++) {
             const uint32_t * tile = src + i * srcTile;
             uint32_t * out = dst + i * dstTile;
-        // Masked tile: halve it padded, then put the holes back
+        // Masked tile: halve it padded, then restore the holes
             if (hasKey(tile, srcTile)) {
                 padKeys(tile, padded.data(), s);
                 halver(padded.data(), out, s);
