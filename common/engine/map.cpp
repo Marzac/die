@@ -81,6 +81,7 @@ void Map::init()
 void Map::setTextures(const QImage & strip)
 {
     textures = Striper::normalize(strip);
+    mipmaps = Striper::makeMipmaps(textures);
 }
 
 void Map::terminate()
@@ -329,7 +330,7 @@ void Map::passAsSub(const QVector3D & camPos)
     if (!textures.isNull()) {
         auto & et = renderer.textures[renderer.texturesCount++];
         int width = textures.width();
-        et.pixels = (uint32_t *) textures.constBits();
+        et.pixels = mipmaps.empty() ? (uint32_t *) textures.constBits() : mipmaps.data();
         et.size = width;
         et.count = textures.height() / width;
         textureBase = renderer.texturesCount - 1;

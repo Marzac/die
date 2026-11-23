@@ -19,6 +19,7 @@
 #include <QVector3D>
 #include <QImage>
 
+#include <vector>
 #include <stdio.h>
 #include <stdint.h>
 
@@ -126,6 +127,7 @@ public:
 
     QString path;
     QImage textures;
+    std::vector<uint32_t> mipmaps;  ///< Chained mipmap levels of textures (see Striper)
     Sun sun;
     Fog fog;
     Glowmap glowmap;

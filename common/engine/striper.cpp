@@ -17,6 +17,7 @@
 #include <QPainter>
 #include <QTransform>
 
+#include <emmintrin.h>
 #include <cstring>
 
 /*****************************************************************************/
@@ -131,4 +132,89 @@ QImage Striper::concat(const QString & path)
 
     strip.save(path + "/fullstrip.png");
     return strip;
+}
+
+/*****************************************************************************/
+int Striper::levels(int size)
+{
+    int n = 1;
+    while (size > 1 && !(size & 1)) {size >>= 1; n++;}
+    return n;
+}
+
+size_t Striper::levelOffset(int size, int count, int level)
+{
+    size_t offset = 0;
+    for (int l = 0; l < level; l++) {
+        size_t s = (size_t) (size >> l);
+        offset += s * s * count;
+    }
+    return offset;
+}
+
+/*****************************************************************************/
+void Striper::halveBilinear(const uint32_t * src, uint32_t * dst, int size)
+{
+    const __m128i zero = _mm_setzero_si128();
+    const __m128i round = _mm_set1_epi16(2);
+    int half = size >> 1;
+
+    for (int y = 0; y < half; y++) {
+        const uint32_t * r0 = src + 2 * y * size;
+        const uint32_t * r1 = r0 + size;
+        uint32_t * d = dst + y * half;
+
+    // Two output pixels per pass: 4 x 2 source pixels summed in 16-bit lanes
+        int x = 0;
+        for (; x + 2 <= half; x += 2) {
+            __m128i a = _mm_loadu_si128((const __m128i *) (r0 + 2 * x));
+            __m128i b = _mm_loadu_si128((const __m128i *) (r1 + 2 * x));
+            __m128i lo = _mm_add_epi16(_mm_unpacklo_epi8(a, zero), _mm_unpacklo_epi8(b, zero));
+            __m128i hi = _mm_add_epi16(_mm_unpackhi_epi8(a, zero), _mm_unpackhi_epi8(b, zero));
+            lo = _mm_add_epi16(lo, _mm_srli_si128(lo, 8));
+            hi = _mm_add_epi16(hi, _mm_srli_si128(hi, 8));
+            __m128i sum = _mm_srli_epi16(_mm_add_epi16(_mm_unpacklo_epi64(lo, hi), round), 2);
+            _mm_storel_epi64((__m128i *) (d + x), _mm_packus_epi16(sum, zero));
+        }
+
+    // Odd remainder (the 2x2 to 1x1 level)
+        for (; x < half; x++) {
+            uint32_t p0 = r0[2 * x], p1 = r0[2 * x + 1], p2 = r1[2 * x], p3 = r1[2 * x + 1];
+            uint32_t out = 0;
+            for (int c = 0; c < 32; c += 8) {
+                uint32_t sum = ((p0 >> c) & 0xFF) + ((p1 >> c) & 0xFF) + ((p2 >> c) & 0xFF) + ((p3 >> c) & 0xFF) + 2;
+                out |= (sum >> 2) << c;
+            }
+            d[x] = out;
+        }
+    }
+}
+
+/*****************************************************************************/
+std::vector<uint32_t> Striper::makeMipmaps(const QImage & strip, Halver halver)
+{
+    std::vector<uint32_t> buffer;
+    int size = strip.width();
+    if (strip.isNull() || size <= 0 || strip.depth() != 32) return buffer;
+    int count = strip.height() / size;
+    if (!count) return buffer;
+
+    int n = levels(size);
+    buffer.resize(levelOffset(size, count, n));
+
+// Level 0 is the strip as is, each next level is halved from the previous one
+    size_t block = (size_t) size * size * count;
+    memcpy(buffer.data(), strip.constBits(), block * sizeof(uint32_t));
+
+    const uint32_t * src = buffer.data();
+    uint32_t * dst = buffer.data() + block;
+    for (int l = 1, s = size; l < n; l++, s >>= 1) {
+        size_t srcTile = (size_t) s * s;
+        size_t dstTile = srcTile / 4;
+        for (int i = 0; i < count; i++)
+            halver(src + i * srcTile, dst + i * dstTile, s);
+        src = dst;
+        dst += dstTile * count;
+    }
+    return buffer;
 }
