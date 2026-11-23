@@ -405,7 +405,7 @@ private:
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
     void vstripDraw(Context & state, const Strip & strip);
-    void surfaceDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
+    void vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
     Cap capFloorHeight(const Context & state, const Strip & strip, bool back);
     Cap capCeilingHeight(const Context & state, const Strip & strip, bool back);
 

@@ -825,7 +825,7 @@ void Renderer::renderVertical(Context & state, int depth,
         // A floor on the lower bound cannot be seen from below
             if (wBot < upperBound && wBot - lowerBound > 2.0f * epsilon) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, strip, WALL_SURFACE_FLOOR, scanTop, bot);
+                    vplaneDraw(state, strip, WALL_SURFACE_FLOOR, scanTop, bot);
             // Edge on the bound: hand over as in case 0
                 if (upperBounds.count > 1 && upperBound - wBot <= 2.0f * epsilon) {
                     Cap upper;
@@ -847,7 +847,7 @@ void Renderer::renderVertical(Context & state, int depth,
         // A ceiling on the upper bound cannot be seen from above
             if (wTop > lowerBound && upperBound - wTop > 2.0f * epsilon) {
                 if (flags & Renderer::FLAG_SURFACES)
-                    surfaceDraw(state, strip, WALL_SURFACE_CEILING, top, scanBot);
+                    vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, scanBot);
             // Edge on the bound: hand over as in case 0
                 if (lowerBounds.count > 1 && wTop - lowerBound <= 2.0f * epsilon) {
                     Cap lower;
@@ -891,7 +891,7 @@ void Renderer::renderVertical(Context & state, int depth,
             // (from above is case 2)
                 if ((flags & Renderer::FLAG_SURFACES) &&
                     camY < capCeilingHeight(state, strip, strip.back).h0)
-                    surfaceDraw(state, strip, WALL_SURFACE_CEILING, scanTop, bot);
+                    vplaneDraw(state, strip, WALL_SURFACE_CEILING, scanTop, bot);
             } else {
             // Wall top edge: bound the rays passing over it
                 Cap lower;
@@ -912,7 +912,7 @@ void Renderer::renderVertical(Context & state, int depth,
             // (from below is case 1)
                 if ((flags & Renderer::FLAG_SURFACES) &&
                     camY > capFloorHeight(state, strip, strip.back).h0)
-                    surfaceDraw(state, strip, WALL_SURFACE_FLOOR, top, scanBot);
+                    vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, scanBot);
             } else {
             // Wall bottom edge: bound the rays passing under it
                 Cap upper;
@@ -1064,7 +1064,7 @@ bool Renderer::edgeUpperBound(const Context & state, const Strip & strip, Cap & 
 }
 
 /*****************************************************************************/
-void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot)
+void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot)
 {
     if (scanTop >= frameResoY) return;
     if (scanBot < 0) return;
@@ -1209,7 +1209,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             }
         };
 
-    // Lambda: one surface pixel with AO darkening (adjacentStart - adjacent) / occlusionLength, no clamping needed
+    // Lambda: one plane pixel with AO darkening (adjacentStart - adjacent) / occlusionLength, no clamping needed
         auto drawAmbientOcclusion = [&](float adjacent) {
             int u = floorToInt(uOrigin + uRay * adjacent);
             int v = floorToInt(vOrigin + vRay * adjacent);
@@ -1225,7 +1225,7 @@ void Renderer::surfaceDraw(Context & state, const Strip & strip, uint16_t sID, i
             ptr32 += frameResoX * yInc;
         };
 
-    // Lambda: one surface pixel with no AO overhead (hot path)
+    // Lambda: one plane pixel with no AO overhead (hot path)
         auto drawPlain = [&](float adjacent) {
             int u = floorToInt(uOrigin + uRay * adjacent);
             int v = floorToInt(vOrigin + vRay * adjacent);
