@@ -177,6 +177,8 @@ bool Renderer::configLoad(const QString & filename)
             if (atoi(valueStr)) flags |= Renderer::FLAG_SUN_BLEED; else flags &= ~Renderer::FLAG_SUN_BLEED;
         } else if (strcmp(key, "Multithreading") == 0) {
             if (atoi(valueStr)) flags |= Renderer::FLAG_MULTITHREADING; else flags &= ~Renderer::FLAG_MULTITHREADING;
+        } else if (strcmp(key, "Mipmapping") == 0) {
+            if (atoi(valueStr)) flags |= Renderer::FLAG_MIPMAPPING; else flags &= ~Renderer::FLAG_MIPMAPPING;
         }
 
         skipLine(file);
@@ -241,6 +243,7 @@ bool Renderer::configSave(const QString & filename)
     fprintf(file, "Gamma = %d\n",            (flags & Renderer::FLAG_GAMMA) ? 1 : 0);
     fprintf(file, "SunBleed = %d\n",         (flags & Renderer::FLAG_SUN_BLEED) ? 1 : 0);
     fprintf(file, "Multithreading = %d\n",   (flags & Renderer::FLAG_MULTITHREADING) ? 1 : 0);
+    fprintf(file, "Mipmapping = %d\n",       (flags & Renderer::FLAG_MIPMAPPING) ? 1 : 0);
     fprintf(file, "\n");
 
     fclose(file);

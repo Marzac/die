@@ -341,7 +341,7 @@ private slots:
     void on_checkRendererLightsEnable_toggled(bool checked);
     void on_checkRendererMotionblur_toggled(bool checked);
     void on_checkRendererVignetting_toggled(bool checked);
-    void on_checkRendererAlphaFeatures_toggled(bool checked);
+    void on_checkRendererMipmapping_toggled(bool checked);
     void on_checkRendererSunBleed_toggled(bool checked);
     void on_checkRendererGamma_toggled(bool checked);
     void on_spinRendererOcclusionLength_valueChanged(double arg1);
