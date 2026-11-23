@@ -37,6 +37,7 @@
         uint16_t size;
         uint16_t count;
         uint16_t mask;
+        uint16_t mmLevels;  ///< mipmap levels, level 0 included (1: no mipmaps)
         uint32_t block;
     } Texture;
 

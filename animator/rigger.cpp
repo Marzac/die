@@ -347,6 +347,7 @@ void Rigger::renderFlesh(QImage & image, const QVector2D & org, float zoom, cons
     texture.size   = (uint16_t) size;
     texture.count  = (uint16_t) count;
     texture.mask   = (uint16_t) (size - 1);
+    texture.mmLevels = 1;
     texture.block  = (uint32_t) (size * size);
 
     for (int i = 0; i < rig.bones.count(); i++) {
