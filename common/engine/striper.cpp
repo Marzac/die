@@ -236,7 +236,7 @@ static void padKeys(const uint32_t * tile, uint32_t * padded, int size)
         }
 }
 
-// A 2x2 block with 3 or 4 key texels stays a hole
+// A 2x2 block with 2 or more key texels stays a hole
 static void voteKeys(const uint32_t * tile, uint32_t * dst, int size)
 {
     int half = size >> 1;
@@ -245,7 +245,7 @@ static void voteKeys(const uint32_t * tile, uint32_t * dst, int size)
             const uint32_t * p = tile + 2 * y * size + 2 * x;
             int keys = (p[0] == TEXTURE_KEY_COLOR) + (p[1] == TEXTURE_KEY_COLOR)
                      + (p[size] == TEXTURE_KEY_COLOR) + (p[size + 1] == TEXTURE_KEY_COLOR);
-            if (keys >= 3) dst[y * half + x] = TEXTURE_KEY_COLOR;
+            if (keys >= 2) dst[y * half + x] = TEXTURE_KEY_COLOR;
         }
 }
 
