@@ -263,7 +263,7 @@ public:
 private:
     static constexpr int StripsMax = 512;
 
-    /// \brief Strip flags, translated from WALL_FLAGS in renderChunk()
+    /// \brief Strip flags, translated from WALL_FLAGS in castStrips()
     typedef enum : uint16_t {
         VSTRIP_FLAG_FREE        = 0x0000,
         VSTRIP_FLAG_INVISIBLE   = 0x0001,
@@ -272,6 +272,7 @@ private:
         VSTRIP_FLAG_SEETHROUGH  = 0x0400,
         VSTRIP_FLAG_BACKCULLED  = 0x0800,
         VSTRIP_FLAG_HIGHLIGHTED = 0x1000,
+        VSTRIP_FLAG_NOSHADOW    = 0x2000,   ///< casts no AO on its floor / ceiling
     } VSTRIP_FLAGS;
 
     typedef struct {
