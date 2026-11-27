@@ -318,11 +318,12 @@ private:
         const _CapLink * prev;
     } CapLink;
 
+    /// \brief Rays still open in a column: rows [yTop, yBot] and the cap stacks they travel between
     typedef struct {
         float yTop, yBot;
-        const CapLink * ceiling;
-        const CapLink * floor;
-    } Ap3;
+        const CapLink * capCeiling;
+        const CapLink * capFloor;
+    } Aperture;
 
     typedef struct {
         QVector3D casterPos;
@@ -414,7 +415,7 @@ private:
     void castStrips(Context & state);
     Cap3D capPlane(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
-    void renderVertical5(Context & state, int depth, Ap3 ap);
+    void renderVertical5(Context & state, int depth, Aperture ap);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
