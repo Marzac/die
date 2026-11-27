@@ -963,6 +963,7 @@ void MainWindow::updateEditorProperties()
     setCheckboxStateSilently(ui->checkEditorCollisions, editor.collisions);
     setCheckboxStateSilently(ui->checkEditorGravity, editor.gravity);
     setCheckboxStateSilently(ui->checkEditorWallSelector, editor.wallSelector);
+    setSpinValueSilently(ui->spinEditorFloor, editor.floorHeight);
 }
 
 void MainWindow::updateEngineProperties()
@@ -3313,9 +3314,9 @@ void MainWindow::on_pushRendererGlowmapRebuild_clicked()
 }
 
 /*****************************************************************************/
-void MainWindow::on_spinEditorFloor_valueChanged(double)
+void MainWindow::on_spinEditorFloor_valueChanged(double arg1)
 {
-
+    editor.floorHeight = arg1;
 }
 
 

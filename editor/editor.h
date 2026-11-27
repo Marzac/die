@@ -97,6 +97,7 @@ public:
     int zoomLevel;
     float scissorMinY;
     float scissorMaxY;
+    float floorHeight;
 
     bool gravity;
     bool collisions;

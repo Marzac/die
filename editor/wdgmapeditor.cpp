@@ -767,7 +767,7 @@ void WdgMapEditor::mouseReleaseCreate(QMouseEvent *)
         if (selected || pressDeselected) return;
 
         int nId = 0;
-        QVector3D mark(cursor.x(), 0.0f, cursor.y());
+        QVector3D mark(cursor.x(), editor.floorHeight, cursor.y());
         mainWindow->pushUndoState();
         if (editor.nodeAdd(mark, nId)) {
             editor.selectedNode = nId;
