@@ -313,6 +313,17 @@ private:
         const CapLink * capFloor;
     } Aperture;
 
+    /// \brief Per-surface lighting terms, from the SURFACE_FLAGS
+    /// The pixel is lit as: lit = texel * (env + glowmap) + (bleedEnv + glowmap)^2 * bleed
+    /// The square only burns the brightly lit spots; bleedEnv is the env light with FLAG_SUN_BLEED, black otherwise
+    typedef struct {
+        __m128 env;         ///< environment light (sun ambient + ray), unit gain when fullbright
+        __m128 bleed;       ///< bleed factor, zero when disabled
+        __m128 bleedEnv;    ///< env light part that bleeds, black unless FLAG_SUN_BLEED
+        bool glow;          ///< sample the glowmap (local / dynamic lights)
+        bool occlusion;     ///< ambient occlusion allowed
+    } SurfaceLighting;
+
     typedef struct {
         QVector3D casterPos;
         int casterColumn;
@@ -408,6 +419,11 @@ private:
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
     void vstripDraw(Context & state, const Strip & strip);
     void vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
+    static SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 ambient, __m128 ray, __m128 bleed, bool sunBleed);
+    /// \brief SSE flooring
+    static int floorToInt(float x);
+    /// \brief Index of the highest set bit (x > 0)
+    static int highestBit(uint32_t x);
     Cap2D capFloorHeight(const Context & state, const Strip & strip, bool back);
     Cap2D capCeilingHeight(const Context & state, const Strip & strip, bool back);
 
