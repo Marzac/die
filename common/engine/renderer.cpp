@@ -34,61 +34,6 @@ WorkerPool renderWorkers;
 
 constexpr float epsilon = 0x1p-6f;
 
-static const __m128 fullBlack = unpackColorToVectorSSE4(0x00000000);
-static const __m128 unitWhite = _mm_setr_ps(1.0f, 1.0f, 1.0f, 0.0f);   // exact 1.0 gain (alpha lane cleared)
-
-/*****************************************************************************/
-/// \brief SSE flooring
-static inline int floorToInt(float x)
-{
-    __m128 v = _mm_set_ss(x);
-    return _mm_cvtss_si32(_mm_floor_ss(v, v));
-}
-
-/// \brief Index of the highest set bit (x > 0)
-static inline int highestBit(uint32_t x)
-{
-#ifdef _MSC_VER
-    unsigned long i;
-    _BitScanReverse(&i, x);
-    return (int) i;
-#else
-    return 31 - __builtin_clz(x);
-#endif
-}
-
-/*****************************************************************************/
-/**
-    \brief Per-surface lighting terms, from the SURFACE_FLAGS
-    The pixel is lit as: lit = texel * (env + glowmap) + (bleedEnv + glowmap)^2 * bleed
-    The square only burns the brightly lit spots; bleedEnv is the env light with FLAG_SUN_BLEED, black otherwise
-*/
-struct SurfaceLighting {
-    __m128 env;         ///< environment light (sun ambient + ray), unit gain when fullbright
-    __m128 bleed;       ///< bleed factor, zero when disabled
-    __m128 bleedEnv;    ///< env light part that bleeds, black unless FLAG_SUN_BLEED
-    bool glow;          ///< sample the glowmap (local / dynamic lights)
-    bool occlusion;     ///< ambient occlusion allowed
-};
-
-static inline SurfaceLighting surfaceLighting(uint16_t surfaceFlags, __m128 ambient, __m128 ray, __m128 bleed, bool sunBleed)
-{
-    bool noAmbient = surfaceFlags & SURFACE_FLAG_NO_AMBIENT;
-    bool noRay = surfaceFlags & SURFACE_FLAG_NO_RAY;
-    bool noGlow = surfaceFlags & SURFACE_FLAG_NO_GLOW;
-
-// Fullbright: the texels as they are
-    if (noAmbient && noRay && noGlow) return {unitWhite, fullBlack, fullBlack, false, false};
-
-    SurfaceLighting l;
-    l.env = _mm_add_ps(noAmbient ? fullBlack : ambient, noRay ? fullBlack : ray);
-    l.bleed = (surfaceFlags & SURFACE_FLAG_NO_BLEED) ? fullBlack : bleed;
-    l.bleedEnv = sunBleed ? l.env : fullBlack;
-    l.glow = !noGlow;
-    l.occlusion = !(surfaceFlags & SURFACE_FLAG_NO_AO);
-    return l;
-}
-
 /*****************************************************************************/
 Renderer::Renderer() :
     flags(FLAGS_DEFAULT),
@@ -1116,7 +1061,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     // Lambda: glow contribution for one pixel
         auto sampleGlow = [&](float adjacent) -> __m128 {
             if constexpr (NoGlow::value) {
-                return fullBlack;
+                return _mm_setzero_ps();
             } else {
                 float glowX = glowOriginX + glowRayX * adjacent;
                 float glowZ = glowOriginZ + glowRayZ * adjacent;
@@ -1284,7 +1229,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
     const __m128 env = sl.env;
     const __m128 bleed = sl.bleed;
 
-    __m128 glowLocal = fullBlack;
+    __m128 glowLocal = _mm_setzero_ps();
     if (sl.glow) {
         Segment & seg = segments[strip.wallId];
         float wallX = seg.beginX + strip.k * seg.deltaX;
@@ -1381,6 +1326,43 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         for (int y = botAoStart; y < scanBot; y++, aoFactor += botStep)
             drawAmbientOcclusion(aoFactor);
     }
+}
+
+/*****************************************************************************/
+Renderer::SurfaceLighting Renderer::surfaceLighting(uint16_t surfaceFlags, __m128 ambient, __m128 ray, __m128 bleed, bool sunBleed)
+{
+    bool noAmbient = surfaceFlags & SURFACE_FLAG_NO_AMBIENT;
+    bool noRay = surfaceFlags & SURFACE_FLAG_NO_RAY;
+    bool noGlow = surfaceFlags & SURFACE_FLAG_NO_GLOW;
+    __m128 black = _mm_setzero_ps();
+
+// Fullbright: the texels as they are, exact 1.0 gain (alpha lane cleared)
+    if (noAmbient && noRay && noGlow) return {_mm_setr_ps(1.0f, 1.0f, 1.0f, 0.0f), black, black, false, false};
+
+    SurfaceLighting l;
+    l.env = _mm_add_ps(noAmbient ? black : ambient, noRay ? black : ray);
+    l.bleed = (surfaceFlags & SURFACE_FLAG_NO_BLEED) ? black : bleed;
+    l.bleedEnv = sunBleed ? l.env : black;
+    l.glow = !noGlow;
+    l.occlusion = !(surfaceFlags & SURFACE_FLAG_NO_AO);
+    return l;
+}
+
+int Renderer::floorToInt(float x)
+{
+    __m128 v = _mm_set_ss(x);
+    return _mm_cvtss_si32(_mm_floor_ss(v, v));
+}
+
+int Renderer::highestBit(uint32_t x)
+{
+#ifdef _MSC_VER
+    unsigned long i;
+    _BitScanReverse(&i, x);
+    return (int) i;
+#else
+    return 31 - __builtin_clz(x);
+#endif
 }
 
 /*****************************************************************************/
