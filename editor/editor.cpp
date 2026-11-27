@@ -760,9 +760,7 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
             float yTop = yBot - (wallHeight1(w) + w.slant * t);
             if (pos.y() > yBot || pos.y() < yTop) continue;
 
-            QVector2D hp(0.0f, -(wallHeight1(w) + wallHeight2(w)) * 0.5f);
-            QVector2D np = (n1p + n2p + hp) * 0.5f;
-            float r = np.distanceToPoint(pos);
+            float r = wallAnchor(mode, w).distanceToPoint(pos);
             if (r >= rMin - tie) continue;
 
             rMin = r;
@@ -771,6 +769,15 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
     }
 
     return wId >= 0;
+}
+
+QVector2D Editor::wallAnchor(VIEW_MODES mode, const Wall & w) const
+{
+// Center of the projected wall
+    QVector2D n1p = to2D(mode, editedMap->nodes[w.nodeID1].pos);
+    QVector2D n2p = to2D(mode, editedMap->nodes[w.nodeID2].pos);
+    QVector2D hp(0.0f, -(wallHeight1(w) + wallHeight2(w)) * 0.5f);
+    return (n1p + n2p + hp) * 0.5f;
 }
 
 bool Editor::wallFindInRect(VIEW_MODES mode, QVector2D c1, QVector2D c2, int & wId)
@@ -797,9 +804,8 @@ bool Editor::wallFindInRect(VIEW_MODES mode, QVector2D c1, QVector2D c2, int & w
             if (n2d1.y() * n2d2.y() > 0.0f) continue;
 
         }else{
-        // Wall anchor (center of the projected wall) inside the rectangle
-            QVector2D hp(0.0f, -(wallHeight1(w) + wallHeight2(w)) * 0.5f);
-            QVector2D ap = (np1 + np2 + hp) * 0.5f;
+        // Wall anchor inside the rectangle
+            QVector2D ap = wallAnchor(mode, w);
             QVector2D ad1 = c1 - ap;
             QVector2D ad2 = c2 - ap;
             if (ad1.x() * ad2.x() > 0.0f) continue;
