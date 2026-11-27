@@ -1339,6 +1339,7 @@ inline int Renderer::highestBit(uint32_t x)
 /*****************************************************************************/
 Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
 {
+// One ray with unit projection: only the heights and distances matter
     Context & state = probeState;
     state.casterPos = pos;
     state.casterRayX = cosf(pan);
@@ -1356,8 +1357,8 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
     for (int depth = state.vStripsCount - 1; depth >= 0; depth--) {
         const Strip & strip = state.vStrips[state.vStripsMap[depth]];
         for (int i = foundCount - 1; i >= 0; i--) {
-            const Cap3D & l = found[i];
-            float h = l.h0 + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
+            const Cap3D & plane = found[i];
+            float h = plane.h0 + strip.dist * (plane.gx * state.casterRayX + plane.gz * state.casterRayZ);
             if (h >= strip.hBot - Epsilon && h <= strip.hTop + Epsilon)
                 found[i] = found[--foundCount];
         }
@@ -1373,9 +1374,9 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
     Levels result = {{HeightMin, 0.0f, 0.0f}, {HeightMax, 0.0f, 0.0f}};
     float y = pos.y();
     for (int i = 0; i < foundCount; i++) {
-        const Cap3D & l = found[i];
-        if (l.h0 > y && l.h0 < result.ceiling.h0) result.ceiling = l;
-        if (l.h0 < y && l.h0 > result.floor.h0) result.floor = l;
+        const Cap3D & plane = found[i];
+        if (plane.h0 > y && plane.h0 < result.ceiling.h0) result.ceiling = plane;
+        if (plane.h0 < y && plane.h0 > result.floor.h0) result.floor = plane;
     }
     return result;
 }
