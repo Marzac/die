@@ -98,6 +98,7 @@ public:
         FLAG_MULTITHREADING     = 0x1000,
         FLAG_MIPMAPPING         = 0x2000,   ///< sample the mipmap levels
         FLAG_APERTURES          = 0x4000,   ///< experimental: renderVertical5() clipping
+        FLAG_APERTURES6         = 0x8000,   ///< experimental: renderVertical6() clipping, wins over FLAG_APERTURES
         FLAGS_DEFAULT           = FLAG_WALLS | FLAG_SURFACES | FLAG_LIGHTS | FLAG_AMBIENT_OCCLUSION | FLAG_GAMMA
                                 | FLAG_MULTITHREADING | FLAG_MIPMAPPING,
     } FLAGS;
@@ -416,6 +417,7 @@ private:
     Cap3D capPlane(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
     void renderVertical5(Context & state, int depth, Aperture ap);
+    void renderVertical6(Context & state, int depth, Aperture ap);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);

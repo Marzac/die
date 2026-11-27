@@ -2,11 +2,12 @@
     SNAP
     Headless renderer snapshots for the DIE engine
 
-    Renders each view with renderVertical and renderVertical5 into one PNG:
+    Renders each view with renderVertical and renderVertical5 into one PNG
+    (renderVertical5 and renderVertical6 with rv6):
     columns old / new / differences in red, rows full / walls only / surfaces only.
     Frames are brightened 3x, pixels left undrawn are magenta.
 
-    usage: snap map.map views.txt outdir
+    usage: snap map.map views.txt outdir [rv6]
     views.txt: one view per line: name x y z pan tilt (degrees)
     The renderer config (die.ini) is read and written in outdir.
 */
@@ -61,9 +62,12 @@ int main(int argc, char * argv[])
 {
     QGuiApplication app(argc, argv);
     if (argc < 4) {
-        printf("usage: snap map.map views.txt outdir\n");
+        printf("usage: snap map.map views.txt outdir [rv6]\n");
         return 1;
     }
+    bool rv6 = argc > 4 && QString(argv[4]) == "rv6";
+    uint32_t oldAlgo = rv6 ? Renderer::FLAG_APERTURES : 0;
+    uint32_t newAlgo = rv6 ? Renderer::FLAG_APERTURES6 : Renderer::FLAG_APERTURES;
 
     QString mapPath = QFileInfo(argv[1]).absoluteFilePath();
     QString viewsPath = QFileInfo(argv[2]).absoluteFilePath();
@@ -105,8 +109,8 @@ int main(int argc, char * argv[])
         int count = 0;
 
         for (int r = 0; r < 3; r++) {
-            QImage o = shoot(vp, base & ~hidden[r]);
-            QImage n = shoot(vp, (base & ~hidden[r]) | Renderer::FLAG_APERTURES);
+            QImage o = shoot(vp, (base & ~hidden[r]) | oldAlgo);
+            QImage n = shoot(vp, (base & ~hidden[r]) | newAlgo);
             QImage diff(FrameW, FrameH, QImage::Format_RGB32);
             for (int j = 0; j < FrameH; j++)
                 for (int i = 0; i < FrameW; i++) {
