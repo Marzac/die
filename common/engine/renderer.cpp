@@ -1358,8 +1358,12 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
             if (h >= strip.hBot - Epsilon && h <= strip.hTop + Epsilon)
                 found[i] = found[--foundCount];
         }
-        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capPlane(state, strip, strip.back, true);
-        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capPlane(state, strip, strip.back, false);
+
+        if (strip.flags & VSTRIP_FLAG_HASCEILING)
+            found[foundCount++] = capPlane(state, strip, strip.back, true);
+
+        if (strip.flags & VSTRIP_FLAG_HASFLOOR)
+            found[foundCount++] = capPlane(state, strip, strip.back, false);
     }
 
 // Closest plane above = ceiling, below = floor
