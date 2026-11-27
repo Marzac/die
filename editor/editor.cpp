@@ -51,6 +51,7 @@ void Editor::init()
     zoomLevel = 1;
     scissorMinY = -4096.f;
     scissorMaxY = 4096.f;
+    floorHeight = 0.0f;
 
     gravity = false;
     collisions = false;
@@ -195,6 +196,7 @@ void Editor::paste(VIEW_MODES mode, QVector2D pos)
         QVector3D center = (bbMin + bbMax) * 0.5f;
         QVector3D ref = to3D(mode, pos, center);
         QVector3D dp = ref - center;
+        if (mode == VIEW_TOP) dp.setY(floorHeight);
         for (Node n: copyNodes) {
             n.selected = true;
             n.pos += dp;
