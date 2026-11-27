@@ -707,6 +707,9 @@ void Renderer::castStrips(Context & state)
         if (strip.back && (w.flags & WALL_FLAG_BACKCULLED))
             strip.flags |= VSTRIP_FLAG_BACKCULLED | VSTRIP_FLAG_SEETHROUGH;
 
+        if ((strip.flags & VSTRIP_FLAG_SEETHROUGH) || (w.flags & WALL_FLAG_NO_SHADOW))
+            strip.flags |= VSTRIP_FLAG_NOSHADOW;
+
     // Prepare the sorting
         state.vStripsMap[state.vStripsCount] = state.vStripsCount;
         state.vStripsZOrders[state.vStripsCount++] = dist * dist;
@@ -1053,20 +1056,17 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     bool noGlow = !sl.glow;
     __m128 fogColor = unpackColorToVectorSSE4(fogFarColor);
 
-// Compute AO zone boundary in screen space.
-// Inverting adjacent = opposite / denom:
+// AO at the wall base: enabled, accepted by the surface, cast by the wall
+    bool occlusion = (flags & Renderer::FLAG_AMBIENT_OCCLUSION) && sl.occlusion && !(strip.flags & VSTRIP_FLAG_NOSHADOW);
+
+// AO zone boundary in screen space, inverting adjacent = opposite / denom:
 // y_target = horizon - 1.0 + proj * (opposite / adjacentAoEnd - slopePC)
     float adjacentStart = opposite / denomStart;
     float adjacentAoEnd = adjacentStart - occlusionLength;
     float aoScale = occlusionLength > 0.0f ? occlusionDarken / occlusionLength : 0.0f;
 
-// No AO along see-through walls
-    bool seeThrough = (w.flags & WALL_FLAG_INVISIBLE)
-                   || (w.surfaces[strip.back ? WALL_SURFACE_BACK : WALL_SURFACE_FRONT].flags & SURFACE_FLAG_ALPHA);
-
     int yAoEnd;
-    if (!(flags & Renderer::FLAG_AMBIENT_OCCLUSION) || (w.flags & WALL_FLAG_NO_SHADOW) || seeThrough || !sl.occlusion)
-        yAoEnd = yStart;
+    if (!occlusion) yAoEnd = yStart;
     else if (adjacentAoEnd <= 0.0f) yAoEnd = yEnd;
     else {
         float yTarget = state.casterHorizon - 1.0f + state.casterProjectionY * (opposite / adjacentAoEnd - slopePC);
