@@ -1161,11 +1161,15 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         if (strip.hTop < hFloor - epsilon) continue;
         if (strip.hBot > hCeiling + epsilon) continue;
 
-    // Front is the camera side (strip.back), back is the far side (!strip.back)
-        bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
-        bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
-        bool hasBackCeiling = w.flags & (!strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
-        bool hasBackFloor  = w.flags & (!strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+    // Near is the camera side (strip.back), far is the other side (!strip.back)
+        bool nearCeiling = strip.flags & VSTRIP_FLAG_HASCEILING;
+        bool nearFloor = strip.flags & VSTRIP_FLAG_HASFLOOR;
+        bool farCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK);
+        bool farFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK);
+        Cap2D nearCeilingCap = capCeilingHeight(state, strip, strip.back);
+        Cap2D nearFloorCap = capFloorHeight(state, strip, strip.back);
+        Cap2D farCeilingCap = capCeilingHeight(state, strip, !strip.back);
+        Cap2D farFloorCap = capFloorHeight(state, strip, !strip.back);
 
         bool ceilingAbove = false;
         bool ceilingBelow = false;
@@ -1173,13 +1177,13 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         bool floorBelow = false;
 
     // A surface lying on a cap is hidden from the side the rays are not on
-        if (hasFrontCeiling) {
-            if (capCeilingHeight(state, strip, strip.back).h0 > casterY)
+        if (nearCeiling) {
+            if (nearCeilingCap.h0 > casterY)
                 ceilingAbove = true;
             else ceilingBelow = hCeiling - strip.hTop > 2.0f * epsilon;
         }
-        if (hasFrontFloor) {
-            if (capFloorHeight(state, strip, strip.back).h0 < casterY)
+        if (nearFloor) {
+            if (nearFloorCap.h0 < casterY)
                 floorBelow = true;
             else floorAbove = strip.hBot - hFloor > 2.0f * epsilon;
         }
@@ -1187,16 +1191,16 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
     // Rays over the top edge: their floor only tightens, unless the current one ends at this wall
         CapLink floorLink;
         bool floorNew = true;
-        if (hasBackCeiling) {
-            floorLink.cap = capCeilingHeight(state, strip, !strip.back);
+        if (farCeiling) {
+            floorLink.cap = farCeilingCap;
             if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
-        } else if (hasBackFloor) {
-            floorLink.cap = capFloorHeight(state, strip, !strip.back);
+        } else if (farFloor) {
+            floorLink.cap = farFloorCap;
             if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
         } else floorNew = false;
     // The floor ends here: the top edge lies on it, or the camera side floor does
         bool floorEnds = fabsf(strip.hTop - hFloor) <= 2.0f * epsilon ||
-                         (hasFrontFloor && fabsf(strip.hBot - hFloor) <= 2.0f * epsilon);
+                         (nearFloor && fabsf(strip.hBot - hFloor) <= 2.0f * epsilon);
         const CapLink * floorOver = floorEnds && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
         if (floorNew && (floorEnds || floorLink.cap.h0 + d * floorLink.cap.slope > hFloor)) {
             floorLink.prev = floorOver;
@@ -1206,16 +1210,16 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
     // Rays under the bottom edge: same for their ceiling
         CapLink ceilingLink;
         bool ceilingNew = true;
-        if (hasBackFloor) {
-            ceilingLink.cap = capFloorHeight(state, strip, !strip.back);
+        if (farFloor) {
+            ceilingLink.cap = farFloorCap;
             if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
-        } else if (hasBackCeiling) {
-            ceilingLink.cap = capCeilingHeight(state, strip, !strip.back);
+        } else if (farCeiling) {
+            ceilingLink.cap = farCeilingCap;
             if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
         } else ceilingNew = false;
     // The ceiling ends here: the bottom edge lies on it, or the camera side ceiling does
         bool ceilingEnds = fabsf(strip.hBot - hCeiling) <= 2.0f * epsilon ||
-                           (hasFrontCeiling && fabsf(strip.hTop - hCeiling) <= 2.0f * epsilon);
+                           (nearCeiling && fabsf(strip.hTop - hCeiling) <= 2.0f * epsilon);
         const CapLink * ceilingUnder = ceilingEnds && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
         if (ceilingNew && (ceilingEnds || ceilingLink.cap.h0 + d * ceilingLink.cap.slope < hCeiling)) {
             ceilingLink.prev = ceilingUnder;
@@ -1260,15 +1264,15 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             }
         }
 
-    // A hidden front surface still stops the rays
-        if (!hasFrontCeiling) {
+    // A hidden near surface still stops the rays
+        if (!nearCeiling) {
             Aperture newAp = ap;
             newAp.yBot = std::min(ap.yBot, strip.yTop);
             newAp.capFloor = floorOver;
             renderVertical6(state, i + 1, newAp);
         }
 
-        if (!hasFrontFloor) {
+        if (!nearFloor) {
             Aperture newAp = ap;
             newAp.yTop = std::max(ap.yTop, strip.yBot);
             newAp.capCeiling = ceilingUnder;
@@ -1299,8 +1303,8 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         // Through the wall, the caps also only tighten unless they end on its edges
             bool topOnCeiling = fabsf(strip.hTop - hCeiling) <= 2.0f * epsilon;
             newAp.capCeiling = topOnCeiling && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
-            if (hasBackCeiling) {
-                throughCeiling.cap = capCeilingHeight(state, strip, !strip.back);
+            if (farCeiling) {
+                throughCeiling.cap = farCeilingCap;
                 if (throughCeiling.cap.h0 < casterY) throughCeiling.cap.h0 -= 2.0f * epsilon;
                 if (topOnCeiling || throughCeiling.cap.h0 + d * throughCeiling.cap.slope < hCeiling) {
                     throughCeiling.prev = newAp.capCeiling;
@@ -1309,8 +1313,8 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             }
             bool botOnFloor = fabsf(strip.hBot - hFloor) <= 2.0f * epsilon;
             newAp.capFloor = botOnFloor && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
-            if (hasBackFloor) {
-                throughFloor.cap = capFloorHeight(state, strip, !strip.back);
+            if (farFloor) {
+                throughFloor.cap = farFloorCap;
                 if (throughFloor.cap.h0 > casterY) throughFloor.cap.h0 += 2.0f * epsilon;
                 if (botOnFloor || throughFloor.cap.h0 + d * throughFloor.cap.slope > hFloor) {
                     throughFloor.prev = newAp.capFloor;
