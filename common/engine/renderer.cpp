@@ -203,6 +203,14 @@ void Renderer::deallocate()
     delete[] glowmap; glowmap = nullptr;
     delete[] glowmapStill; glowmapStill = nullptr;
     framesAllocated = false;
+
+    delete[] nodes; nodes = nullptr;
+    delete[] walls; walls = nullptr;
+    delete[] segments; segments = nullptr;
+    delete[] textures; textures = nullptr;
+    delete[] lights; lights = nullptr;
+    nodesCount = wallsCount = texturesCount = lightsCount = 0;
+    nodesAllocated = wallsAllocated = texturesAllocated = lightsAllocated = 0;
 }
 
 /*****************************************************************************/
