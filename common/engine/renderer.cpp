@@ -1150,6 +1150,11 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
     if (ap.yTop >= ap.yBot) return;
     float casterY = state.casterPos.y();
 
+// A cap from a surface seen from its hidden side moves past it, culling what lies on it
+    auto nudgeUp = [&](Cap2D & cap) {if (cap.h0 > casterY) cap.h0 += 2.0f * epsilon;};
+    auto nudgeDown = [&](Cap2D & cap) {if (cap.h0 < casterY) cap.h0 -= 2.0f * epsilon;};
+    auto onCap = [&](float h, float hCap) {return fabsf(h - hCap) <= 2.0f * epsilon;};
+
     for (int i = depth; i < state.vStripsCount; i++) {
         Strip & strip = state.vStrips[state.vStripsMap[i]];
         Wall & w = walls[strip.wallId];
@@ -1193,14 +1198,13 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         bool floorNew = true;
         if (farCeiling) {
             floorLink.cap = farCeilingCap;
-            if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
+            nudgeUp(floorLink.cap);
         } else if (farFloor) {
             floorLink.cap = farFloorCap;
-            if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
+            nudgeUp(floorLink.cap);
         } else floorNew = false;
     // The floor ends here: the top edge lies on it, or the camera side floor does
-        bool floorEnds = fabsf(strip.hTop - hFloor) <= 2.0f * epsilon ||
-                         (nearFloor && fabsf(strip.hBot - hFloor) <= 2.0f * epsilon);
+        bool floorEnds = onCap(strip.hTop, hFloor) || (nearFloor && onCap(strip.hBot, hFloor));
         const CapLink * floorOver = floorEnds && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
         if (floorNew && (floorEnds || floorLink.cap.h0 + d * floorLink.cap.slope > hFloor)) {
             floorLink.prev = floorOver;
@@ -1212,14 +1216,13 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         bool ceilingNew = true;
         if (farFloor) {
             ceilingLink.cap = farFloorCap;
-            if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
+            nudgeDown(ceilingLink.cap);
         } else if (farCeiling) {
             ceilingLink.cap = farCeilingCap;
-            if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
+            nudgeDown(ceilingLink.cap);
         } else ceilingNew = false;
     // The ceiling ends here: the bottom edge lies on it, or the camera side ceiling does
-        bool ceilingEnds = fabsf(strip.hBot - hCeiling) <= 2.0f * epsilon ||
-                           (nearCeiling && fabsf(strip.hTop - hCeiling) <= 2.0f * epsilon);
+        bool ceilingEnds = onCap(strip.hBot, hCeiling) || (nearCeiling && onCap(strip.hTop, hCeiling));
         const CapLink * ceilingUnder = ceilingEnds && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
         if (ceilingNew && (ceilingEnds || ceilingLink.cap.h0 + d * ceilingLink.cap.slope < hCeiling)) {
             ceilingLink.prev = ceilingUnder;
@@ -1301,21 +1304,21 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             newAp.yBot = bot;
 
         // Through the wall, the caps also only tighten unless they end on its edges
-            bool topOnCeiling = fabsf(strip.hTop - hCeiling) <= 2.0f * epsilon;
+            bool topOnCeiling = onCap(strip.hTop, hCeiling);
             newAp.capCeiling = topOnCeiling && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
             if (farCeiling) {
                 throughCeiling.cap = farCeilingCap;
-                if (throughCeiling.cap.h0 < casterY) throughCeiling.cap.h0 -= 2.0f * epsilon;
+                nudgeDown(throughCeiling.cap);
                 if (topOnCeiling || throughCeiling.cap.h0 + d * throughCeiling.cap.slope < hCeiling) {
                     throughCeiling.prev = newAp.capCeiling;
                     newAp.capCeiling = &throughCeiling;
                 }
             }
-            bool botOnFloor = fabsf(strip.hBot - hFloor) <= 2.0f * epsilon;
+            bool botOnFloor = onCap(strip.hBot, hFloor);
             newAp.capFloor = botOnFloor && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
             if (farFloor) {
                 throughFloor.cap = farFloorCap;
-                if (throughFloor.cap.h0 > casterY) throughFloor.cap.h0 += 2.0f * epsilon;
+                nudgeUp(throughFloor.cap);
                 if (botOnFloor || throughFloor.cap.h0 + d * throughFloor.cap.slope > hFloor) {
                     throughFloor.prev = newAp.capFloor;
                     newAp.capFloor = &throughFloor;
