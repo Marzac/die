@@ -76,6 +76,7 @@ void Map::init()
     pan = 0.0f;
     setTextures(QImage(":/Textures/default.png"));
     clearObjects();
+    resetEnvironment();
 }
 
 void Map::setTextures(const QImage & strip)

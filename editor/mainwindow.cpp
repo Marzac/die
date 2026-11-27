@@ -2710,15 +2710,7 @@ void MainWindow::on_actionNew_triggered()
 {
     renderer.init();
     editor.rootMap.init();
-    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
-
-    undoDebounceTimer->stop();
-    undoHistory.clear();
-    undoIndex = -1;
-    pushUndoState();
-
-    submapFile.clear();
-    setMapFile(QString());
+    mapChanged(QString());
 }
 
 void MainWindow::on_actionLoad_map_triggered()
@@ -2727,24 +2719,11 @@ void MainWindow::on_actionLoad_map_triggered()
     QString file = QFileDialog::getOpenFileName(this, "Open game map", path, "Map File (*.map)");
     if (file.isEmpty()) return;
 
-    editor.rootMap.load(file);
-    editor.env.sun = editor.rootMap.sun;
-    editor.env.fog = editor.rootMap.fog;
-    editor.env.glowmap = editor.rootMap.glowmap;
-    updateSunProperties();
-    updateFogProperties();
-    updateGlowmapProperties();
-    updateTagProperties();
-    refreshTagCombos();
-    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
-
-    undoDebounceTimer->stop();
-    undoHistory.clear();
-    undoIndex = -1;
-    pushUndoState();
-
-    submapFile.clear();
-    setMapFile(file);
+    if (!editor.rootMap.load(file)) {
+        QMessageBox::warning(this, "Open map", "Could not read the map file:\n" + QDir::toNativeSeparators(file));
+        return;
+    }
+    mapChanged(file);
 }
 
 void MainWindow::on_actionSave_map_triggered()
@@ -2810,6 +2789,38 @@ void MainWindow::setMapFile(const QString & file)
     mapFile = file.isEmpty() ? QString() : QFileInfo(file).absoluteFilePath();
     setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()));
     updateViewMarkButton();
+}
+
+void MainWindow::mapChanged(const QString & file)
+{
+// Environment from the map
+    editor.env.sun = editor.rootMap.sun;
+    editor.env.fog = editor.rootMap.fog;
+    editor.env.glowmap = editor.rootMap.glowmap;
+    renderer.flags |= Renderer::FLAG_GLOWMAP_REBUILD;
+
+// Old selection and texture scroll no longer apply
+    editor.deselect();
+    editor.selectedTextureID = 0;
+    ui->widgetTextureSelector->setScroll(0);
+
+// Every panel, renderer included (New reloads die.ini)
+    updateAllProperties();
+    updateSunProperties();
+    updateFogProperties();
+    updateGlowmapProperties();
+    updateTagProperties();
+    refreshTagCombos();
+    updateEngineProperties();
+
+// Fresh undo history
+    undoDebounceTimer->stop();
+    undoHistory.clear();
+    undoIndex = -1;
+    pushUndoState();
+
+    submapFile.clear();
+    setMapFile(file);
 }
 
 /*****************************************************************************/
