@@ -1176,37 +1176,26 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         Cap2D farCeilingCap = capCeilingHeight(state, strip, !strip.back);
         Cap2D farFloorCap = capFloorHeight(state, strip, !strip.back);
 
-        bool ceilingAbove = false;
-        bool ceilingBelow = false;
-        bool floorAbove = false;
-        bool floorBelow = false;
-
-    // A surface lying on a cap is hidden from the side the rays are not on
-        if (nearCeiling) {
-            if (nearCeilingCap.h0 > casterY)
-                ceilingAbove = true;
-            else ceilingBelow = hCeiling - strip.hTop > 2.0f * epsilon;
-        }
-        if (nearFloor) {
-            if (nearFloorCap.h0 < casterY)
-                floorBelow = true;
-            else floorAbove = strip.hBot - hFloor > 2.0f * epsilon;
-        }
+    // Near surfaces above or below the camera, one lying on a cap is hidden from the side the rays are not on
+        bool ceilingAbove = nearCeiling && nearCeilingCap.h0 > casterY;
+        bool ceilingBelow = nearCeiling && !ceilingAbove && hCeiling - strip.hTop > 2.0f * epsilon;
+        bool floorBelow = nearFloor && nearFloorCap.h0 < casterY;
+        bool floorAbove = nearFloor && !floorBelow && strip.hBot - hFloor > 2.0f * epsilon;
 
     // Rays over the top edge: their floor only tightens, unless the current one ends at this wall
+    // It ends here when the top edge lies on it, or the camera side floor does
         CapLink floorLink = {farCeiling ? farCeilingCap : farFloorCap, NULL};
         nudgeUp(floorLink.cap);
-    // The floor ends here: the top edge lies on it, or the camera side floor does
         bool floorEnds = onCap(strip.hTop, hFloor) || (nearFloor && onCap(strip.hBot, hFloor));
         const CapLink * floorOver = linkFloor(ap.capFloor, hFloor, floorEnds, farCeiling || farFloor ? &floorLink : NULL, d);
 
     // Rays under the bottom edge: same for their ceiling
         CapLink ceilingLink = {farFloor ? farFloorCap : farCeilingCap, NULL};
         nudgeDown(ceilingLink.cap);
-    // The ceiling ends here: the bottom edge lies on it, or the camera side ceiling does
         bool ceilingEnds = onCap(strip.hBot, hCeiling) || (nearCeiling && onCap(strip.hTop, hCeiling));
         const CapLink * ceilingUnder = linkCeiling(ap.capCeiling, hCeiling, ceilingEnds, farFloor || farCeiling ? &ceilingLink : NULL, d);
 
+    // A ceiling seen from above hides the wall and all below it, only the rays over it go on
         if (ceilingBelow) {
             Aperture newAp = ap;
             newAp.capFloor = floorOver;
@@ -1219,6 +1208,7 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             return;
         }
 
+    // A floor seen from below hides the wall and all above it, only the rays under it go on
         if (floorAbove) {
             Aperture newAp = ap;
             newAp.capCeiling = ceilingUnder;
@@ -1231,6 +1221,7 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             return;
         }
 
+    // A ceiling seen from below covers the rows above the wall, a floor seen from above the rows below it
         if (ceilingAbove) {
             if (strip.yTop >= ap.yTop) {
                 int bot = std::min(ap.yBot, strip.yTop);
@@ -1245,7 +1236,8 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             }
         }
 
-    // A hidden near surface still stops the rays
+    // Without a near ceiling the rays pass over the wall, without a near floor under it
+    // A hidden near surface still stops them
         if (!nearCeiling) {
             Aperture newAp = ap;
             newAp.yBot = std::min(ap.yBot, strip.yTop);
@@ -1274,6 +1266,7 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             continue;
         }
 
+    // Draw the wall, the rays go on through it if it is see-through
         vstripAdd(state, strip, top, bot);
         if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
         // Through the wall, the caps also only tighten unless they end on its edges
