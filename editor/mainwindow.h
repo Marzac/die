@@ -64,6 +64,7 @@ public:
 
     void updateNodeProperties();
     void updateWallProperties();
+    void updateWallSlant();
     void updateWallTexture();
     void updateSubmapProperties();
     void updateDoorProperties();
@@ -175,6 +176,7 @@ private slots:
     void on_pushNodeDelete_clicked();
 
     void on_spinWallHeight_valueChanged(double arg1);
+    void on_spinWallSlant_valueChanged(double arg1);
     void on_spinWallFloorFrontDrop_valueChanged(double arg1);
     void on_spinWallFloorBackDrop_valueChanged(double arg1);
     void on_spinWallCeilingFrontDrop_valueChanged(double arg1);

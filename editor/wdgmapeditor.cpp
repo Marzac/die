@@ -306,12 +306,13 @@ void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
 
             QVector2D n1p = org + Editor::to2D(mode, n1.pos) * editor.getZoom();
             QVector2D n2p = org + Editor::to2D(mode, n2.pos) * editor.getZoom();
-            QVector2D hp(0.0f, -w.height * editor.getZoom());
+            QVector2D hp1(0.0f, -wallHeight1(w) * editor.getZoom());
+            QVector2D hp2(0.0f, -wallHeight2(w) * editor.getZoom());
             QPointF ns[] = {
                 n1p.toPointF(),
                 n2p.toPointF(),
-                (n2p + hp).toPointF(),
-                (n1p + hp).toPointF(),
+                (n2p + hp2).toPointF(),
+                (n1p + hp1).toPointF(),
                 n1p.toPointF()
             };
 
@@ -325,7 +326,7 @@ void WdgMapEditor::drawWallsSide(QPainter & painter, Map & map, QVector2D & org)
 
             if (!editor.inScissor(n1.pos)) continue;
             if (!editor.inScissor(n2.pos)) continue;
-            QVector2D mp = (n1p + n2p + hp) * 0.5f - QVector2D(2.0f, 2.0f);
+            QVector2D mp = (n1p + n2p + (hp1 + hp2) * 0.5f) * 0.5f - QVector2D(2.0f, 2.0f);
 
             if (w.selected)
                 painter.setBrush(brushAnchorSelected);

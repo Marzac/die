@@ -290,12 +290,20 @@ void Editor::wallSplit(int parts)
                 nodes.append(n);
                 next = nodes.count() - 1;
             }
-            if (k == 1) walls[i].nodeID2 = next;
-            else {
+        // Each piece keeps its part of the top edge
+            float h1 = wallHeight1(src) + src.slant * float(k - 1) / parts;
+            float h2 = wallHeight1(src) + src.slant * float(k) / parts;
+            if (k == 1) {
+                walls[i].nodeID2 = next;
+                walls[i].height = qMax(h1, h2);
+                walls[i].slant = h2 - h1;
+            }else{
             // Shift the textures to keep them continuous
                 Wall w = src;
                 w.nodeID1 = prev;
                 w.nodeID2 = next;
+                w.height = qMax(h1, h2);
+                w.slant = h2 - h1;
                 float shift = length * (k - 1) / parts;
                 w.surfaces[WALL_SURFACE_FRONT].shiftX += shift;
                 w.surfaces[WALL_SURFACE_BACK].shiftX += shift;
@@ -489,8 +497,10 @@ void Editor::flip(bool horizontal)
 
 // Reverse the walls so their fronts face the same side
     for (Wall & w : editedMap->walls)
-        if (moved.contains(w.nodeID1) && moved.contains(w.nodeID2))
+        if (moved.contains(w.nodeID1) && moved.contains(w.nodeID2)) {
             std::swap(w.nodeID1, w.nodeID2);
+            w.slant = -w.slant;
+        }
     editedMap->computeAllWalls();
 }
 
@@ -745,10 +755,10 @@ bool Editor::wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId)
 
         // Wall span at the cursor column (screen Y points down)
             float yBot = n1p.y() + (n2p.y() - n1p.y()) * t;
-            float yTop = yBot - w.height;
+            float yTop = yBot - (wallHeight1(w) + w.slant * t);
             if (pos.y() > yBot || pos.y() < yTop) continue;
 
-            QVector2D hp(0.0f, -w.height);
+            QVector2D hp(0.0f, -(wallHeight1(w) + wallHeight2(w)) * 0.5f);
             QVector2D np = (n1p + n2p + hp) * 0.5f;
             float r = np.distanceToPoint(pos);
             if (r >= rMin - tie) continue;
@@ -786,7 +796,7 @@ bool Editor::wallFindInRect(VIEW_MODES mode, QVector2D c1, QVector2D c2, int & w
 
         }else{
         // Wall anchor (center of the projected wall) inside the rectangle
-            QVector2D hp(0.0f, -w.height);
+            QVector2D hp(0.0f, -(wallHeight1(w) + wallHeight2(w)) * 0.5f);
             QVector2D ap = (np1 + np2 + hp) * 0.5f;
             QVector2D ad1 = c1 - ap;
             QVector2D ad2 = c2 - ap;
