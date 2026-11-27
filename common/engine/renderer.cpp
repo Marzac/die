@@ -991,10 +991,7 @@ const Renderer::CapLink * Renderer::linkCeiling(const CapLink * ceiling, float h
 void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot)
 {
     if (!(flags & Renderer::FLAG_SURFACES)) return;
-    if (scanTop >= frameResoY) return;
-    if (scanBot < 0) return;
-    if (scanTop < 0) scanTop = 0;
-    if (scanBot > frameResoY) scanBot = frameResoY;
+    if (scanTop >= scanBot) return;
 
     const Wall & w = walls[strip.wallId];
     Cap2D cap = (sID == WALL_SURFACE_FLOOR) ? capFloorHeight(state, strip, strip.back)
@@ -1237,18 +1234,10 @@ void Renderer::drawVStrips(Context & state)
 
 void Renderer::vstripDraw(Context & state, const Strip & strip)
 {
-// Clip the strip
+// Rows of the strip, already clipped to the frame by renderVertical
     int32_t scanTop = (int) strip.yTop;
     int32_t scanBot = (int) strip.yBot;
-
-    if (scanBot < 0) return;
-    if (scanTop >= frameResoY) return;
     if (scanBot == scanTop) return;
-
-    //if (scanTop < 0) return;  // should not happen
-    if (scanTop < 0) scanTop = 0;
-    //if (scanBot > frameResoY) return;  // should not happen
-    if (scanBot > frameResoY) scanBot = frameResoY;
 
 // Check for click
     if (clickRegistered && (clickX == state.casterColumn)) {
