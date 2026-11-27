@@ -123,7 +123,7 @@ int main(int argc, char * argv[])
 
         sheet.save(QString("%1.png").arg(name));
         const Renderer::Levels & l = renderer.levels;
-        printf("%s: %d px differ, floor %.2f, ceiling %.2f\n", name, count, l.floor.h, l.ceiling.h);
+        printf("%s: %d px differ, floor %.2f, ceiling %.2f\n", name, count, l.floor.h0, l.ceiling.h0);
     }
     fclose(file);
     return 0;

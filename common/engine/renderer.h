@@ -243,14 +243,14 @@ public:
 
 /// \brief Floor or ceiling plane: height at the probed position and world gradient (h = h0 + gx * dx + gz * dz)
     typedef struct {
-        float h;
+        float h0;
         float gx, gz;
-    } Level;
+    } Cap3D;
 
 /// \brief Floor and ceiling planes around a position
     typedef struct {
-        Level floor;            ///< closest plane below, h = HeightMin if none
-        Level ceiling;          ///< closest plane above, h = HeightMax if none
+        Cap3D floor;            ///< closest plane below, h0 = HeightMin if none
+        Cap3D ceiling;          ///< closest plane above, h0 = HeightMax if none
     } Levels;
 
     /// \brief Find the floor and ceiling at a position by casting one ray (pan in radians)
@@ -428,7 +428,7 @@ private:
     void glowmapConcurrent(__m128 * gm, bool still);
 
     void castStrips(Context & state);
-    Level capLevel(const Context & state, const Strip & strip, bool back, bool ceiling);
+    Cap3D capPlane(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
     //void renderVertical2(Context & state, int depth, Aperture ap);
     void renderVertical3(Context & state, int depth, Ap2 ap);

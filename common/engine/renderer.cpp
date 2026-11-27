@@ -597,8 +597,8 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         castStrips(state);
 
     // Floor / ceiling planes
-        Cap ceiling = {levels.ceiling.h, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
-        Cap floor = {levels.floor.h, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
+        Cap ceiling = {levels.ceiling.h0, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
+        Cap floor = {levels.floor.h0, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
 
     // Render surfaces
         state.vStripsClippedCount = 0;
@@ -746,34 +746,34 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
     castStrips(state);
 
 // Walk from the furthest wall to the closest, a wall hides the planes it crosses
-    static constexpr int LevelsMax = 2 * StripsMax;
-    Level found[LevelsMax];
+    static constexpr int PlanesMax = 2 * StripsMax;
+    Cap3D found[PlanesMax];
     int foundCount = 0;
     for (int depth = state.vStripsCount - 1; depth >= 0; depth--) {
         const Strip & strip = state.vStrips[state.vStripsMap[depth]];
         for (int i = foundCount - 1; i >= 0; i--) {
-            const Level & l = found[i];
-            float h = l.h + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
+            const Cap3D & l = found[i];
+            float h = l.h0 + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
             if (h >= strip.hBot - epsilon && h <= strip.hTop + epsilon)
                 found[i] = found[--foundCount];
         }
-        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capLevel(state, strip, strip.back, true);
-        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capLevel(state, strip, strip.back, false);
+        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capPlane(state, strip, strip.back, true);
+        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capPlane(state, strip, strip.back, false);
     }
 
 // Closest plane above = ceiling, below = floor
     Levels result = {{HeightMin, 0.0f, 0.0f}, {HeightMax, 0.0f, 0.0f}};
     float y = pos.y();
     for (int i = 0; i < foundCount; i++) {
-        const Level & l = found[i];
-        if (l.h > y && l.h < result.ceiling.h) result.ceiling = l;
-        if (l.h < y && l.h > result.floor.h) result.floor = l;
+        const Cap3D & l = found[i];
+        if (l.h0 > y && l.h0 < result.ceiling.h0) result.ceiling = l;
+        if (l.h0 < y && l.h0 > result.floor.h0) result.floor = l;
     }
     return result;
 }
 
 /*****************************************************************************/
-Renderer::Level Renderer::capLevel(const Context & state, const Strip & strip, bool back, bool ceiling)
+Renderer::Cap3D Renderer::capPlane(const Context & state, const Strip & strip, bool back, bool ceiling)
 {
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
