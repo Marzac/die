@@ -384,7 +384,6 @@ private:
     bool clickRegistered;
     uint16_t clickWallID;
 
-    QVector2D sceneCornerBegin, sceneCornerEnd;
     float glowmapArea;
     float glowmapScale;
     float glowmapInvScale;
@@ -439,8 +438,6 @@ private:
     float projectionX() const;
     float projectionY() const;
 
-    void sceneBoundsInit();
-    void sceneBoundsRegister(float x, float z);
     void sceneGetCoords(const float x, const float z, float & xs, float & zs);
     void worldGetCoords(const float xs, const float zs, float & x, float & z);
 
