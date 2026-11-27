@@ -557,10 +557,6 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
     state.casterProjectionY = projectionY();
     state.casterPos = viewPoint.pos + viewPoint.offset;
 
-// Create the strips map
-    for (int i = 0; i < StripsMax; i++)
-        state.vStripsMap[i] = i;
-
     for (state.casterColumn = x1; state.casterColumn < x2; state.casterColumn++) {
         float pan = panTable[state.casterColumn];
         state.casterRayX = cosf(pan + viewPoint.pan);
