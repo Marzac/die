@@ -71,62 +71,6 @@ void Renderer::init()
     configSave("die.ini");
 }
 
-void Renderer::terminate()
-{
-    configSave("die.ini");
-    deallocate();
-}
-
-/*****************************************************************************/
-void Renderer::setFlags(FLAGS flags)
-{
-    this->flags = flags;
-}
-
-void Renderer::checkFlag(FLAGS flag, bool checked)
-{
-    flags &= ~(uint32_t) flag;
-    if (checked) flags |= flag;
-}
-
-/*****************************************************************************/
-void Renderer::setGlowmapReso(int size)
-{
-    if (!size) return;
-    pendingGlowmapReso = size;
-}
-
-void Renderer::setGlowmapArea(float area)
-{
-    if (area <= 0.0f) return;
-    glowmapArea = area;
-    flags |= Renderer::FLAG_GLOWMAP_REBUILD;    // new scale: the still lights move
-}
-
-void Renderer::setFramesReso(int width, int height)
-{
-    if (!width) return;
-    if (!height) return;
-    pendingFrameResoX = width;
-    pendingFrameResoY = height;
-}
-
-void Renderer::setFOVAngle(float angle)
-{
-    fovAngle = angle;
-    buildTables();
-}
-
-void Renderer::setFOVDistanceNear(float distance)
-{
-    fovDistanceNear = distance;
-}
-
-void Renderer::setFOVDistanceFar(float distance)
-{
-    fovDistanceFar = distance;
-}
-
 /*****************************************************************************/
 void Renderer::allocateObjects(int noNodes, int noWalls, int noTextures, int noLights)
 {
@@ -181,6 +125,41 @@ void Renderer::allocateFrames(int width, int height)
     framesAllocated = true;
 }
 
+/*****************************************************************************/
+bool Renderer::allocatePixelBuffer(uint32_t *& pixels, int width, int height)
+{
+    size_t size = width * height * sizeof(uint32_t);
+    if (pixels) free(pixels);
+    pixels = (uint32_t *) malloc(size);
+    if (pixels) memset(pixels, 0, size);
+    return pixels != nullptr;
+}
+
+/*****************************************************************************/
+void Renderer::buildTables()
+{
+    if (!panTable) return;
+
+// Horizontal pan table (lens corrected)
+    const float refX = projectionX();
+    const float midX = frameResoX * 0.5f - 0.5f;
+    for (int x = 0; x < frameResoX; x++) {
+        float pan = atanf((x - midX) / refX);
+        panTable[x] = pan;
+    }
+}
+
+float Renderer::projectionX() const
+{
+    return 0.5f * frameResoX / tanf(fovAngle * D2R * 0.5f);
+}
+
+float Renderer::projectionY() const
+{
+    return frameResoY / tanf(fovAngle * D2R * 0.5f); // absence of 0.5f is a choice
+}
+
+/*****************************************************************************/
 void Renderer::allocateGlowmap(int size)
 {
     glowmapReso = 0;
@@ -198,15 +177,14 @@ void Renderer::allocateGlowmap(int size)
     flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
-bool Renderer::allocatePixelBuffer(uint32_t *& pixels, int width, int height)
+/*****************************************************************************/
+void Renderer::terminate()
 {
-    size_t size = width * height * sizeof(uint32_t);
-    if (pixels) free(pixels);
-    pixels = (uint32_t *) malloc(size);
-    if (pixels) memset(pixels, 0, size);
-    return pixels != nullptr;
+    configSave("die.ini");
+    deallocate();
 }
 
+/*****************************************************************************/
 void Renderer::deallocate()
 {
     delete image; image = nullptr;
@@ -220,6 +198,56 @@ void Renderer::deallocate()
 }
 
 /*****************************************************************************/
+void Renderer::setFlags(FLAGS flags)
+{
+    this->flags = flags;
+}
+
+void Renderer::checkFlag(FLAGS flag, bool checked)
+{
+    flags &= ~(uint32_t) flag;
+    if (checked) flags |= flag;
+}
+
+/*****************************************************************************/
+void Renderer::setGlowmapReso(int size)
+{
+    if (!size) return;
+    pendingGlowmapReso = size;
+}
+
+void Renderer::setGlowmapArea(float area)
+{
+    if (area <= 0.0f) return;
+    glowmapArea = area;
+    flags |= Renderer::FLAG_GLOWMAP_REBUILD;    // new scale: the still lights move
+}
+
+void Renderer::setFramesReso(int width, int height)
+{
+    if (!width) return;
+    if (!height) return;
+    pendingFrameResoX = width;
+    pendingFrameResoY = height;
+}
+
+void Renderer::setFOVAngle(float angle)
+{
+    fovAngle = angle;
+    buildTables();
+}
+
+void Renderer::setFOVDistanceNear(float distance)
+{
+    fovDistanceNear = distance;
+}
+
+void Renderer::setFOVDistanceFar(float distance)
+{
+    fovDistanceFar = distance;
+}
+
+/*****************************************************************************/
 void Renderer::clickRegister(int x, int y)
 {
     clickX = x;
@@ -229,92 +257,119 @@ void Renderer::clickRegister(int x, int y)
 }
 
 /*****************************************************************************/
-inline void Renderer::sceneGetCoords(const float x, const float z, float & xs, float & zs)
+void Renderer::render(Viewpoint & vp)
 {
-    xs = x * glowmapScale + glowmapReso * 0.5f;
-    zs = z * glowmapScale + glowmapReso * 0.5f;
-}
+    int pw = pendingFrameResoX.exchange(0);
+    int ph = pendingFrameResoY.exchange(0);
+    if (pw && ph) allocateFrames(pw, ph);
 
-inline void Renderer::worldGetCoords(const float xs, const float zs, float & x, float & z)
-{
-    x = (xs - glowmapReso * 0.5f) * glowmapInvScale;
-    z = (zs - glowmapReso * 0.5f) * glowmapInvScale;
-}
+    int pg = pendingGlowmapReso.exchange(0);
+    if (pg) allocateGlowmap(pg);
 
-/*****************************************************************************/
-void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
-{
-// Recopy only the dirty regions
-    if (!still) {
-        for (const BoundingBox & r : glowmapDirtyBoxes) {
-            int cellZMin = std::max(r.beginZ, z1);
-            int cellZMax = std::min(r.endZ, z2);
-            for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
-                int row = cellZ * glowmapReso;
-                memcpy(&gm[row + r.beginX], &glowmapStill[row + r.beginX], (r.endX - r.beginX) * sizeof(__m128));
-            }
-        }
+    if (!framesAllocated) return;
+    if (!nodesAllocated) return;
+    if (!wallsAllocated) return;
+    if (!texturesAllocated) return;
+    if (!glowmapReso) return;
+
+// Clear the frames
+    memset(frame, 0, frameResoX * frameResoY * sizeof(uint32_t));
+
+// Render pre-compute
+    fogSunMash();
+    wallsMash();
+    lightsMash();
+
+// Render frame
+    viewPoint = vp;
+    levels = probeLevels(viewPoint.pos + viewPoint.offset, viewPoint.pan);
+    if (flags & Renderer::FLAG_MULTITHREADING) renderConcurrent();
+    else renderChunk(renderStates[0], 0, frameResoX);
+
+// Render post-fx
+    if (flags & Renderer::FLAG_MOTIONBLUR) {
+        uint16_t blend = motionBlurFactor * 256.0f * 0.01f;
+        motionBlurSSE4(frame, frameLast, blend, frameResoX * frameResoY);
     }
 
-    for (int j = 0; j < lightsCount; j++) {
-        const Light & l = lights[j];
-        if (l.still != still) continue;
+    if (flags & Renderer::FLAG_VIGNETTE) {
+        uint16_t inner = vignetteInnerRadius * frameResoY * 0.005f;
+        uint16_t outer = vignetteOuterRadius * frameResoY * 0.005f;
+        if (outer <= inner) outer = inner + 1;
+        vignetteSSE4(frame, frameResoX, frameResoY, inner, outer);
+    }
 
-        int cellZMin = std::max(l.boundingBox.beginZ, z1);
-        int cellZMax = std::min(l.boundingBox.endZ, z2);
-
-        for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
-            __m128 * row = &gm[cellZ * glowmapReso];
-            for (int cellX = l.boundingBox.beginX; cellX < l.boundingBox.endX; cellX++) {
-                float x, z;
-                worldGetCoords(cellX, cellZ, x, z);
-                float toLightX = l.x - x;
-                float toLightZ = l.z - z;
-
-                bool masked = false;
-                for (int i = 0; i < wallsCount; i++) {
-                    const Wall & w = walls[i];
-                    if (w.flags & WALL_FLAG_NO_SHADOW) continue;
-
-                    const Segment & s = segments[i];
-                    float div = toLightX * s.deltaZ - toLightZ * s.deltaX;
-                    if (fabs(div) < Epsilon) continue;
-                    if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
-
-                    float scale = 1.0f / div;
-                    float t = ((s.beginX - x) * s.deltaZ - (s.beginZ - z) * s.deltaX) * scale;
-                    if (t < 0.0f || t > 1.0f) continue;
-                    float u = ((s.beginX - x) * toLightZ - (s.beginZ - z) * toLightX) * scale;
-                    if (u < 0.0f || u > 1.0f) continue;
-                    masked = true;
-                    break;
-                }
-
-                if (masked) continue;
-
-                float dist2 = toLightX * toLightX + toLightZ * toLightZ;
-                float falloff = 1.0f / (1.0f + GlowFalloffSharpness * dist2 * l.falloffInv2);
-                row[cellX] = _mm_add_ps(row[cellX], _mm_mul_ps(l.argb, _mm_set1_ps(falloff)));
-            }
-        }
+    if (flags & Renderer::FLAG_GAMMA) {
+        float ks[3] = {gammaKRed, gammaKGreen, gammaKBlue};
+        gammaSSE4(frame, frameResoX, frameResoY, ks);
     }
 }
 
 /*****************************************************************************/
-void Renderer::glowmapConcurrent(__m128 * gm, bool still)
+void Renderer::fogSunMash()
 {
-    int threads = renderWorkers.workerCount();
-    int band = glowmapReso / threads;
+    if (fogDistanceFar > fogDistanceNear) {
+        fogDistanceInv = 1.0f / (fogDistanceFar - fogDistanceNear);
+        fogDistanceOffset = fogDistanceFar;
 
-    for (int i = 0; i < threads; i++) {
-        int z1 = i * band;
-        int z2 = (i == threads - 1) ? glowmapReso : z1 + band;
-        renderWorkers.enqueue([this, gm, still, z1, z2]() {
-            glowmapChunk(gm, still, z1, z2);
-        });
+    }else{
+        fogDistanceInv = 0.0f;
+        fogDistanceOffset = 0.0f;
+    }
+}
+
+/*****************************************************************************/
+void Renderer::wallsMash()
+{
+    QVector2D dir(sunRayDirection.x(), sunRayDirection.z());
+    sceneCornerBegin = sceneCornerEnd = QVector2D(0.0f, 0.0f);
+
+    for (int i = 0; i < wallsCount; i++) {
+        Wall & w = walls[i];
+        Segment & s = segments[i];
+
+    // Cache coordinates
+        s.beginX = nodes[w.nodeID1].pos.x();
+        s.beginZ = nodes[w.nodeID1].pos.z();
+        sceneBoundsRegister(s.beginX, s.beginZ);
+        s.endX = nodes[w.nodeID2].pos.x();
+        s.endZ = nodes[w.nodeID2].pos.z();
+        sceneBoundsRegister(s.endX, s.endZ);
+
+    // Prepare the segment
+        s.deltaX = s.endX - s.beginX;
+        s.deltaZ = s.endZ - s.beginZ;
+        s.length = sqrtf(s.deltaX * s.deltaX + s.deltaZ * s.deltaZ);
+        if (s.length == 0.0f) {w.flags = WALL_FLAG_FREE; continue;}
+        s.invLen = 1.0f / s.length;
+
+    // Compute lighting
+        QVector2D normal(s.deltaZ * s.invLen, -s.deltaX * s.invLen);
+        float facing = QVector2D::dotProduct(normal, dir);
+        uint8_t front = (uint8_t) (std::clamp(facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
+        w.rayFront = colorsScaleSSE4(sunRayColor, (uint16_t)front << 8);
+        uint8_t back = (uint8_t) (std::clamp(-facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
+        w.rayBack = colorsScaleSSE4(sunRayColor, (uint16_t)back << 8);
     }
 
-    renderWorkers.waitAll();
+// Glow map scale: fixed area centered at origin
+    glowmapScale = glowmapReso / glowmapArea;
+    glowmapInvScale = 1.0f / glowmapScale;
+}
+
+/*****************************************************************************/
+inline void Renderer::sceneBoundsInit()
+{
+    sceneCornerBegin = QVector2D(+32768.0f, +32768.0f);
+    sceneCornerEnd = QVector2D(-32768.0f, -32768.0f);
+}
+
+inline void Renderer::sceneBoundsRegister(float x, float z)
+{
+    if (x < sceneCornerBegin.x()) sceneCornerBegin.setX(x);
+    if (x > sceneCornerEnd.x()) sceneCornerEnd.setX(x);
+    if (z < sceneCornerBegin.y()) sceneCornerBegin.setY(z);
+    if (z > sceneCornerEnd.y()) sceneCornerEnd.setY(z);
 }
 
 /*****************************************************************************/
@@ -380,118 +435,91 @@ void Renderer::lightsMash()
 }
 
 /*****************************************************************************/
-inline void Renderer::sceneBoundsInit()
+inline void Renderer::sceneGetCoords(const float x, const float z, float & xs, float & zs)
 {
-    sceneCornerBegin = QVector2D(+32768.0f, +32768.0f);
-    sceneCornerEnd = QVector2D(-32768.0f, -32768.0f);
+    xs = x * glowmapScale + glowmapReso * 0.5f;
+    zs = z * glowmapScale + glowmapReso * 0.5f;
 }
 
-inline void Renderer::sceneBoundsRegister(float x, float z)
+inline void Renderer::worldGetCoords(const float xs, const float zs, float & x, float & z)
 {
-    if (x < sceneCornerBegin.x()) sceneCornerBegin.setX(x);
-    if (x > sceneCornerEnd.x()) sceneCornerEnd.setX(x);
-    if (z < sceneCornerBegin.y()) sceneCornerBegin.setY(z);
-    if (z > sceneCornerEnd.y()) sceneCornerEnd.setY(z);
-}
-
-/*****************************************************************************/
-void Renderer::wallsMash()
-{
-    QVector2D dir(sunRayDirection.x(), sunRayDirection.z());
-    sceneCornerBegin = sceneCornerEnd = QVector2D(0.0f, 0.0f);
-
-    for (int i = 0; i < wallsCount; i++) {
-        Wall & w = walls[i];
-        Segment & s = segments[i];
-
-    // Cache coordinates
-        s.beginX = nodes[w.nodeID1].pos.x();
-        s.beginZ = nodes[w.nodeID1].pos.z();
-        sceneBoundsRegister(s.beginX, s.beginZ);
-        s.endX = nodes[w.nodeID2].pos.x();
-        s.endZ = nodes[w.nodeID2].pos.z();
-        sceneBoundsRegister(s.endX, s.endZ);
-
-    // Prepare the segment
-        s.deltaX = s.endX - s.beginX;
-        s.deltaZ = s.endZ - s.beginZ;
-        s.length = sqrtf(s.deltaX * s.deltaX + s.deltaZ * s.deltaZ);
-        if (s.length == 0.0f) {w.flags = WALL_FLAG_FREE; continue;}
-        s.invLen = 1.0f / s.length;
-
-    // Compute lighting
-        QVector2D normal(s.deltaZ * s.invLen, -s.deltaX * s.invLen);
-        float facing = QVector2D::dotProduct(normal, dir);
-        uint8_t front = (uint8_t) (std::clamp(facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
-        w.rayFront = colorsScaleSSE4(sunRayColor, (uint16_t)front << 8);
-        uint8_t back = (uint8_t) (std::clamp(-facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
-        w.rayBack = colorsScaleSSE4(sunRayColor, (uint16_t)back << 8);
-    }
-
-// Glow map scale: fixed area centered at origin
-    glowmapScale = glowmapReso / glowmapArea;
-    glowmapInvScale = 1.0f / glowmapScale;
+    x = (xs - glowmapReso * 0.5f) * glowmapInvScale;
+    z = (zs - glowmapReso * 0.5f) * glowmapInvScale;
 }
 
 /*****************************************************************************/
-void Renderer::fogSunMash()
+void Renderer::glowmapConcurrent(__m128 * gm, bool still)
 {
-    if (fogDistanceFar > fogDistanceNear) {
-        fogDistanceInv = 1.0f / (fogDistanceFar - fogDistanceNear);
-        fogDistanceOffset = fogDistanceFar;
+    int threads = renderWorkers.workerCount();
+    int band = glowmapReso / threads;
 
-    }else{
-        fogDistanceInv = 0.0f;
-        fogDistanceOffset = 0.0f;
+    for (int i = 0; i < threads; i++) {
+        int z1 = i * band;
+        int z2 = (i == threads - 1) ? glowmapReso : z1 + band;
+        renderWorkers.enqueue([this, gm, still, z1, z2]() {
+            glowmapChunk(gm, still, z1, z2);
+        });
     }
+
+    renderWorkers.waitAll();
 }
 
 /*****************************************************************************/
-void Renderer::render(Viewpoint & vp)
+void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 {
-    int pw = pendingFrameResoX.exchange(0);
-    int ph = pendingFrameResoY.exchange(0);
-    if (pw && ph) allocateFrames(pw, ph);
-
-    int pg = pendingGlowmapReso.exchange(0);
-    if (pg) allocateGlowmap(pg);
-
-    if (!framesAllocated) return;
-    if (!nodesAllocated) return;
-    if (!wallsAllocated) return;
-    if (!texturesAllocated) return;
-    if (!glowmapReso) return;
-
-// Clear the frames
-    memset(frame, 0, frameResoX * frameResoY * sizeof(uint32_t));
-
-// Render pre-compute
-    fogSunMash();
-    wallsMash();
-    lightsMash();
-
-// Render frame
-    viewPoint = vp;
-    levels = probeLevels(viewPoint.pos + viewPoint.offset, viewPoint.pan);
-    if (flags & Renderer::FLAG_MULTITHREADING) renderConcurrent();
-    else renderChunk(renderStates[0], 0, frameResoX);
-
-// Render post-fx
-    if (flags & Renderer::FLAG_MOTIONBLUR) {
-        uint16_t blend = motionBlurFactor * 256.0f * 0.01f;
-        motionBlurSSE4(frame, frameLast, blend, frameResoX * frameResoY);
+// Recopy only the dirty regions
+    if (!still) {
+        for (const BoundingBox & r : glowmapDirtyBoxes) {
+            int cellZMin = std::max(r.beginZ, z1);
+            int cellZMax = std::min(r.endZ, z2);
+            for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
+                int row = cellZ * glowmapReso;
+                memcpy(&gm[row + r.beginX], &glowmapStill[row + r.beginX], (r.endX - r.beginX) * sizeof(__m128));
+            }
+        }
     }
 
-    if (flags & Renderer::FLAG_VIGNETTE) {
-        uint16_t inner = vignetteInnerRadius * frameResoY * 0.005f;
-        uint16_t outer = vignetteOuterRadius * frameResoY * 0.005f;
-        if (outer <= inner) outer = inner + 1;
-        vignetteSSE4(frame, frameResoX, frameResoY, inner, outer);
-    }
+    for (int j = 0; j < lightsCount; j++) {
+        const Light & l = lights[j];
+        if (l.still != still) continue;
 
-    if (flags & Renderer::FLAG_GAMMA) {
-        float ks[3] = {gammaKRed, gammaKGreen, gammaKBlue};
-        gammaSSE4(frame, frameResoX, frameResoY, ks);
+        int cellZMin = std::max(l.boundingBox.beginZ, z1);
+        int cellZMax = std::min(l.boundingBox.endZ, z2);
+
+        for (int cellZ = cellZMin; cellZ < cellZMax; cellZ++) {
+            __m128 * row = &gm[cellZ * glowmapReso];
+            for (int cellX = l.boundingBox.beginX; cellX < l.boundingBox.endX; cellX++) {
+                float x, z;
+                worldGetCoords(cellX, cellZ, x, z);
+                float toLightX = l.x - x;
+                float toLightZ = l.z - z;
+
+                bool masked = false;
+                for (int i = 0; i < wallsCount; i++) {
+                    const Wall & w = walls[i];
+                    if (w.flags & WALL_FLAG_NO_SHADOW) continue;
+
+                    const Segment & s = segments[i];
+                    float div = toLightX * s.deltaZ - toLightZ * s.deltaX;
+                    if (fabs(div) < Epsilon) continue;
+                    if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
+
+                    float scale = 1.0f / div;
+                    float t = ((s.beginX - x) * s.deltaZ - (s.beginZ - z) * s.deltaX) * scale;
+                    if (t < 0.0f || t > 1.0f) continue;
+                    float u = ((s.beginX - x) * toLightZ - (s.beginZ - z) * toLightX) * scale;
+                    if (u < 0.0f || u > 1.0f) continue;
+                    masked = true;
+                    break;
+                }
+
+                if (masked) continue;
+
+                float dist2 = toLightX * toLightX + toLightZ * toLightZ;
+                float falloff = 1.0f / (1.0f + GlowFalloffSharpness * dist2 * l.falloffInv2);
+                row[cellX] = _mm_add_ps(row[cellX], _mm_mul_ps(l.argb, _mm_set1_ps(falloff)));
+            }
+        }
     }
 }
 
@@ -668,65 +696,6 @@ void Renderer::castStrips(Context & state)
 }
 
 /*****************************************************************************/
-Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
-{
-    Context & state = probeState;
-    state.casterPos = pos;
-    state.casterRayX = cosf(pan);
-    state.casterRayZ = sinf(pan);
-    state.casterPC = 1.0f;
-    state.casterProjectionX = 1.0f;
-    state.casterProjectionY = 1.0f;
-    state.casterHorizon = 0.0f;
-    castStrips(state);
-
-// Walk from the furthest wall to the closest, a wall hides the planes it crosses
-    static constexpr int PlanesMax = 2 * StripsMax;
-    Cap3D found[PlanesMax];
-    int foundCount = 0;
-    for (int depth = state.vStripsCount - 1; depth >= 0; depth--) {
-        const Strip & strip = state.vStrips[state.vStripsMap[depth]];
-        for (int i = foundCount - 1; i >= 0; i--) {
-            const Cap3D & l = found[i];
-            float h = l.h0 + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
-            if (h >= strip.hBot - Epsilon && h <= strip.hTop + Epsilon)
-                found[i] = found[--foundCount];
-        }
-        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capPlane(state, strip, strip.back, true);
-        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capPlane(state, strip, strip.back, false);
-    }
-
-// Closest plane above = ceiling, below = floor
-    Levels result = {{HeightMin, 0.0f, 0.0f}, {HeightMax, 0.0f, 0.0f}};
-    float y = pos.y();
-    for (int i = 0; i < foundCount; i++) {
-        const Cap3D & l = found[i];
-        if (l.h0 > y && l.h0 < result.ceiling.h0) result.ceiling = l;
-        if (l.h0 < y && l.h0 > result.floor.h0) result.floor = l;
-    }
-    return result;
-}
-
-/*****************************************************************************/
-Renderer::Cap3D Renderer::capPlane(const Context & state, const Strip & strip, bool back, bool ceiling)
-{
-    const Wall & w = walls[strip.wallId];
-    const Segment & s = segments[strip.wallId];
-    Cap2D cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
-
-// Plane gradient: rise along the wall, drop away from it on the surface side
-    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
-    float drop = ceiling ? (back ? w.ceilingBackDrop : w.ceilingFrontDrop)
-                         : (back ? w.floorBackDrop : w.floorFrontDrop);
-    drop *= 0x1p-3f;
-    float dirX = s.deltaX * s.invLen;
-    float dirZ = s.deltaZ * s.invLen;
-    float nx = back ? -dirZ : dirZ;     // front normal is (dirZ, -dirX)
-    float nz = back ? dirX : -dirX;
-    return {cap.h0, rise * dirX - drop * nx, rise * dirZ - drop * nz};
-}
-
-/*****************************************************************************/
 void Renderer::renderVertical(Context & state, int depth, Aperture ap)
 {
     if (ap.yTop >= ap.yBot) return;
@@ -847,28 +816,6 @@ void Renderer::renderVertical(Context & state, int depth, Aperture ap)
         renderVertical(state, i + 1, newAp);
         return;
     }
-}
-
-/*****************************************************************************/
-inline __m128 Renderer::sampleGlowmap(float glowX, float glowZ)
-{
-    int x0 = ((int) glowX) & (glowmapReso - 1);
-    int z0 = ((int) glowZ) & (glowmapReso - 1);
-    int x1 = (x0 + 1) & (glowmapReso - 1);
-    int z1 = (z0 + 1) & (glowmapReso - 1);
-
-    __m128 fx = _mm_set1_ps(glowX - x0);
-    __m128 fz = _mm_set1_ps(glowZ - z0);
-
-    __m128 A = glowmap[z0 * glowmapReso + x0];
-    __m128 B = glowmap[z0 * glowmapReso + x1];
-    __m128 AB = _mm_add_ps(A, _mm_mul_ps(_mm_sub_ps(B, A), fx));
-
-    __m128 C = glowmap[z1 * glowmapReso + x0];
-    __m128 D = glowmap[z1 * glowmapReso + x1];
-    __m128 CD = _mm_add_ps(C, _mm_mul_ps(_mm_sub_ps(D, C), fx));
-
-    return _mm_add_ps(AB, _mm_mul_ps(_mm_sub_ps(CD, AB), fz));
 }
 
 /*****************************************************************************/
@@ -1346,6 +1293,29 @@ Renderer::SurfaceLighting Renderer::surfaceLighting(uint16_t surfaceFlags, __m12
     return l;
 }
 
+/*****************************************************************************/
+inline __m128 Renderer::sampleGlowmap(float glowX, float glowZ)
+{
+    int x0 = ((int) glowX) & (glowmapReso - 1);
+    int z0 = ((int) glowZ) & (glowmapReso - 1);
+    int x1 = (x0 + 1) & (glowmapReso - 1);
+    int z1 = (z0 + 1) & (glowmapReso - 1);
+
+    __m128 fx = _mm_set1_ps(glowX - x0);
+    __m128 fz = _mm_set1_ps(glowZ - z0);
+
+    __m128 A = glowmap[z0 * glowmapReso + x0];
+    __m128 B = glowmap[z0 * glowmapReso + x1];
+    __m128 AB = _mm_add_ps(A, _mm_mul_ps(_mm_sub_ps(B, A), fx));
+
+    __m128 C = glowmap[z1 * glowmapReso + x0];
+    __m128 D = glowmap[z1 * glowmapReso + x1];
+    __m128 CD = _mm_add_ps(C, _mm_mul_ps(_mm_sub_ps(D, C), fx));
+
+    return _mm_add_ps(AB, _mm_mul_ps(_mm_sub_ps(CD, AB), fz));
+}
+
+/*****************************************************************************/
 int Renderer::floorToInt(float x)
 {
     __m128 v = _mm_set_ss(x);
@@ -1364,25 +1334,60 @@ int Renderer::highestBit(uint32_t x)
 }
 
 /*****************************************************************************/
-void Renderer::buildTables()
+Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
 {
-    if (!panTable) return;
+    Context & state = probeState;
+    state.casterPos = pos;
+    state.casterRayX = cosf(pan);
+    state.casterRayZ = sinf(pan);
+    state.casterPC = 1.0f;
+    state.casterProjectionX = 1.0f;
+    state.casterProjectionY = 1.0f;
+    state.casterHorizon = 0.0f;
+    castStrips(state);
 
-// Horizontal pan table (lens corrected)
-    const float refX = projectionX();
-    const float midX = frameResoX * 0.5f - 0.5f;
-    for (int x = 0; x < frameResoX; x++) {
-        float pan = atanf((x - midX) / refX);
-        panTable[x] = pan;
+// Walk from the furthest wall to the closest, a wall hides the planes it crosses
+    static constexpr int PlanesMax = 2 * StripsMax;
+    Cap3D found[PlanesMax];
+    int foundCount = 0;
+    for (int depth = state.vStripsCount - 1; depth >= 0; depth--) {
+        const Strip & strip = state.vStrips[state.vStripsMap[depth]];
+        for (int i = foundCount - 1; i >= 0; i--) {
+            const Cap3D & l = found[i];
+            float h = l.h0 + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
+            if (h >= strip.hBot - Epsilon && h <= strip.hTop + Epsilon)
+                found[i] = found[--foundCount];
+        }
+        if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capPlane(state, strip, strip.back, true);
+        if (strip.flags & VSTRIP_FLAG_HASFLOOR) found[foundCount++] = capPlane(state, strip, strip.back, false);
     }
+
+// Closest plane above = ceiling, below = floor
+    Levels result = {{HeightMin, 0.0f, 0.0f}, {HeightMax, 0.0f, 0.0f}};
+    float y = pos.y();
+    for (int i = 0; i < foundCount; i++) {
+        const Cap3D & l = found[i];
+        if (l.h0 > y && l.h0 < result.ceiling.h0) result.ceiling = l;
+        if (l.h0 < y && l.h0 > result.floor.h0) result.floor = l;
+    }
+    return result;
 }
 
-float Renderer::projectionX() const
+/*****************************************************************************/
+Renderer::Cap3D Renderer::capPlane(const Context & state, const Strip & strip, bool back, bool ceiling)
 {
-    return 0.5f * frameResoX / tanf(fovAngle * D2R * 0.5f);
-}
+    const Wall & w = walls[strip.wallId];
+    const Segment & s = segments[strip.wallId];
+    Cap2D cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
 
-float Renderer::projectionY() const
-{
-    return frameResoY / tanf(fovAngle * D2R * 0.5f); // absence of 0.5f is a choice
+// Plane gradient: rise along the wall, drop away from it on the surface side
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+    float drop = ceiling ? (back ? w.ceilingBackDrop : w.ceilingFrontDrop)
+                         : (back ? w.floorBackDrop : w.floorFrontDrop);
+    drop *= 0x1p-3f;
+    float dirX = s.deltaX * s.invLen;
+    float dirZ = s.deltaZ * s.invLen;
+    float nx = back ? -dirZ : dirZ;     // front normal is (dirZ, -dirX)
+    float nz = back ? dirX : -dirX;
+    return {cap.h0, rise * dirX - drop * nx, rise * dirZ - drop * nz};
 }
