@@ -18,9 +18,10 @@ var searchData=
   ['findspritesbytag_15',['findSpritesByTag',['../class_map.html#a7fd51de216b1b0ead2dc603d069050b6',1,'Map']]],
   ['findsubmapbyname_16',['findSubmapByName',['../class_map.html#a4d02fe9d919844d63dd83cadfb39a979',1,'Map']]],
   ['findsubmapsbytag_17',['findSubmapsByTag',['../class_map.html#ae4b626e8d67427a2c043d4d202d02fc8',1,'Map']]],
-  ['flip_18',['flip',['../class_editor.html#a3a241b67d816ebc73c0a93cbbaa847fd',1,'Editor']]],
-  ['frameadd_19',['frameAdd',['../class_rig.html#aade1c1aa0e91ed58d7b48cbd5900f130',1,'Rig']]],
-  ['framedelete_20',['frameDelete',['../class_rig.html#ad60bd67b85794c6018d7c160622e53b8',1,'Rig']]],
-  ['frameinsert_21',['frameInsert',['../class_rig.html#a3e55d7ae581b4e9a68f2384b610ca184',1,'Rig']]],
-  ['frameselect_22',['frameSelect',['../class_rig.html#a3d2ef99fb626d6df5833da7a27a10760',1,'Rig']]]
+  ['fits_18',['fits',['../class_striper.html#ad5cf6fade27f0de2741621333c9885ff',1,'Striper']]],
+  ['flip_19',['flip',['../class_editor.html#a3a241b67d816ebc73c0a93cbbaa847fd',1,'Editor']]],
+  ['frameadd_20',['frameAdd',['../class_rig.html#aade1c1aa0e91ed58d7b48cbd5900f130',1,'Rig']]],
+  ['framedelete_21',['frameDelete',['../class_rig.html#ad60bd67b85794c6018d7c160622e53b8',1,'Rig']]],
+  ['frameinsert_22',['frameInsert',['../class_rig.html#a3e55d7ae581b4e9a68f2384b610ca184',1,'Rig']]],
+  ['frameselect_23',['frameSelect',['../class_rig.html#a3d2ef99fb626d6df5833da7a27a10760',1,'Rig']]]
 ];

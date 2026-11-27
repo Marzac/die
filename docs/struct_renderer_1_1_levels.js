@@ -1,5 +1,5 @@
 var struct_renderer_1_1_levels =
 [
-    [ "ceiling", "struct_renderer_1_1_levels.html#a762d6e5712f4333032409150f510fc4a", null ],
-    [ "floor", "struct_renderer_1_1_levels.html#ae17452192aa46a993d876c0030ee5229", null ]
+    [ "ceiling", "struct_renderer_1_1_levels.html#ae54e43d0b09222626297a8d1632e4dad", null ],
+    [ "floor", "struct_renderer_1_1_levels.html#a04d5c32c050e9ef58d9a46828364490e", null ]
 ];

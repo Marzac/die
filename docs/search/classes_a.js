@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['path_0',['Path',['../struct_path.html',1,'']]]
+  ['node_0',['Node',['../struct_node.html',1,'Node'],['../struct_renderer_1_1_node.html',1,'Renderer::Node']]]
 ];

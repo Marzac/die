@@ -5,6 +5,7 @@ var class_main_window =
     [ "MainWindow", "class_main_window.html#a996c5a2b6f77944776856f08ec30858d", null ],
     [ "~MainWindow", "class_main_window.html#ae98d00a93bc118200eeef9f9bba1dba7", null ],
     [ "askMapFile", "class_main_window.html#abfedb41ca605471b8f00ffdfd0715858", null ],
+    [ "mapChanged", "class_main_window.html#a0824cd5bcf4736b16612cbdea29b012a", null ],
     [ "pushUndoState", "class_main_window.html#ab76b2d5743a5347c0698a543c4473c99", null ],
     [ "redo", "class_main_window.html#a21b622c0f1855274d69f32421f10b251", null ],
     [ "refreshTagCombos", "class_main_window.html#ac7286d5652c65d712e59d371a2362a96", null ],
@@ -46,6 +47,7 @@ var class_main_window =
     [ "updateViewNormals", "class_main_window.html#a6ddf7a73d4f22030342490feecde85a1", null ],
     [ "updateViewpointProperties", "class_main_window.html#aab55cba62b7c805edbb8969df8247e63", null ],
     [ "updateWallProperties", "class_main_window.html#a46f4c98eacc6822a11ce53e16e49560f", null ],
+    [ "updateWallSlant", "class_main_window.html#af4d86f94224378e021677c3e8fd2b9b7", null ],
     [ "updateWallTexture", "class_main_window.html#a129f82a379ee963f81de17969a1cced3", null ],
     [ "metricsClock", "class_main_window.html#ac906f30064664136e9455e6fdaf495a3", null ],
     [ "metricsFrames", "class_main_window.html#afa3b978df5eaa8362505ea3605f0a654", null ],
@@ -61,5 +63,6 @@ var class_main_window =
     [ "viewEnableFront", "class_main_window.html#a80ee2e93069d734a1f8a8b663c9cf131", null ],
     [ "viewEnableSide", "class_main_window.html#a7479840efee7518bfa43f62b210d3a01", null ],
     [ "viewEnableTop", "class_main_window.html#a62f085d87672d559fcdbb773925973b6", null ],
+    [ "wallPickAdd", "class_main_window.html#a4434b50b2157ff5cc040d45bbaa9ea75", null ],
     [ "wallPickPending", "class_main_window.html#ae83f9c1661075be38ad09175e47b0020", null ]
 ];

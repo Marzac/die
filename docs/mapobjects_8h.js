@@ -103,7 +103,8 @@ var mapobjects_8h =
       [ "SURFACE_FLAG_NO_FOG", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a298e733984bb56207f6877722f95b601", null ],
       [ "SURFACE_FLAG_NO_BLEED", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a35a18f2812a1c9ec4e840181f8592cd2", null ],
       [ "SURFACE_FLAG_NO_AMBIENT", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a5bb86f0ee36aa05628df78715d010ac3", null ],
-      [ "SURFACE_FLAG_NO_RAY", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959", null ]
+      [ "SURFACE_FLAG_NO_RAY", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959", null ],
+      [ "SURFACE_FLAG_NO_AO", "mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21add693da447580305707ce80e89a708a7", null ]
     ] ],
     [ "WALL_FLAGS", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266b", [
       [ "WALL_FLAG_FREE", "mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266baf205dbfb79751d222716ba8cd099423c", null ],
@@ -122,5 +123,7 @@ var mapobjects_8h =
       [ "WALL_SURFACE_FLOOR", "mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3da1d8afd41849eeef98a555bea5abfbc51", null ],
       [ "WALL_SURFACE_CEILING", "mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3daa9138e74579c2d60b202a8cdf1c8b270", null ],
       [ "WALL_SURFACES_COUNT", "mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3daa3f9713b58ec33ec51c9e34bc882dba2", null ]
-    ] ]
+    ] ],
+    [ "wallHeight1", "mapobjects_8h.html#a2d0f79d853bacd1e4f0132e54fc489d9", null ],
+    [ "wallHeight2", "mapobjects_8h.html#ab96921620d4a2593d545063588124152", null ]
 ];

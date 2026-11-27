@@ -12,7 +12,7 @@ var searchData=
   ['colorsscalesse4_9',['colorsScaleSSE4',['../colors_8h.html#adcb0b6f6fa670c07541e32dafcf9384c',1,'colors.h']]],
   ['computeallwalls_10',['computeAllWalls',['../class_map.html#aff04e5ce71a1cb245a1eeeeccb43492a',1,'Map']]],
   ['computewall_11',['computeWall',['../class_map.html#a08a53d507f3237b1ed2ea6c213531f2e',1,'Map']]],
-  ['concat_12',['concat',['../class_wdg_texture_selector.html#ac5bdffa5db11a0595f3c3e34e36454e3',1,'WdgTextureSelector']]],
+  ['concat_12',['concat',['../class_striper.html#a830bfedba87efe12632febd7fde6eb3c',1,'Striper']]],
   ['copy_13',['copy',['../class_rigger.html#ab5efeb2ed999f8fe047d4b541c5b151f',1,'Rigger::copy()'],['../class_editor.html#a1741858b2cd61f83f41446fb8514a6c7',1,'Editor::copy()']]],
   ['currentanimationptr_14',['currentAnimationPtr',['../class_rig.html#adab5cd76a9b0a0e14fa90eb51e5b27ea',1,'Rig']]],
   ['currentframeptr_15',['currentFramePtr',['../class_rig.html#a6207d7dfac20467d62ed456f779c1d99',1,'Rig']]],

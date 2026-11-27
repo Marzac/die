@@ -10,5 +10,6 @@ var searchData=
   ['nodemerge_7',['nodeMerge',['../class_editor.html#aac2833193f00bab0eb2d5ea276b06264',1,'Editor']]],
   ['nodeselect_8',['nodeSelect',['../class_editor.html#a2b3551c8f8497fd0799500775ef2c82f',1,'Editor']]],
   ['nodeselectall_9',['nodeSelectAll',['../class_editor.html#a30acc7ff36c3af843f8feec28fa6d033',1,'Editor']]],
-  ['nudge_10',['nudge',['../class_editor.html#a4bda7e754189fdff9b23cc814196302d',1,'Editor']]]
+  ['normalize_10',['normalize',['../class_striper.html#a4d57e06d46bc3355a6e281421453aef1',1,'Striper']]],
+  ['nudge_11',['nudge',['../class_editor.html#a4bda7e754189fdff9b23cc814196302d',1,'Editor']]]
 ];

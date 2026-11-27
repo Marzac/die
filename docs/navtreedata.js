@@ -72,6 +72,7 @@ var NAVTREE =
         [ "All", "functions.html", "functions_dup" ],
         [ "Functions", "functions_func.html", "functions_func" ],
         [ "Variables", "functions_vars.html", "functions_vars" ],
+        [ "Typedefs", "functions_type.html", null ],
         [ "Enumerations", "functions_enum.html", null ],
         [ "Enumerator", "functions_eval.html", null ]
       ] ]
@@ -93,11 +94,11 @@ var NAVTREE =
 var NAVTREEINDEX =
 [
 "animator_2main_8cpp.html",
-"class_map.html#a5cb119053c45c1f74be2e33b558458f8",
-"class_wdg_tex_selector.html#a2d3aaa4c1e4bebcc6bb7e06a88594574",
-"globals_s.html",
-"struct_glowmap.html#afd563287feb1229842c305d1e81c6788",
-"wdgutilities_8h.html#ad4684c16c92a1e47814a229546fc14c6"
+"class_map.html#a4be26172f7c8cc39302ecc6e7649f5ec",
+"class_wdg_rig_editor.html#ae6b84fbbd5b4a3f969d673294527069a",
+"globals_f.html",
+"struct_door.html#a73f9c121b999c796345c9e0fee724f7b",
+"wdgsurfaceedit_8h_source.html"
 ];
 
 const SYNCONMSG = 'click to disable panel synchronization';

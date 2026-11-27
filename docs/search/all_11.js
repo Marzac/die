@@ -16,7 +16,7 @@ var searchData=
   ['render_13',['render',['../class_renderer.html#a5273a66f5f05f666de8532a69a7a7f75',1,'Renderer']]],
   ['renderanimationframe_14',['renderAnimationFrame',['../class_rigger.html#a79c81e90d01471ccb178a43c624fdf68',1,'Rigger']]],
   ['renderer_15',['Renderer',['../class_renderer.html',1,'Renderer'],['../class_renderer.html#a7ebf46f54dab9905f79b80f7fddb76a6',1,'Renderer::Renderer()']]],
-  ['renderer_16',['renderer',['../renderer_8cpp.html#a96120bdea31dc797b1f3acbb8cf5a322',1,'renderer:&#160;renderer.cpp'],['../renderer_8h.html#a96120bdea31dc797b1f3acbb8cf5a322',1,'renderer:&#160;renderer.cpp'],['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md31',1,'The renderer']]],
+  ['renderer_16',['renderer',['../renderer_8cpp.html#a96120bdea31dc797b1f3acbb8cf5a322',1,'renderer:&#160;renderer.cpp'],['../renderer_8h.html#a96120bdea31dc797b1f3acbb8cf5a322',1,'renderer:&#160;renderer.cpp'],['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md32',1,'The renderer']]],
   ['renderer_2ecpp_17',['renderer.cpp',['../renderer_8cpp.html',1,'']]],
   ['renderer_2eh_18',['renderer.h',['../renderer_8h.html',1,'']]],
   ['renderer_5fconfig_2ecpp_19',['renderer_config.cpp',['../renderer__config_8cpp.html',1,'']]],

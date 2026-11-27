@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['mainwindow_0',['mainWindow',['../animator_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../animator_2mainwindow_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../globals_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../editor_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp']]],
+  ['mainwindow_0',['mainWindow',['../animator_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../animator_2mainwindow_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../globals_8h.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../editor_2main_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;main.cpp'],['../snap_8cpp.html#ab6705fab832298411ae13ace059dd583',1,'mainWindow:&#160;snap.cpp']]],
   ['maps_1',['maps',['../class_map.html#a8d5db9e5fd488b4ff2788f61c540471b',1,'Map']]],
   ['mask_2',['mask',['../struct_texture.html#adae4372246a3a80a71bfa38dac05b020',1,'Texture']]],
   ['metaa_3',['metaA',['../struct_node.html#ac14345606f0801cde94ec95915d6853d',1,'Node']]],
@@ -12,6 +12,9 @@ var searchData=
   ['metricsmin_9',['metricsMin',['../class_main_window.html#a18a47243f911faa300d54a1eba75740a',1,'MainWindow']]],
   ['metricssum_10',['metricsSum',['../class_main_window.html#a2866eaba4dfed11ab1494e9517f6cefe',1,'MainWindow']]],
   ['minwidth_11',['minWidth',['../struct_bone.html#a37f68877dd9da51a29d8bc76a645dfd2',1,'Bone']]],
-  ['mode_12',['mode',['../class_rigger.html#aa7b864e422f56b8815a1b2e12e445e9e',1,'Rigger::mode'],['../struct_door.html#af81cb6c341f0d04e4b8b819cbb6188bf',1,'Door::mode'],['../struct_lift.html#aadfb2e217632473176eb8cd682e5cc99',1,'Lift::mode']]],
-  ['motionblurfactor_13',['motionBlurFactor',['../class_renderer.html#a7aab16581f6b4f2aa78a57272d17c9af',1,'Renderer']]]
+  ['mipmaps_12',['mipmaps',['../class_map.html#a69da0dd8543979e22cafde8bbb70617f',1,'Map']]],
+  ['mmlevels_13',['mmLevels',['../struct_texture.html#af5fc82bb035ba01649dc55aa1a36dbcb',1,'Texture']]],
+  ['mmoffsets_14',['mmOffsets',['../struct_texture.html#aa957e4c5ecc32a9ae594bb4618b2469c',1,'Texture']]],
+  ['mode_15',['mode',['../class_rigger.html#aa7b864e422f56b8815a1b2e12e445e9e',1,'Rigger::mode'],['../struct_door.html#af81cb6c341f0d04e4b8b819cbb6188bf',1,'Door::mode'],['../struct_lift.html#aadfb2e217632473176eb8cd682e5cc99',1,'Lift::mode']]],
+  ['motionblurfactor_16',['motionBlurFactor',['../class_renderer.html#a7aab16581f6b4f2aa78a57272d17c9af',1,'Renderer']]]
 ];

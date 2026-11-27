@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['tags_2ecpp_0',['tags.cpp',['../tags_8cpp.html',1,'']]],
-  ['tags_2eh_1',['tags.h',['../tags_8h.html',1,'']]]
+  ['snap_2ecpp_0',['snap.cpp',['../snap_8cpp.html',1,'']]],
+  ['striper_2ecpp_1',['striper.cpp',['../striper_8cpp.html',1,'']]],
+  ['striper_2eh_2',['striper.h',['../striper_8h.html',1,'']]]
 ];

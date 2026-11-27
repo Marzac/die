@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['save_0',['save',['../class_map.html#ac01aba770d027faf11ae251b668828c2',1,'Map::save()'],['../class_rig.html#a8adb6d1d8219f6e6e115cfc7825353f8',1,'Rig::save()'],['../class_tags.html#a5df63cc471c5e29d7f527f0d21bf6eba',1,'Tags::save()']]],
+  ['save_0',['save',['../class_map.html#ac01aba770d027faf11ae251b668828c2',1,'Map::save()'],['../class_rig.html#a8adb6d1d8219f6e6e115cfc7825353f8',1,'Rig::save()'],['../class_striper.html#a9d228c7ff36d8d9b9e295310ee81e862',1,'Striper::save()'],['../class_tags.html#a5df63cc471c5e29d7f527f0d21bf6eba',1,'Tags::save()']]],
   ['savemap_1',['saveMap',['../class_main_window.html#a39731eb5430f57e58ce6ff6b87f920bd',1,'MainWindow']]],
   ['scheduleundopush_2',['scheduleUndoPush',['../class_main_window.html#aa1a9949c12c88f5e4c4bd725cd006d5c',1,'MainWindow']]],
   ['selectall_3',['selectAll',['../class_rigger.html#ab3f94e091b06b8260cfa1299df4e5915',1,'Rigger::selectAll()'],['../class_editor.html#a8fc8b3c7b9e7d5a12c104b68a6fc2f0f',1,'Editor::selectAll()']]],
@@ -25,7 +25,7 @@ var searchData=
   ['settextureid_22',['setTextureID',['../class_wdg_surface_edit.html#aa5d061824911f8bb7b032de8842a1e89',1,'WdgSurfaceEdit']]],
   ['settextures_23',['setTextures',['../class_map.html#a513e5448b453b156d12d048d2c08cc39',1,'Map']]],
   ['setviewmode_24',['setViewMode',['../class_wdg_map_editor.html#aa9734170c3c5c36d239c7b411aba1e51',1,'WdgMapEditor']]],
-  ['slice_25',['slice',['../class_wdg_texture_selector.html#ad00bfef5c5b6aa08cb1de78a2ed55030',1,'WdgTextureSelector']]],
+  ['slice_25',['slice',['../class_striper.html#a4e02ae02e23a388c6f6e1b27abb2cc3f',1,'Striper']]],
   ['snapcoords_26',['snapCoords',['../class_editor.html#a9bfd6d7f2136aef12c3f0b1b8c1ddee6',1,'Editor']]],
   ['soundload_27',['soundLoad',['../class_audio.html#a80ee09be147e38d96ab19e0f533f504c',1,'Audio']]],
   ['soundunload_28',['soundUnload',['../class_audio.html#a712994bc884e5b725574a984d87b63e3',1,'Audio']]],

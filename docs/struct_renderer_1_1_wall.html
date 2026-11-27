@@ -120,18 +120,33 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('struct_rendere
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ada7aeb656a097b1db93edb20fce7de0d" id="r_ada7aeb656a097b1db93edb20fce7de0d"><td class="memItemLeft">uint16_t&#160;</td><td class="memItemRight"><a class="el" href="#ada7aeb656a097b1db93edb20fce7de0d">nodeID1</a></td></tr>
+<tr class="memdesc:ada7aeb656a097b1db93edb20fce7de0d"><td class="mdescLeft">&#160;</td><td class="mdescRight">start node  <br /></td></tr>
 <tr class="memitem:a395037ba3c8a9e96f5e268bfcbc3f863" id="r_a395037ba3c8a9e96f5e268bfcbc3f863"><td class="memItemLeft">uint16_t&#160;</td><td class="memItemRight"><a class="el" href="#a395037ba3c8a9e96f5e268bfcbc3f863">nodeID2</a></td></tr>
+<tr class="memdesc:a395037ba3c8a9e96f5e268bfcbc3f863"><td class="mdescLeft">&#160;</td><td class="mdescRight">end node  <br /></td></tr>
 <tr class="memitem:a4822f50b9e3d5eeb4f86b9a694ac5936" id="r_a4822f50b9e3d5eeb4f86b9a694ac5936"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a4822f50b9e3d5eeb4f86b9a694ac5936">height</a></td></tr>
+<tr class="memdesc:a4822f50b9e3d5eeb4f86b9a694ac5936"><td class="mdescLeft">&#160;</td><td class="mdescRight">at the taller end, in world units above the nodes  <br /></td></tr>
+<tr class="memitem:af02462137807cc0487086a21b7ed5b70" id="r_af02462137807cc0487086a21b7ed5b70"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#af02462137807cc0487086a21b7ed5b70">slant</a></td></tr>
+<tr class="memdesc:af02462137807cc0487086a21b7ed5b70"><td class="mdescLeft">&#160;</td><td class="mdescRight">top rise from node 1 to node 2, in [-height, height]  <br /></td></tr>
 <tr class="memitem:a885cb240ffc3521edbab0574efab7155" id="r_a885cb240ffc3521edbab0574efab7155"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a885cb240ffc3521edbab0574efab7155">floorFrontDrop</a></td></tr>
+<tr class="memdesc:a885cb240ffc3521edbab0574efab7155"><td class="mdescLeft">&#160;</td><td class="mdescRight">surface slope away from the wall, in 1/8 per unit  <br /></td></tr>
 <tr class="memitem:a7aea2fae8e16ba9a3b999f6c3f623f6f" id="r_a7aea2fae8e16ba9a3b999f6c3f623f6f"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a7aea2fae8e16ba9a3b999f6c3f623f6f">floorBackDrop</a></td></tr>
+<tr class="memdesc:a7aea2fae8e16ba9a3b999f6c3f623f6f"><td class="mdescLeft">&#160;</td><td class="mdescRight">same, back side  <br /></td></tr>
 <tr class="memitem:a919468d2308aff97158fd716c7e58b30" id="r_a919468d2308aff97158fd716c7e58b30"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a919468d2308aff97158fd716c7e58b30">ceilingFrontDrop</a></td></tr>
+<tr class="memdesc:a919468d2308aff97158fd716c7e58b30"><td class="mdescLeft">&#160;</td><td class="mdescRight">same, front ceiling  <br /></td></tr>
 <tr class="memitem:a50645593dbdaa56c9eb0277a58b0d733" id="r_a50645593dbdaa56c9eb0277a58b0d733"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a50645593dbdaa56c9eb0277a58b0d733">ceilingBackDrop</a></td></tr>
+<tr class="memdesc:a50645593dbdaa56c9eb0277a58b0d733"><td class="mdescLeft">&#160;</td><td class="mdescRight">same, back ceiling  <br /></td></tr>
 <tr class="memitem:ae32df19512975d4c8540ca87c05d42df" id="r_ae32df19512975d4c8540ca87c05d42df"><td class="memItemLeft">QVector3D&#160;</td><td class="memItemRight"><a class="el" href="#ae32df19512975d4c8540ca87c05d42df">offset</a></td></tr>
+<tr class="memdesc:ae32df19512975d4c8540ca87c05d42df"><td class="mdescLeft">&#160;</td><td class="mdescRight">floor / ceiling texture offset  <br /></td></tr>
 <tr class="memitem:afbaedcddedf70b5795b4f87d249ff04c" id="r_afbaedcddedf70b5795b4f87d249ff04c"><td class="memItemLeft"><a class="el" href="struct_surface.html">Surface</a>&#160;</td><td class="memItemRight"><a class="el" href="#afbaedcddedf70b5795b4f87d249ff04c">surfaces</a> [<a class="el" href="mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3daa3f9713b58ec33ec51c9e34bc882dba2">WALL_SURFACES_COUNT</a>]</td></tr>
+<tr class="memdesc:afbaedcddedf70b5795b4f87d249ff04c"><td class="mdescLeft">&#160;</td><td class="mdescRight">indexed by <a class="el" href="mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3d">WALL_SURFACES</a>  <br /></td></tr>
 <tr class="memitem:ab64bd80413b187d9ccc2ea71fa24b1e3" id="r_ab64bd80413b187d9ccc2ea71fa24b1e3"><td class="memItemLeft">uint16_t&#160;</td><td class="memItemRight"><a class="el" href="#ab64bd80413b187d9ccc2ea71fa24b1e3">textureID</a></td></tr>
+<tr class="memdesc:ab64bd80413b187d9ccc2ea71fa24b1e3"><td class="mdescLeft">&#160;</td><td class="mdescRight">texture of all the surfaces  <br /></td></tr>
 <tr class="memitem:aa8bdb30be09b413db9b6fa16658f61ba" id="r_aa8bdb30be09b413db9b6fa16658f61ba"><td class="memItemLeft">uint16_t&#160;</td><td class="memItemRight"><a class="el" href="#aa8bdb30be09b413db9b6fa16658f61ba">flags</a></td></tr>
+<tr class="memdesc:aa8bdb30be09b413db9b6fa16658f61ba"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266b">WALL_FLAGS</a>.  <br /></td></tr>
 <tr class="memitem:aa2785aa9dedef20047cdaeecbd414ca8" id="r_aa2785aa9dedef20047cdaeecbd414ca8"><td class="memItemLeft">uint32_t&#160;</td><td class="memItemRight"><a class="el" href="#aa2785aa9dedef20047cdaeecbd414ca8">rayFront</a></td></tr>
+<tr class="memdesc:aa2785aa9dedef20047cdaeecbd414ca8"><td class="mdescLeft">&#160;</td><td class="mdescRight">sun ray color on the front side  <br /></td></tr>
 <tr class="memitem:aa9e349155a55f88e8cb49365e8b12d2b" id="r_aa9e349155a55f88e8cb49365e8b12d2b"><td class="memItemLeft">uint32_t&#160;</td><td class="memItemRight"><a class="el" href="#aa9e349155a55f88e8cb49365e8b12d2b">rayBack</a></td></tr>
+<tr class="memdesc:aa9e349155a55f88e8cb49365e8b12d2b"><td class="mdescLeft">&#160;</td><td class="mdescRight">sun ray color on the back side  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Renderer-side wall (compact variant). </p>
@@ -148,6 +163,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>same, back ceiling </p>
+
 </div>
 </div>
 <a id="a919468d2308aff97158fd716c7e58b30" name="a919468d2308aff97158fd716c7e58b30"></a>
@@ -161,6 +178,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>same, front ceiling </p>
 
 </div>
 </div>
@@ -176,6 +195,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p><a class="el" href="mapobjects_8h.html#aab97a645e2464f5995ecbdaa5013266b">WALL_FLAGS</a>. </p>
+
 </div>
 </div>
 <a id="a7aea2fae8e16ba9a3b999f6c3f623f6f" name="a7aea2fae8e16ba9a3b999f6c3f623f6f"></a>
@@ -189,6 +210,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>same, back side </p>
 
 </div>
 </div>
@@ -204,6 +227,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>surface slope away from the wall, in 1/8 per unit </p>
+
 </div>
 </div>
 <a id="a4822f50b9e3d5eeb4f86b9a694ac5936" name="a4822f50b9e3d5eeb4f86b9a694ac5936"></a>
@@ -217,6 +242,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>at the taller end, in world units above the nodes </p>
 
 </div>
 </div>
@@ -232,6 +259,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>start node </p>
+
 </div>
 </div>
 <a id="a395037ba3c8a9e96f5e268bfcbc3f863" name="a395037ba3c8a9e96f5e268bfcbc3f863"></a>
@@ -245,6 +274,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>end node </p>
 
 </div>
 </div>
@@ -260,6 +291,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>floor / ceiling texture offset </p>
+
 </div>
 </div>
 <a id="aa9e349155a55f88e8cb49365e8b12d2b" name="aa9e349155a55f88e8cb49365e8b12d2b"></a>
@@ -273,6 +306,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>sun ray color on the back side </p>
 
 </div>
 </div>
@@ -288,6 +323,24 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>sun ray color on the front side </p>
+
+</div>
+</div>
+<a id="af02462137807cc0487086a21b7ed5b70" name="af02462137807cc0487086a21b7ed5b70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af02462137807cc0487086a21b7ed5b70">&#9670;&#160;</a></span>slant</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Renderer::Wall::slant</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>top rise from node 1 to node 2, in [-height, height] </p>
+
 </div>
 </div>
 <a id="afbaedcddedf70b5795b4f87d249ff04c" name="afbaedcddedf70b5795b4f87d249ff04c"></a>
@@ -302,6 +355,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>indexed by <a class="el" href="mapobjects_8h.html#af33d35b0cfe6a53779a90b25e48b0e3d">WALL_SURFACES</a> </p>
+
 </div>
 </div>
 <a id="ab64bd80413b187d9ccc2ea71fa24b1e3" name="ab64bd80413b187d9ccc2ea71fa24b1e3"></a>
@@ -315,6 +370,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>texture of all the surfaces </p>
 
 </div>
 </div>

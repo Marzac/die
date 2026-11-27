@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['quad_0',['Quad',['../struct_quad.html',1,'']]]
+  ['path_0',['Path',['../struct_path.html',1,'']]]
 ];
