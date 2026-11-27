@@ -931,8 +931,8 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     denomStart += skip * denomInc;
 
 // Glowmap coordinates along the ray: origin + ray * adjacent
-    float glowOriginX = state.casterPos.x() * glowmapScale + glowmapReso * 0.5f;
-    float glowOriginZ = state.casterPos.z() * glowmapScale + glowmapReso * 0.5f;
+    float glowOriginX, glowOriginZ;
+    sceneGetCoords(state.casterPos.x(), state.casterPos.z(), glowOriginX, glowOriginZ);
     float glowRayX = state.casterRayX * glowmapScale;
     float glowRayZ = state.casterRayZ * glowmapScale;
 
@@ -1182,8 +1182,8 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         Segment & seg = segments[strip.wallId];
         float wallX = seg.beginX + strip.k * seg.deltaX;
         float wallZ = seg.beginZ + strip.k * seg.deltaZ;
-        float glowX = wallX * glowmapScale + glowmapReso * 0.5f;
-        float glowZ = wallZ * glowmapScale + glowmapReso * 0.5f;
+        float glowX, glowZ;
+        sceneGetCoords(wallX, wallZ, glowX, glowZ);
         float glowSide = strip.back ? -GlowSampleDistance : GlowSampleDistance;
         glowX += seg.deltaZ * seg.invLen * glowSide;
         glowZ -= seg.deltaX * seg.invLen * glowSide;
