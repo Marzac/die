@@ -164,7 +164,6 @@ void MainWindow::createRenderWindow()
     renderWindow->setGeometry(rwScreen->geometry());
     renderWindow->show();
     renderWindow->activateWindow();
-    updateWindowTitle();
 }
 
 /*****************************************************************************/
@@ -205,19 +204,6 @@ void MainWindow::createShortcuts()
 
     shortcutViewerRecall = new QShortcut(QKeySequence(Qt::Key_F5), this);
     connect(shortcutViewerRecall, SIGNAL(activated()), this, SLOT(on_pushViewerRecall_clicked()));
-
-// Experimental: cycle renderVertical -> renderVertical5 -> renderVertical6
-    QShortcut * shortcutApertures = new QShortcut(QKeySequence(Qt::Key_F9), this);
-    shortcutApertures->setContext(Qt::ApplicationShortcut);
-    connect(shortcutApertures, &QShortcut::activated, this, [this]() {
-        uint32_t f = renderer.getFlags();
-        bool toRv5 = !(f & (Renderer::FLAG_APERTURES | Renderer::FLAG_APERTURES6));
-        bool toRv6 = (f & Renderer::FLAG_APERTURES) && !(f & Renderer::FLAG_APERTURES6);
-        renderer.checkFlag(Renderer::FLAG_APERTURES, toRv5);
-        renderer.checkFlag(Renderer::FLAG_APERTURES6, toRv6);
-        updateWindowTitle();
-    });
-    updateWindowTitle();
 }
 
 void MainWindow::createContextMenu()
@@ -2791,18 +2777,8 @@ bool MainWindow::saveMap(const QString & file, bool submap)
 void MainWindow::setMapFile(const QString & file)
 {
     mapFile = file.isEmpty() ? QString() : QFileInfo(file).absoluteFilePath();
-    updateWindowTitle();
+    setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()));
     updateViewMarkButton();
-}
-
-void MainWindow::updateWindowTitle()
-{
-// Experimental: show the active renderVertical
-    QString algo = "renderVertical";
-    if (renderer.getFlags() & Renderer::FLAG_APERTURES6) algo = "renderVertical6";
-    else if (renderer.getFlags() & Renderer::FLAG_APERTURES) algo = "renderVertical5";
-    setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()) + " [" + algo + "]");
-    if (renderWindow) renderWindow->setWindowTitle("Waller : Render [" + algo + "]");
 }
 
 /*****************************************************************************/

@@ -97,8 +97,6 @@ public:
         FLAG_GAMMA              = 0x0400,
         FLAG_MULTITHREADING     = 0x1000,
         FLAG_MIPMAPPING         = 0x2000,   ///< sample the mipmap levels
-        FLAG_APERTURES          = 0x4000,   ///< experimental: renderVertical5() clipping
-        FLAG_APERTURES6         = 0x8000,   ///< experimental: renderVertical6() clipping, wins over FLAG_APERTURES
         FLAGS_DEFAULT           = FLAG_WALLS | FLAG_SURFACES | FLAG_LIGHTS | FLAG_AMBIENT_OCCLUSION | FLAG_GAMMA
                                 | FLAG_MULTITHREADING | FLAG_MIPMAPPING,
     } FLAGS;
@@ -301,18 +299,6 @@ private:
         float slope;
     } Cap2D;
 
-    /// \brief Fixed-size stack of caps, copied by value into each recursion (no heap)
-    static constexpr int CapStackMax = 16;
-    struct CapStack {
-        Cap2D caps[CapStackMax];
-        int count;
-
-        bool push(const Cap2D & cap) {if (count >= CapStackMax) return false; caps[count++] = cap; return true;}
-        void pop() {count--;}
-        void replace(const Cap2D & cap) {caps[count - 1] = cap;}
-        const Cap2D & top() const {return caps[count - 1];}
-    };
-
     /// \brief Persistent cap stack: each link lives in the frame of the recursion that pushed it
     typedef struct _CapLink {
         Cap2D cap;
@@ -415,9 +401,7 @@ private:
 
     void castStrips(Context & state);
     Cap3D capPlane(const Context & state, const Strip & strip, bool back, bool ceiling);
-    void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
-    void renderVertical5(Context & state, int depth, Aperture ap);
-    void renderVertical6(Context & state, int depth, Aperture ap);
+    void renderVertical(Context & state, int depth, Aperture ap);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
@@ -430,11 +414,6 @@ private:
     static const CapLink * linkFloor(const CapLink * floor, float hFloor, bool ends, CapLink * link, float d);
     /// \brief Ceiling of the rays past an edge: pops the ceiling if it ends there, pushes link (if any) if it ends or is tighter
     static const CapLink * linkCeiling(const CapLink * ceiling, float hCeiling, bool ends, CapLink * link, float d);
-
-    /// \brief Bound for the rays passing over a wall top edge, false if nothing bounds them
-    bool edgeLowerBound(const Context & state, const Strip & strip, Cap2D & bound);
-    /// \brief Bound for the rays passing under a wall bottom edge, false if nothing bounds them
-    bool edgeUpperBound(const Context & state, const Strip & strip, Cap2D & bound);
 
     void buildTables();
 
