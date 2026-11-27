@@ -680,16 +680,17 @@ void Renderer::castStrips(Context & state)
         if ((strip.flags & VSTRIP_FLAG_SEETHROUGH) || (w.flags & WALL_FLAG_NO_SHADOW))
             strip.flags |= VSTRIP_FLAG_NOSHADOW;
 
+    // Sort key: walls at the same 2D spot go from the horizon outwards
+        float stableDY = fabsf((top + bot) * 0.5f - casterY) * Epsilon;
+        strip.zOrder = dist * dist + stableDY;
         state.vStripsMap[state.vStripsCount] = state.vStripsCount;
-        state.vStripsZOrders[state.vStripsCount++] = dist * dist;
+        state.vStripsCount++;
     }
 
 // Sort near to far
     std::sort(state.vStripsMap, state.vStripsMap + state.vStripsCount,
         [&](uint16_t a, uint16_t b) {
-        float d1 = state.vStripsZOrders[a];
-        float d2 = state.vStripsZOrders[b];
-        return d1 < d2;
+        return state.vStrips[a].zOrder < state.vStrips[b].zOrder;
     });
 }
 
