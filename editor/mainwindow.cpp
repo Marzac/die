@@ -593,6 +593,7 @@ void MainWindow::updateWallProperties()
         ui->plainWallID->setPlainText("None");
 
         setSpinValueSilently(ui->spinWallHeight, 0.0);
+        setSpinValueSilently(ui->spinWallSlant, 0.0);
         setSpinValueSilently(ui->spinWallFloorFrontDrop, 0.0);
         setSpinValueSilently(ui->spinWallFloorBackDrop, 0.0);
         setSpinValueSilently(ui->spinWallCeilingFrontDrop, 0.0);
@@ -611,6 +612,7 @@ void MainWindow::updateWallProperties()
     ui->plainWallID->setPlainText(QString::number(editor.selectedWall));
 
     setSpinValueSilently(ui->spinWallHeight, w.height);
+    updateWallSlant();
     setSpinValueSilently(ui->spinWallFloorFrontDrop, w.floorFrontDrop);
     setSpinValueSilently(ui->spinWallFloorBackDrop, w.floorBackDrop);
     setSpinValueSilently(ui->spinWallCeilingFrontDrop, w.ceilingFrontDrop);
@@ -624,6 +626,19 @@ void MainWindow::updateWallProperties()
 
     updateWallTexture();
 }
+
+void MainWindow::updateWallSlant()
+{
+    if (editor.selectedWall < 0) return;
+    Wall & w = editor.editedMap->walls[editor.selectedWall];
+
+// The slant spans +/- the height
+    ui->spinWallSlant->blockSignals(true);
+    ui->spinWallSlant->setRange(-w.height, w.height);
+    ui->spinWallSlant->setValue(w.slant);
+    ui->spinWallSlant->blockSignals(false);
+}
+
 void MainWindow::updateWallTexture()
 {
     if (editor.selectedWall < 0) return;
@@ -1163,6 +1178,19 @@ void MainWindow::on_spinWallHeight_valueChanged(double arg1)
         Wall & w = editor.editedMap->walls[i];
         if (!w.selected) continue;
         w.height = arg1;
+        w.slant = qBound(-w.height, w.slant, w.height);
+    }
+    updateWallSlant();
+}
+
+void MainWindow::on_spinWallSlant_valueChanged(double arg1)
+{
+    if (editor.selectedWall < 0) return;
+    scheduleUndoPush();
+    for (int i = 0; i < editor.editedMap->walls.count(); i++) {
+        Wall & w = editor.editedMap->walls[i];
+        if (!w.selected) continue;
+        w.slant = qBound(-w.height, (float)arg1, w.height);
     }
 }
 
@@ -1309,8 +1337,10 @@ void MainWindow::on_pushWallSwap_clicked()
         int tmp = w.nodeID1;
         w.nodeID1 = w.nodeID2;
         w.nodeID2 = tmp;
+        w.slant = -w.slant;
         editor.editedMap->computeWall(i);
     }
+    updateWallSlant();
 }
 
 void MainWindow::on_pushWallDelete_clicked()

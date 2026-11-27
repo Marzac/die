@@ -109,6 +109,11 @@ typedef struct {
     bool selected;
 } Wall;
 
+/// \brief Wall height above node 1
+inline float wallHeight1(const Wall & w) {return w.height - qMax(w.slant, 0.0f);}
+/// \brief Wall height above node 2
+inline float wallHeight2(const Wall & w) {return w.height + qMin(w.slant, 0.0f);}
+
 /*****************************************************************************/
 /**
     \brief Nested map instance, loaded from a separate file
