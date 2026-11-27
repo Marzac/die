@@ -11,6 +11,7 @@
 
 #include "renderer.h"
 #include "colors.h"
+#include "env.h"
 #include "postfx.h"
 #include "primitives.h"
 #include "workerpool.h"
@@ -997,7 +998,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
 
     uint32_t * ptr32 = &frame[state.casterColumn + frameResoX * yFar];
 
-    bool applyFog = (fogFlags & 1) && !noFog;
+    bool applyFog = (fogFlags & FOG_FLAG_ENABLE) && !noFog;
     auto renderZones = [&](auto noGlowTag, auto applyFogTag) {
     // Type aliases rather than constexpr locals: MSVC refuses to let nested lambdas use those (C3495)
         using NoGlow = decltype(noGlowTag);
@@ -1164,7 +1165,7 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
         fogFactor = 0.25f;
         fogColor = unpackColorToVectorSSE4(0x00AAAAAA);
 
-    }else if (fogFlags && !noFog) {
+    }else if ((fogFlags & FOG_FLAG_ENABLE) && !noFog) {
         float clearness = std::clamp((fogDistanceOffset - strip.dist) * fogDistanceInv, 0.0f, 1.0f);
         fogFactor = 1.0f - clearness * clearness;
         fogColor = unpackColorToVectorSSE4(fogFarColor);
