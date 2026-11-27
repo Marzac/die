@@ -275,6 +275,7 @@ void Renderer::clickRegister(int x, int y)
 /*****************************************************************************/
 void Renderer::render(Viewpoint & vp)
 {
+// Resizes requested by the other threads
     int pw = pendingFrameResoX.exchange(0);
     int ph = pendingFrameResoY.exchange(0);
     if (pw && ph) allocateFrames(pw, ph);
@@ -282,27 +283,28 @@ void Renderer::render(Viewpoint & vp)
     int pg = pendingGlowmapReso.exchange(0);
     if (pg) allocateGlowmap(pg);
 
+// Nothing to render until everything is allocated
     if (!framesAllocated) return;
     if (!nodesAllocated) return;
     if (!wallsAllocated) return;
     if (!texturesAllocated) return;
     if (!glowmapReso) return;
 
-// Clear the frames
+// Clear the frame
     memset(frame, 0, frameResoX * frameResoY * sizeof(uint32_t));
 
-// Render pre-compute
+// Scene data for this frame
     fogSunMash();
     wallsMash();
     lightsMash();
 
-// Render frame
+// Floor and ceiling at the camera, then the columns
     viewPoint = vp;
     levels = probeLevels(viewPoint.pos + viewPoint.offset, viewPoint.pan);
     if (flags & Renderer::FLAG_MULTITHREADING) renderConcurrent();
     else renderChunk(renderStates[0], 0, frameResoX);
 
-// Render post-fx
+// Post-fx
     if (flags & Renderer::FLAG_MOTIONBLUR) {
         uint16_t blend = motionBlurFactor * 256.0f * 0.01f;
         motionBlurSSE4(frame, frameLast, blend, frameResoX * frameResoY);
@@ -324,6 +326,7 @@ void Renderer::render(Viewpoint & vp)
 /*****************************************************************************/
 void Renderer::fogSunMash()
 {
+// clearness = (offset - dist) * inv, an empty range fogs everything
     if (fogDistanceFar > fogDistanceNear) {
         fogDistanceInv = 1.0f / (fogDistanceFar - fogDistanceNear);
         fogDistanceOffset = fogDistanceFar;
@@ -343,20 +346,20 @@ void Renderer::wallsMash()
         Wall & w = walls[i];
         Segment & s = segments[i];
 
-    // Cache coordinates
         s.beginX = nodes[w.nodeID1].pos.x();
         s.beginZ = nodes[w.nodeID1].pos.z();
         s.endX = nodes[w.nodeID2].pos.x();
         s.endZ = nodes[w.nodeID2].pos.z();
 
-    // Prepare the segment
         s.deltaX = s.endX - s.beginX;
         s.deltaZ = s.endZ - s.beginZ;
         s.length = sqrtf(s.deltaX * s.deltaX + s.deltaZ * s.deltaZ);
+
+    // Zero-length walls are dropped
         if (s.length == 0.0f) {w.flags = WALL_FLAG_FREE; continue;}
         s.invLen = 1.0f / s.length;
 
-    // Compute lighting
+    // Sun ray color on each side
         QVector2D normal(s.deltaZ * s.invLen, -s.deltaX * s.invLen);
         float facing = QVector2D::dotProduct(normal, dir);
         uint8_t front = (uint8_t) (std::clamp(facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
@@ -364,34 +367,33 @@ void Renderer::wallsMash()
         uint8_t back = (uint8_t) (std::clamp(-facing * sunRayStrength, 0.0f, 1.0f) * 255.0f);
         w.rayBack = colorsScaleSSE4(sunRayColor, (uint16_t)back << 8);
     }
-
-// Glow map scale: fixed area centered at origin
-    glowmapScale = glowmapReso / glowmapArea;
-    glowmapInvScale = 1.0f / glowmapScale;
 }
 
 /*****************************************************************************/
 void Renderer::lightsMash()
 {
+// Glowmap scale: fixed area centered at the origin
+    glowmapScale = glowmapReso / glowmapArea;
+    glowmapInvScale = 1.0f / glowmapScale;
+
 // Sun rays on floors and ceilings
     uint8_t kFloor = (uint8_t)(std::clamp(sunRayDirection.y() * sunRayStrength, 0.0f, 1.0f) * 255.0f);
     floorRay = colorsScaleSSE4(sunRayColor, (uint16_t)kFloor << 8);
     uint8_t kCeil = (uint8_t)(std::clamp(-sunRayDirection.y() * sunRayStrength, 0.0f, 1.0f) * 255.0f);
     ceilingRay = colorsScaleSSE4(sunRayColor, (uint16_t)kCeil << 8);
 
-// Prepare the lights
+// Lights: moving ones mark the glowmap cells they reach as dirty
     sunAmbientArgb = unpackColorToVectorScaledSSE4(sunAmbient, sunAmbientStrength);
     sunRayColorArgb = unpackColorToVectorScaledSSE4(sunRayColor, sunRayStrength);
     QList<BoundingBox> dirtyBoxes;
     for (int j = 0; j < lightsCount; j++) {
-    // Compute base color and falloff
         Light & l = lights[j];
         l.argb = unpackColorToVectorScaledSSE4(l.color, l.strength * l.strength);
         l.x = nodes[l.nodeID].pos.x();
         l.z = nodes[l.nodeID].pos.z();
         l.falloffInv2 = 1.0f / (l.falloff * l.falloff);
 
-    // Calculate the bounding box of influence
+    // Glowmap cells within reach
         float radius = l.falloff;
         float sMinX, sMinZ, sMaxX, sMaxZ;
         sceneGetCoords(l.x - radius, l.z - radius, sMinX, sMinZ);
@@ -405,7 +407,7 @@ void Renderer::lightsMash()
             dirtyBoxes.append(l.boundingBox);
     }
 
-// Compute the glowmaps
+// Glowmaps, black with the lights off
     glowBleed = _mm_set1_ps(GlowBleedFactor);
     const size_t gmSize = glowmapReso * glowmapReso * sizeof(__m128);
     if (!(flags & Renderer::FLAG_LIGHTS)) {
@@ -424,7 +426,7 @@ void Renderer::lightsMash()
         dirtyBoxes.append({0, 0, glowmapReso, glowmapReso});
     }
 
-// Concatenate the dirty boxes and keep the new one for next frame
+// Moving lights: redraw their cells of this frame and of the last one
     glowmapDirtyBoxes = glowmapDirtyLast + dirtyBoxes;
     glowmapDirtyLast = std::move(dirtyBoxes);
 
@@ -465,7 +467,7 @@ void Renderer::glowmapConcurrent(__m128 * gm, bool still)
 /*****************************************************************************/
 void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 {
-// Recopy only the dirty regions
+// Moving lights start from the still map, in the dirty boxes only
     if (!still) {
         for (const BoundingBox & r : glowmapDirtyBoxes) {
             int cellZMin = std::max(r.beginZ, z1);
@@ -492,6 +494,7 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
                 float toLightX = l.x - x;
                 float toLightZ = l.z - z;
 
+            // Cell lit unless a wall stands between it and the light
                 bool masked = false;
                 for (int i = 0; i < wallsCount; i++) {
                     const Wall & w = walls[i];
@@ -502,6 +505,7 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
                     if (fabs(div) < Epsilon) continue;
                     if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
 
+                // t along the cell-to-light line, u along the wall
                     float scale = 1.0f / div;
                     float t = ((s.beginX - x) * s.deltaZ - (s.beginZ - z) * s.deltaX) * scale;
                     if (t < 0.0f || t > 1.0f) continue;
