@@ -51,6 +51,7 @@ Renderer::Renderer() :
 /*****************************************************************************/
 void Renderer::init()
 {
+// Defaults, then die.ini
     configInit();
     configLoad("die.ini");
 
@@ -67,12 +68,14 @@ void Renderer::init()
     floorRay = 0x00FFFFFF;
     ceilingRay = 0x00FFFFFF;
 
+// Write die.ini back, with the missing keys
     configSave("die.ini");
 }
 
 /*****************************************************************************/
 void Renderer::allocateObjects(int noNodes, int noWalls, int noTextures, int noLights)
 {
+// Empty pools first: a failed allocation leaves the remaining ones empty
     nodesAllocated = 0;
     wallsAllocated = 0;
     texturesAllocated = 0;
@@ -139,7 +142,7 @@ void Renderer::buildTables()
 {
     if (!panTable) return;
 
-// Horizontal pan table (lens corrected)
+// Pan angle per column, lens corrected
     const float refX = projectionX();
     const float midX = frameResoX * 0.5f - 0.5f;
     for (int x = 0; x < frameResoX; x++) {
@@ -155,7 +158,8 @@ float Renderer::projectionX() const
 
 float Renderer::projectionY() const
 {
-    return frameResoY / tanf(fovAngle * D2R * 0.5f); // absence of 0.5f is a choice
+// Should be 0.5f * frameResoY like projectionX, left out for the look
+    return frameResoY / tanf(fovAngle * D2R * 0.5f);
 }
 
 /*****************************************************************************/
@@ -167,11 +171,16 @@ void Renderer::allocateGlowmap(int size)
     glowmap = nullptr;
     glowmapStill = nullptr;
     if (!(glowmap = new (std::nothrow) __m128[size * size])) return;
-    if (!(glowmapStill = new (std::nothrow) __m128[size * size])) {delete[] glowmap; glowmap = nullptr; return;}
+    if (!(glowmapStill = new (std::nothrow) __m128[size * size])) {
+        delete[] glowmap;
+        glowmap = nullptr;
+        return;
+    }
 // Both maps start black: the dynamic one is only rewritten inside the dirty boxes
     memset(glowmap, 0, size * size * sizeof(__m128));
     memset(glowmapStill, 0, size * size * sizeof(__m128));
     glowmapReso = size;
+
 // The still lights must be drawn again into the new maps
     flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
@@ -397,14 +406,14 @@ void Renderer::lightsMash()
         return;
     }
 
- //
+// Still lights: redrawn on a rebuild request only, the whole map is then dirty
     if (flags & Renderer::FLAG_GLOWMAP_REBUILD) {
         memset(glowmapStill, 0, gmSize);
         if (flags & Renderer::FLAG_MULTITHREADING)
             glowmapConcurrent(glowmapStill, true);
         else glowmapChunk(glowmapStill, true, 0, glowmapReso);
         flags &= ~Renderer::FLAG_GLOWMAP_REBUILD;
-        dirtyBoxes.append({0, 0, glowmapReso, glowmapReso});    // {beginX, beginZ, endX, endZ}: the whole map
+        dirtyBoxes.append({0, 0, glowmapReso, glowmapReso});
     }
 
 // Concatenate the dirty boxes and keep the new one for next frame
