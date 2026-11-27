@@ -63,7 +63,6 @@ void Renderer::init()
     clickWallID = ClickNoWall;
 
     viewPoint = {};
-    sceneCornerBegin = sceneCornerEnd = QVector2D(0.0f, 0.0f);
 
     floorRay = 0x00FFFFFF;
     ceilingRay = 0x00FFFFFF;
@@ -322,7 +321,6 @@ void Renderer::fogSunMash()
 void Renderer::wallsMash()
 {
     QVector2D dir(sunRayDirection.x(), sunRayDirection.z());
-    sceneCornerBegin = sceneCornerEnd = QVector2D(0.0f, 0.0f);
 
     for (int i = 0; i < wallsCount; i++) {
         Wall & w = walls[i];
@@ -331,10 +329,8 @@ void Renderer::wallsMash()
     // Cache coordinates
         s.beginX = nodes[w.nodeID1].pos.x();
         s.beginZ = nodes[w.nodeID1].pos.z();
-        sceneBoundsRegister(s.beginX, s.beginZ);
         s.endX = nodes[w.nodeID2].pos.x();
         s.endZ = nodes[w.nodeID2].pos.z();
-        sceneBoundsRegister(s.endX, s.endZ);
 
     // Prepare the segment
         s.deltaX = s.endX - s.beginX;
@@ -355,21 +351,6 @@ void Renderer::wallsMash()
 // Glow map scale: fixed area centered at origin
     glowmapScale = glowmapReso / glowmapArea;
     glowmapInvScale = 1.0f / glowmapScale;
-}
-
-/*****************************************************************************/
-inline void Renderer::sceneBoundsInit()
-{
-    sceneCornerBegin = QVector2D(+32768.0f, +32768.0f);
-    sceneCornerEnd = QVector2D(-32768.0f, -32768.0f);
-}
-
-inline void Renderer::sceneBoundsRegister(float x, float z)
-{
-    if (x < sceneCornerBegin.x()) sceneCornerBegin.setX(x);
-    if (x > sceneCornerEnd.x()) sceneCornerEnd.setX(x);
-    if (z < sceneCornerBegin.y()) sceneCornerBegin.setY(z);
-    if (z > sceneCornerEnd.y()) sceneCornerEnd.setY(z);
 }
 
 /*****************************************************************************/
@@ -1316,13 +1297,13 @@ inline __m128 Renderer::sampleGlowmap(float glowX, float glowZ)
 }
 
 /*****************************************************************************/
-int Renderer::floorToInt(float x)
+inline int Renderer::floorToInt(float x)
 {
     __m128 v = _mm_set_ss(x);
     return _mm_cvtss_si32(_mm_floor_ss(v, v));
 }
 
-int Renderer::highestBit(uint32_t x)
+inline int Renderer::highestBit(uint32_t x)
 {
 #ifdef _MSC_VER
     unsigned long i;
