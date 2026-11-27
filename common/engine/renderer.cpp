@@ -219,7 +219,7 @@ void Renderer::setGlowmapArea(float area)
 {
     if (area <= 0.0f) return;
     glowmapArea = area;
-    flags |= Renderer::FLAG_GLOWMAP_REBUILD;    // new scale: the still lights move
+    flags |= Renderer::FLAG_GLOWMAP_REBUILD;
 }
 
 void Renderer::setFramesReso(int width, int height)
