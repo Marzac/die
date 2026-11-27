@@ -1,0 +1,12 @@
+start_e 0 12 0 0 0
+start_n 0 12 0 -90 0
+start_w 0 12 0 180 0
+start_s 0 12 0 90 0
+mesa_near -500 12 -200 -90 0
+mesa_top_e -750 44 -700 0 0
+mesa_top_s -750 44 -700 90 -10
+plateau_e -1500 28 0 0 0
+plateau_edge -1180 28 500 0 -20
+ravine_w -1000 12 500 180 0
+ravine_w_up -1000 12 500 180 15
+high 0 200 0 -120 -30

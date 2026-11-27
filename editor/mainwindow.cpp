@@ -164,6 +164,7 @@ void MainWindow::createRenderWindow()
     renderWindow->setGeometry(rwScreen->geometry());
     renderWindow->show();
     renderWindow->activateWindow();
+    updateWindowTitle();
 }
 
 /*****************************************************************************/
@@ -204,6 +205,16 @@ void MainWindow::createShortcuts()
 
     shortcutViewerRecall = new QShortcut(QKeySequence(Qt::Key_F5), this);
     connect(shortcutViewerRecall, SIGNAL(activated()), this, SLOT(on_pushViewerRecall_clicked()));
+
+// Experimental: switch renderVertical / renderVertical5
+    QShortcut * shortcutApertures = new QShortcut(QKeySequence(Qt::Key_F9), this);
+    shortcutApertures->setContext(Qt::ApplicationShortcut);
+    connect(shortcutApertures, &QShortcut::activated, this, [this]() {
+        bool on = !(renderer.getFlags() & Renderer::FLAG_APERTURES);
+        renderer.checkFlag(Renderer::FLAG_APERTURES, on);
+        updateWindowTitle();
+    });
+    updateWindowTitle();
 }
 
 void MainWindow::createContextMenu()
@@ -2777,8 +2788,16 @@ bool MainWindow::saveMap(const QString & file, bool submap)
 void MainWindow::setMapFile(const QString & file)
 {
     mapFile = file.isEmpty() ? QString() : QFileInfo(file).absoluteFilePath();
-    setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()));
+    updateWindowTitle();
     updateViewMarkButton();
+}
+
+void MainWindow::updateWindowTitle()
+{
+// Experimental: show the active renderVertical
+    QString algo = (renderer.getFlags() & Renderer::FLAG_APERTURES) ? "renderVertical5" : "renderVertical";
+    setWindowTitle("Waller Editor : " + (mapFile.isEmpty() ? QString("New map") : QFileInfo(mapFile).fileName()) + " [" + algo + "]");
+    if (renderWindow) renderWindow->setWindowTitle("Waller : Render [" + algo + "]");
 }
 
 /*****************************************************************************/

@@ -602,6 +602,21 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
 
     // Render surfaces
         state.vStripsClippedCount = 0;
+        if (flags & Renderer::FLAG_APERTURES) {
+            CapLink ceilingOrigin = {{HeightMax, 0.0f}, NULL};
+            CapLink floorOrigin = {{HeightMin, 0.0f}, NULL};
+            CapLink ceilingLevel = {ceiling, &ceilingOrigin};
+            CapLink floorLevel = {floor, &floorOrigin};
+
+            Ap3 apLevel;
+            apLevel.yTop = 0;
+            apLevel.yBot = frameResoY;
+            apLevel.ceiling = &ceilingLevel;
+            apLevel.floor = &floorLevel;
+            renderVertical5(state, 0, apLevel);
+            if (flags & Renderer::FLAG_WALLS) drawVStrips(state);
+            continue;
+        }
         CapStack upperBounds = {};
         upperBounds.push({HeightMax, 0.0f});
         upperBounds.push({ceiling.h0 + epsilon, ceiling.slope});
@@ -950,6 +965,775 @@ void Renderer::renderVertical(Context & state, int depth,
 }
 
 /*****************************************************************************/
+void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
+{
+    float casterY = state.casterPos.y();
+    for (int i = depth; i < state.vStripsCount; i++) {
+        Strip & strip = state.vStrips[state.vStripsMap[i]];
+        Wall & w = walls[strip.wallId];
+        float d = strip.dist;
+
+    // Clipping
+        float ceilCap = ap.ceiling.h0 + d * ap.ceiling.slope;
+        float floorCap = ap.floor.h0 + d * ap.floor.slope;
+        if (strip.hTop < floorCap - epsilon) continue;
+        if (strip.hBot > ceilCap + epsilon) continue;
+
+        bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+        bool hasBackCeiling = w.flags & (!strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasBackFloor  = w.flags & (!strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+
+        bool ceilingAbove = false;
+        bool ceilingBelow = false;
+        bool floorAbove = false;
+        bool floorBelow = false;
+
+    // Wall Ceiling
+        if (strip.hTop >= floorCap - epsilon) {
+            if (hasFrontCeiling) {
+                Cap ceiling = capCeilingHeight(state, strip, !strip.back);
+                if (ceiling.h0 > casterY) ceilingAbove = true;
+                else ceilingBelow = true;
+            }
+        }
+
+    // Wall floor
+        if (strip.hBot <= ceilCap + epsilon) {
+            if (hasFrontFloor) {
+                Cap floor = capFloorHeight(state, strip, !strip.back);
+                if (floor.h0 < casterY) floorBelow = true;
+                else floorAbove = true;
+            }
+        }
+
+        if (ceilingBelow){
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = ap.yBot;
+            newAp.ceiling = ap.ceiling;
+            if (hasBackCeiling)
+                newAp.floor = capCeilingHeight(state, strip, strip.back);
+            else newAp.floor = ap.floor;
+
+            if (strip.yTop < ap.yBot) { // Visible
+                int top = std::max(ap.yTop, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, ap.yBot);
+                newAp.yBot = top;
+            }
+            renderVertical3(state, i + 1, newAp);
+            return;
+        }
+
+        if (floorAbove) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = ap.yBot;
+            newAp.floor = ap.floor;
+            if (hasBackFloor)
+                newAp.ceiling = capFloorHeight(state, strip, strip.back);
+            else newAp.ceiling = ap.ceiling;
+
+            if (strip.yBot >= ap.yTop) { // Visible
+                int bot = std::min(ap.yBot, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, ap.yTop, bot);
+                newAp.yTop = bot;
+            }
+            renderVertical3(state, i + 1, newAp);
+            return;
+        }
+
+        if (ceilingAbove) {
+            if (strip.yTop >= ap.yTop) {
+                int bot = std::min(ap.yBot, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, bot);
+            }
+        }
+
+        if (floorBelow) {
+            if (strip.yBot < ap.yBot) {
+                int top = std::max(ap.yTop, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, ap.yBot);
+            }
+        }
+
+        if (!ceilingAbove && !ceilingBelow) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = std::min(ap.yBot, strip.yTop);
+            newAp.ceiling = ap.ceiling;
+            if (hasBackCeiling)
+                newAp.floor = capCeilingHeight(state, strip, strip.back);
+            else newAp.floor = ap.floor;
+
+            renderVertical3(state, i + 1, newAp);
+        }
+
+        if (!floorBelow && !floorAbove) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = std::max(ap.yTop, strip.yBot);
+            newAp.yBot = ap.yBot;
+            if (hasBackFloor)
+                newAp.ceiling = capFloorHeight(state, strip, strip.back);
+            else newAp.ceiling = ap.ceiling;
+
+            renderVertical3(state, i + 1, newAp);
+        }
+
+    // Wall coverage
+        if (strip.hTop < floorCap) continue;
+        if (strip.hBot > ceilCap) continue;
+
+        int top = std::max(ap.yTop, strip.yTop);
+        if (top >= ap.yBot) return;
+        int bot = std::min(ap.yBot, strip.yBot);
+        if (bot < ap.yTop) return;
+
+        vstripAdd(state, strip, top, bot);
+        if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = top;
+            newAp.yBot = bot;
+            if (hasBackCeiling)
+                newAp.ceiling = capCeilingHeight(state, strip, strip.back);
+            else newAp.ceiling = ap.ceiling;
+            if (hasBackFloor)
+                newAp.floor = capFloorHeight(state, strip, strip.back);
+            else newAp.floor = ap.floor;
+
+            renderVertical3(state, i + 1, newAp);
+        }
+        return;
+    }
+}
+
+/*****************************************************************************/
+void Renderer::renderVertical4(Context & state, int depth, Ap2 ap)
+{
+    if (ap.yTop >= ap.yBot) return;
+    float casterY = state.casterPos.y();
+
+    for (int i = depth; i < state.vStripsCount; i++) {
+        Strip & strip = state.vStrips[state.vStripsMap[i]];
+        Wall & w = walls[strip.wallId];
+        float d = strip.dist;
+
+    // Clipping, a wall within epsilon still renders its surfaces lying on the cap
+        float ceilCap = ap.ceiling.h0 + d * ap.ceiling.slope;
+        float floorCap = ap.floor.h0 + d * ap.floor.slope;
+        if (strip.hTop < floorCap - epsilon) continue;
+        if (strip.hBot > ceilCap + epsilon) continue;
+
+    // Front is the camera side (strip.back), back is the far side (!strip.back)
+        bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+        bool hasBackCeiling = w.flags & (!strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasBackFloor  = w.flags & (!strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+
+        bool ceilingAbove = false;
+        bool ceilingBelow = false;
+        bool floorAbove = false;
+        bool floorBelow = false;
+
+        if (hasFrontCeiling) {
+            if (capCeilingHeight(state, strip, strip.back).h0 > casterY)
+                ceilingAbove = true;
+            else ceilingBelow = true;
+        }
+        if (hasFrontFloor) {
+            if (capFloorHeight(state, strip, strip.back).h0 < casterY)
+                floorBelow = true;
+            else floorAbove = true;
+        }
+
+        if (ceilingBelow) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = ap.yBot;
+            newAp.ceiling = ap.ceiling;
+            if (hasBackCeiling) {
+                newAp.floor = capCeilingHeight(state, strip, !strip.back);
+                if (newAp.floor.h0 > casterY) newAp.floor.h0 += 2.0f * epsilon;
+
+            } else {
+                if (hasBackFloor) {
+                    newAp.floor = capFloorHeight(state, strip, !strip.back);
+                    if (newAp.floor.h0 > casterY) newAp.floor.h0 += 2.0f * epsilon;
+                } else if (ap.parent) {
+                    newAp.floor = ap.parent->floor;
+                    newAp.parent = ap.parent;
+                }else newAp.floor = ap.floor;
+            }
+            if (strip.yTop < ap.yBot) { // Visible
+                int top = std::max(ap.yTop, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, ap.yBot);
+                newAp.yBot = top;
+            }
+            renderVertical4(state, i + 1, newAp);
+            return;
+        }
+
+        if (floorAbove) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = ap.yBot;
+            newAp.floor = ap.floor;
+            if (hasBackFloor) {
+                newAp.ceiling = capFloorHeight(state, strip, !strip.back);
+                if (newAp.ceiling.h0 < casterY) newAp.ceiling.h0 -= 2.0f * epsilon;
+
+            } else {
+                if (hasBackCeiling) {
+                    newAp.ceiling = capCeilingHeight(state, strip, !strip.back);
+                    if (newAp.ceiling.h0 < casterY) newAp.ceiling.h0 -= 2.0f * epsilon;
+                } else if (ap.parent) {
+                    newAp.ceiling = ap.parent->ceiling;
+                    newAp.parent = ap.parent;
+                }else newAp.ceiling = ap.ceiling;
+            }
+
+            if (strip.yBot >= ap.yTop) { // Visible
+                int bot = std::min(ap.yBot, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, ap.yTop, bot);
+                newAp.yTop = bot;
+            }
+            renderVertical4(state, i + 1, newAp);
+            return;
+        }
+
+        if (ceilingAbove) {
+            if (strip.yTop >= ap.yTop) {
+                int bot = std::min(ap.yBot, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, bot);
+            }
+        }
+
+        if (floorBelow) {
+            if (strip.yBot < ap.yBot) {
+                int top = std::max(ap.yTop, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, ap.yBot);
+            }
+        }
+
+        if (!ceilingAbove && !ceilingBelow) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = ap.yTop;
+            newAp.yBot = std::min(ap.yBot, strip.yTop);
+            newAp.ceiling = ap.ceiling;
+            if (hasBackCeiling) {
+                newAp.floor = capCeilingHeight(state, strip, !strip.back);
+                if (newAp.floor.h0 > casterY) newAp.floor.h0 += 2.0f * epsilon;
+
+            } else {
+                if (hasBackFloor) {
+                    newAp.floor = capFloorHeight(state, strip, !strip.back);
+                    if (newAp.floor.h0 > casterY) newAp.floor.h0 += 2.0f * epsilon;
+                } else if (ap.parent) {
+                    newAp.floor = ap.parent->floor;
+                    newAp.parent = ap.parent;
+                }else newAp.floor = ap.floor;
+            }
+            renderVertical4(state, i + 1, newAp);
+        }
+
+        if (!floorBelow && !floorAbove) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = std::max(ap.yTop, strip.yBot);
+            newAp.yBot = ap.yBot;
+            newAp.floor = ap.floor;
+            if (hasBackFloor) {
+                newAp.ceiling = capFloorHeight(state, strip, !strip.back);
+                if (newAp.ceiling.h0 < casterY) newAp.ceiling.h0 -= 2.0f * epsilon;
+
+            } else {
+                if (hasBackCeiling) {
+                    newAp.ceiling = capCeilingHeight(state, strip, !strip.back);
+                    if (newAp.ceiling.h0 < casterY) newAp.ceiling.h0 -= 2.0f * epsilon;
+                } else if (ap.parent) {
+                    newAp.ceiling = ap.parent->ceiling;
+                    newAp.parent = ap.parent;
+                }else newAp.ceiling = ap.ceiling;
+            }
+            renderVertical4(state, i + 1, newAp);
+        }
+
+    // Wall coverage
+        if (strip.hTop < floorCap) continue;
+        if (strip.hBot > ceilCap) continue;
+
+        int top = std::max(ap.yTop, strip.yTop);
+        if (top >= ap.yBot) return;
+        int bot = std::min(ap.yBot, strip.yBot);
+        if (bot < ap.yTop) return;
+
+        vstripAdd(state, strip, top, bot);
+        if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+            Ap2 newAp;
+            newAp.parent = &ap;
+            newAp.yTop = top;
+            newAp.yBot = bot;
+
+            if (hasBackCeiling) {
+                newAp.ceiling = capCeilingHeight(state, strip, !strip.back);
+                if (newAp.ceiling.h0 < casterY) newAp.ceiling.h0 -= 2.0f * epsilon;
+            } else {
+                if (ap.parent) {
+                    newAp.ceiling = ap.parent->ceiling;
+                    newAp.parent = ap.parent;
+                }else newAp.ceiling = ap.ceiling;
+            }
+            if (hasBackFloor) {
+                newAp.floor = capFloorHeight(state, strip, !strip.back);
+                if (newAp.floor.h0 > casterY) newAp.floor.h0 += 2.0f * epsilon;
+            } else {
+                if (ap.parent) {
+                    newAp.floor = ap.parent->floor;
+                    newAp.parent = ap.parent;
+                }else newAp.floor = ap.floor;
+            }
+            renderVertical4(state, i + 1, newAp);
+        }
+        return;
+    }
+}
+
+/*****************************************************************************/
+void Renderer::renderVertical5(Context & state, int depth, Ap3 ap)
+{
+    if (ap.yTop >= ap.yBot) return;
+    float casterY = state.casterPos.y();
+
+    for (int i = depth; i < state.vStripsCount; i++) {
+        Strip & strip = state.vStrips[state.vStripsMap[i]];
+        Wall & w = walls[strip.wallId];
+        float d = strip.dist;
+
+    // Clipping, a wall within epsilon still renders its surfaces lying on the cap
+        float ceilCap = ap.ceiling->cap.h0 + d * ap.ceiling->cap.slope;
+        float floorCap = ap.floor->cap.h0 + d * ap.floor->cap.slope;
+        if (strip.hTop < floorCap - epsilon) continue;
+        if (strip.hBot > ceilCap + epsilon) continue;
+
+    // Front is the camera side (strip.back), back is the far side (!strip.back)
+        bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+        bool hasBackCeiling = w.flags & (!strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasBackFloor  = w.flags & (!strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+
+        bool ceilingAbove = false;
+        bool ceilingBelow = false;
+        bool floorAbove = false;
+        bool floorBelow = false;
+
+    // A surface lying on a cap is hidden from the side the rays are not on
+        if (hasFrontCeiling) {
+            if (capCeilingHeight(state, strip, strip.back).h0 > casterY)
+                ceilingAbove = true;
+            else ceilingBelow = ceilCap - strip.hTop > 2.0f * epsilon;
+        }
+        if (hasFrontFloor) {
+            if (capFloorHeight(state, strip, strip.back).h0 < casterY)
+                floorBelow = true;
+            else floorAbove = strip.hBot - floorCap > 2.0f * epsilon;
+        }
+
+    // Rays over the top edge: their floor only tightens, unless the current one ends at this wall
+        CapLink floorLink;
+        bool floorNew = true;
+        if (hasBackCeiling) {
+            floorLink.cap = capCeilingHeight(state, strip, !strip.back);
+            if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
+        } else if (hasBackFloor) {
+            floorLink.cap = capFloorHeight(state, strip, !strip.back);
+            if (floorLink.cap.h0 > casterY) floorLink.cap.h0 += 2.0f * epsilon;
+        } else floorNew = false;
+    // The floor ends here: the top edge lies on it, or the camera side floor does
+        bool floorEnds = fabsf(strip.hTop - floorCap) <= 2.0f * epsilon ||
+                         (hasFrontFloor && fabsf(strip.hBot - floorCap) <= 2.0f * epsilon);
+        const CapLink * floorOver = floorEnds && ap.floor->prev ? ap.floor->prev : ap.floor;
+        if (floorNew && (floorEnds || floorLink.cap.h0 + d * floorLink.cap.slope > floorCap)) {
+            floorLink.prev = floorOver;
+            floorOver = &floorLink;
+        }
+
+    // Rays under the bottom edge: same for their ceiling
+        CapLink ceilingLink;
+        bool ceilingNew = true;
+        if (hasBackFloor) {
+            ceilingLink.cap = capFloorHeight(state, strip, !strip.back);
+            if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
+        } else if (hasBackCeiling) {
+            ceilingLink.cap = capCeilingHeight(state, strip, !strip.back);
+            if (ceilingLink.cap.h0 < casterY) ceilingLink.cap.h0 -= 2.0f * epsilon;
+        } else ceilingNew = false;
+    // The ceiling ends here: the bottom edge lies on it, or the camera side ceiling does
+        bool ceilingEnds = fabsf(strip.hBot - ceilCap) <= 2.0f * epsilon ||
+                           (hasFrontCeiling && fabsf(strip.hTop - ceilCap) <= 2.0f * epsilon);
+        const CapLink * ceilingUnder = ceilingEnds && ap.ceiling->prev ? ap.ceiling->prev : ap.ceiling;
+        if (ceilingNew && (ceilingEnds || ceilingLink.cap.h0 + d * ceilingLink.cap.slope < ceilCap)) {
+            ceilingLink.prev = ceilingUnder;
+            ceilingUnder = &ceilingLink;
+        }
+
+        if (ceilingBelow) {
+            Ap3 newAp = ap;
+            newAp.floor = floorOver;
+            if (strip.yTop < ap.yBot) { // Visible
+                int top = std::max(ap.yTop, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, ap.yBot);
+                newAp.yBot = top;
+            }
+            renderVertical5(state, i + 1, newAp);
+            return;
+        }
+
+        if (floorAbove) {
+            Ap3 newAp = ap;
+            newAp.ceiling = ceilingUnder;
+            if (strip.yBot >= ap.yTop) { // Visible
+                int bot = std::min(ap.yBot, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, ap.yTop, bot);
+                newAp.yTop = bot;
+            }
+            renderVertical5(state, i + 1, newAp);
+            return;
+        }
+
+        if (ceilingAbove) {
+            if (strip.yTop >= ap.yTop) {
+                int bot = std::min(ap.yBot, strip.yTop);
+                vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, bot);
+            }
+        }
+
+        if (floorBelow) {
+            if (strip.yBot < ap.yBot) {
+                int top = std::max(ap.yTop, strip.yBot);
+                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, ap.yBot);
+            }
+        }
+
+    // A hidden front surface still stops the rays
+        if (!hasFrontCeiling) {
+            Ap3 newAp = ap;
+            newAp.yBot = std::min(ap.yBot, strip.yTop);
+            newAp.floor = floorOver;
+            renderVertical5(state, i + 1, newAp);
+        }
+
+        if (!hasFrontFloor) {
+            Ap3 newAp = ap;
+            newAp.yTop = std::max(ap.yTop, strip.yBot);
+            newAp.ceiling = ceilingUnder;
+            renderVertical5(state, i + 1, newAp);
+        }
+
+    // Wall coverage, the rows above and below it are done
+        int top = std::max(ap.yTop, strip.yTop);
+        if (top >= ap.yBot) return;
+        int bot = std::min(ap.yBot, strip.yBot);
+        if (bot < ap.yTop) return;
+
+    // A wall lying on a cap is not drawn, the rays go on through its rows only
+        if (strip.hTop < floorCap || strip.hBot > ceilCap) {
+            ap.yTop = top;
+            ap.yBot = bot;
+            if (ap.yTop >= ap.yBot) return;
+            continue;
+        }
+
+        vstripAdd(state, strip, top, bot);
+        if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+            Ap3 newAp;
+            CapLink throughCeiling, throughFloor;
+            newAp.yTop = top;
+            newAp.yBot = bot;
+
+        // Through the wall, the caps also only tighten unless they end on its edges
+            bool topOnCeiling = fabsf(strip.hTop - ceilCap) <= 2.0f * epsilon;
+            newAp.ceiling = topOnCeiling && ap.ceiling->prev ? ap.ceiling->prev : ap.ceiling;
+            if (hasBackCeiling) {
+                throughCeiling.cap = capCeilingHeight(state, strip, !strip.back);
+                if (throughCeiling.cap.h0 < casterY) throughCeiling.cap.h0 -= 2.0f * epsilon;
+                if (topOnCeiling || throughCeiling.cap.h0 + d * throughCeiling.cap.slope < ceilCap) {
+                    throughCeiling.prev = newAp.ceiling;
+                    newAp.ceiling = &throughCeiling;
+                }
+            }
+            bool botOnFloor = fabsf(strip.hBot - floorCap) <= 2.0f * epsilon;
+            newAp.floor = botOnFloor && ap.floor->prev ? ap.floor->prev : ap.floor;
+            if (hasBackFloor) {
+                throughFloor.cap = capFloorHeight(state, strip, !strip.back);
+                if (throughFloor.cap.h0 > casterY) throughFloor.cap.h0 += 2.0f * epsilon;
+                if (botOnFloor || throughFloor.cap.h0 + d * throughFloor.cap.slope > floorCap) {
+                    throughFloor.prev = newAp.floor;
+                    newAp.floor = &throughFloor;
+                }
+            }
+            renderVertical5(state, i + 1, newAp);
+        }
+        return;
+    }
+}
+
+/*
+void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
+{
+    float casterY = state.casterPos.y();
+    for (int i = depth; i < state.vStripsCount; i++) {
+        Strip & strip = state.vStrips[state.vStripsMap[i]];
+        Wall & w = walls[strip.wallId];
+        float d = strip.dist;
+
+    // Clipping
+        float ceilCap = ap.ceiling.h0 + d * ap.ceiling.slope;
+        float floorCap = ap.floor.h0 + d * ap.floor.slope;
+        if (strip.hTop < floorCap - epsilon) continue;
+        if (strip.hBot > ceilCap + epsilon) continue;
+        bool hasBackCeiling = w.flags & (!strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+        bool hasBackFloor  = w.flags & (!strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+
+    // Wall Ceiling
+        if (strip.hTop >= floorCap - epsilon) {
+            bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
+            if (hasFrontCeiling) {
+                Cap ceiling = capCeilingHeight(state, strip, !strip.back);
+                if (ceiling.h0 > casterY) { // Ceiling above camera
+                    if (strip.yTop >= ap.yTop) {
+                        int bot = std::min(ap.yBot, strip.yTop);
+                        vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, bot);
+                    }
+                }else{ // Ceiling below camera
+                    Ap2 newAp;
+                    newAp.yTop = ap.yTop;
+                    newAp.yBot = ap.yBot;
+                    newAp.ceiling = ap.ceiling;
+                    if (hasBackCeiling)
+                        newAp.floor = capCeilingHeight(state, strip, strip.back);
+                    else newAp.floor = ap.floor;
+
+                    if (strip.yTop < ap.yBot) { // Visible
+                        int top = std::max(ap.yTop, strip.yTop);
+                        vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, ap.yBot);
+                        newAp.yBot = top;
+                    }
+                    renderVertical3(state, i + 1, newAp);
+                    return;
+                }
+            }else{
+            // No front ceiling
+                Ap2 newAp;
+                newAp.yTop = ap.yTop;
+                newAp.yBot = std::min(ap.yBot, strip.yTop);
+                newAp.ceiling = ap.ceiling;
+                if (hasBackCeiling)
+                    newAp.floor = capCeilingHeight(state, strip, strip.back);
+                else newAp.floor = ap.floor;
+                renderVertical3(state, i + 1, newAp);
+            }
+        }
+
+    // Wall floor
+        if (strip.hBot <= ceilCap + epsilon) {
+            bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
+            if (hasFrontFloor) {
+                Cap floor = capFloorHeight(state, strip, !strip.back);
+                if (floor.h0 < casterY) { // Floor below camera
+                    if (strip.yBot < ap.yBot) {
+                        int top = std::max(ap.yTop, strip.yBot);
+                        vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, ap.yBot);
+                    }
+                }else{ // Floor above camera
+                    Ap2 newAp;
+                    newAp.yTop = ap.yTop;
+                    newAp.yBot = ap.yBot;
+                    newAp.floor = ap.floor;
+                    if (hasBackFloor)
+                        newAp.ceiling = capFloorHeight(state, strip, strip.back);
+                    else newAp.ceiling = ap.ceiling;
+
+                    if (strip.yBot >= ap.yTop) { // Visible
+                        int bot = std::min(ap.yBot, strip.yBot);
+                        vplaneDraw(state, strip, WALL_SURFACE_FLOOR, ap.yTop, bot);
+                        newAp.yTop = bot;
+                    }
+                    renderVertical3(state, i + 1, newAp);
+                    return;
+                }
+            }else{
+            // No front floor
+                Ap2 newAp;
+                newAp.yTop = std::max(ap.yTop, strip.yBot);
+                newAp.yBot = ap.yBot;
+                if (hasBackFloor)
+                    newAp.ceiling = capFloorHeight(state, strip, strip.back);
+                else newAp.ceiling = ap.ceiling;
+                renderVertical3(state, i + 1, newAp);
+            }
+        }
+
+    // Wall coverage
+        if (strip.hTop < floorCap) continue;
+        if (strip.hBot > ceilCap) continue;
+
+        int top = std::max(ap.yTop, strip.yTop);
+        if (top >= ap.yBot) return;
+        int bot = std::min(ap.yBot, strip.yBot);
+        if (bot < ap.yTop) return;
+
+        vstripAdd(state, strip, top, bot);
+        if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+            Ap2 newAp;
+            newAp.yTop = top;
+            newAp.yBot = bot;
+            if (hasBackCeiling)
+                newAp.ceiling = capCeilingHeight(state, strip, strip.back);
+            else newAp.ceiling = ap.ceiling;
+            if (hasBackFloor)
+                newAp.floor = capFloorHeight(state, strip, strip.back);
+            else newAp.floor = ap.floor;
+
+            renderVertical3(state, i + 1, newAp);
+        }
+        return;
+    }
+}
+*/
+/*
+void Renderer::renderVertical2(Context & state, int depth, Aperture ap)
+{
+    float casterY = state.casterPos.y();
+    for (int i = depth; i < state.vStripsCount; i++) {
+        if (ap.yTop >= ap.yBot) return;
+        Strip & strip = state.vStrips[state.vStripsMap[i]];
+        Wall & w = walls[strip.wallId];
+        float d = strip.dist;
+
+        // Wall beyond a plane: hidden
+        float hUp = ap.up.h0 + ap.up.slope * d;
+        float hLo = ap.lo.h0 + ap.lo.slope * d;
+        if (strip.hTop < hLo - epsilon || strip.hBot > hUp + epsilon) continue;
+
+        // Edge beyond a plane: hidden with its surfaces, the wall ends at the plane row
+        float rowsPerUnit = state.casterPC * state.casterProjectionY / d;
+        bool topClipped = strip.hTop > hUp + epsilon;
+        bool botClipped = strip.hBot < hLo - epsilon;
+        float sT = topClipped ? state.casterHorizon - (hUp - casterY) * rowsPerUnit : strip.yTop;
+        float sB = botClipped ? state.casterHorizon - (hLo - casterY) * rowsPerUnit : strip.yBot;
+
+        float eTop = topClipped ? hUp : strip.hTop;
+        float eBot = botClipped ? hLo : strip.hBot;
+
+        // Seen from above: some rays passed above it under the top cap edge, from below: mirrored
+        auto seen = [&](const Cap & p, bool fromAbove) {
+            if (fromAbove) return ap.dTop <= 0.0f || ap.hTop > p.h0 + p.slope * ap.dTop + epsilon;
+            return ap.dBot <= 0.0f || ap.hBot < p.h0 + p.slope * ap.dBot - epsilon;
+        };
+
+        bool hasCeiling = !topClipped && (strip.flags & VSTRIP_FLAG_HASCEILING);
+        bool hasFloor = !botClipped && (strip.flags & VSTRIP_FLAG_HASFLOOR);
+        // A front surface on a plane ends that plane here
+        bool ceilingEndsLo = hasCeiling && fabsf(strip.hTop - hLo) <= epsilon;
+        bool floorEndsUp = hasFloor && fabsf(strip.hBot - hUp) <= epsilon;
+        bool ceilingFromAbove = false, floorFromBelow = false;
+        if (hasCeiling) {
+            Cap c = capCeilingHeight(state, strip, strip.back);
+            ceilingFromAbove = casterY > c.h0;
+            // The rays travel over lo: on it, it cannot be seen from below
+            hasCeiling = seen(c, ceilingFromAbove) && (ceilingFromAbove || !ceilingEndsLo);
+            ceilingFromAbove &= hasCeiling;
+        }
+        if (hasFloor) {
+            Cap c = capFloorHeight(state, strip, strip.back);
+            floorFromBelow = casterY < c.h0;
+            hasFloor = seen(c, !floorFromBelow) && (floorFromBelow || !floorEndsUp);
+            floorFromBelow &= hasFloor;
+        }
+        bool backCeiling = !topClipped && (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK));
+        bool backFloor = !botClipped && (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK));
+
+        auto draw = [&](uint16_t sID, float y1, float y2) {
+            if ((flags & Renderer::FLAG_SURFACES) && y1 < y2) vplaneDraw(state, strip, sID, (int) y1, (int) y2);
+        };
+
+        float wallTop = std::max(sT, ap.yTop);
+        float wallBot = std::min(sB, ap.yBot);
+        bool aboveOpen = sT > ap.yTop;
+        bool belowOpen = sB < ap.yBot;
+        bool wallOpen = wallTop < wallBot;
+
+        // Front surface seen from its far side: it hides the wall and beyond
+        if (ceilingFromAbove) {
+            draw(WALL_SURFACE_CEILING, wallTop, ap.yBot);
+            wallOpen = belowOpen = false;
+        }
+        if (floorFromBelow) {
+            draw(WALL_SURFACE_FLOOR, ap.yTop, wallBot);
+            wallOpen = aboveOpen = false;
+        }
+
+        Aperture next[3];
+        int n = 0;
+
+        // Rays over the top edge: a front ceiling stops them, else they travel over the back one
+        // A front ceiling seen from above ends the plane they travelled over
+        auto capTop = [&](Aperture & a, float y, float h) {if (y > a.yTop) {a.yTop = y; a.dTop = d; a.hTop = h;}};
+        auto capBot = [&](Aperture & a, float y, float h) {if (y < a.yBot) {a.yBot = y; a.dBot = d; a.hBot = h;}};
+
+        if (aboveOpen) {
+            if (hasCeiling && !ceilingFromAbove) draw(WALL_SURFACE_CEILING, ap.yTop, std::min(sT, ap.yBot));
+            else {
+                Aperture a = ap;
+                capBot(a, sT, eTop);
+                if (backCeiling) a.lo = capCeilingHeight(state, strip, !strip.back);
+                else if (ceilingFromAbove || ceilingEndsLo) a.lo = {HeightMin, 0.0f};
+                next[n++] = a;
+            }
+        }
+
+        // Rays under the bottom edge: mirrored
+        if (belowOpen) {
+            if (hasFloor && !floorFromBelow) draw(WALL_SURFACE_FLOOR, std::max(sB, ap.yTop), ap.yBot);
+            else {
+                Aperture a = ap;
+                capTop(a, sB, eBot);
+                if (backFloor) a.up = capFloorHeight(state, strip, !strip.back);
+                else if (floorFromBelow || floorEndsUp) a.up = {HeightMax, 0.0f};
+                next[n++] = a;
+            }
+        }
+
+        // Rays through the wall: see-through only, between its back surfaces
+        if (wallOpen) {
+            vstripAdd(state, strip, (int) wallTop, (int) wallBot);
+            if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+                Aperture a = ap;
+                capTop(a, sT, eTop);
+                capBot(a, sB, eBot);
+                if (backCeiling) a.up = capCeilingHeight(state, strip, !strip.back);
+                if (backFloor) a.lo = capFloorHeight(state, strip, !strip.back);
+                next[n++] = a;
+            }
+        }
+
+        // Recurse into all but the last aperture, which carries on here
+        if (n == 0) return;
+        for (int k = 0; k < n - 1; k++)
+            renderVertical2(state, i + 1, next[k]);
+        ap = next[n - 1];
+    }
+}
+*/
+/*****************************************************************************/
 inline __m128 Renderer::sampleGlowmap(float glowX, float glowZ)
 {
     int x0 = ((int) glowX) & (glowmapReso - 1);
@@ -1064,6 +1848,7 @@ bool Renderer::edgeUpperBound(const Context & state, const Strip & strip, Cap & 
 /*****************************************************************************/
 void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot)
 {
+    if (!(flags & Renderer::FLAG_SURFACES)) return;
     if (scanTop >= frameResoY) return;
     if (scanBot < 0) return;
     if (scanTop < 0) scanTop = 0;
