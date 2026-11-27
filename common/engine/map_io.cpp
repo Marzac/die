@@ -266,7 +266,7 @@ bool Map::load(const QString & filename)
             fscanf(file, "%hu, %hu, %f, %hx", &w.nodeID1, &w.nodeID2, &w.height, &w.flags);
             fscanf(file, ", %f, %f, %f, %f", &w.floorFrontDrop, &w.floorBackDrop, &w.ceilingFrontDrop, &w.ceilingBackDrop);
             fscanf(file, ", %f", &w.slant);
-            w.slant = qBound(-w.height, w.slant, w.height);
+            w.slant = qBound(-w.height, w.slant, w.height) + 0.0f;    // no -0 on flat walls
             if (w.nodeID1 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID2 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID1 == w.nodeID2)     { lastC = ' '; continue; }
