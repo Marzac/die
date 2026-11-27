@@ -2,7 +2,7 @@
     SNAP
     Headless renderer snapshots for the DIE engine
 
-    Renders each view with renderVertical and renderVertical2 into one PNG:
+    Renders each view with renderVertical and renderVertical5 into one PNG:
     columns old / new / differences in red, rows full / walls only / surfaces only.
     Frames are brightened 3x, pixels left undrawn are magenta.
 

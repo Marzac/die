@@ -312,22 +312,6 @@ private:
         const Cap2D & top() const {return caps[count - 1];}
     };
 
-    /// \brief Rays still open in a column: rows [yTop, yBot] and the planes they travel between
-    /// The rays passed below the edge (dTop, hTop) and above the edge (dBot, hBot), d = 0 for a frame border
-    typedef struct {
-        float yTop, yBot;
-        float dTop, hTop;
-        float dBot, hBot;
-        Cap2D up;                 ///< plane above the rays, {HeightMax, 0} if none
-        Cap2D lo;                 ///< plane below the rays, {HeightMin, 0} if none
-    } Aperture;
-
-    typedef struct _Ap2 {
-        float yTop, yBot;
-        Cap2D ceiling, floor;
-        _Ap2 * parent;
-    } Ap2;
-
     /// \brief Persistent cap stack: each link lives in the frame of the recursion that pushed it
     typedef struct _CapLink {
         Cap2D cap;
@@ -430,9 +414,6 @@ private:
     void castStrips(Context & state);
     Cap3D capPlane(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
-    //void renderVertical2(Context & state, int depth, Aperture ap);
-    void renderVertical3(Context & state, int depth, Ap2 ap);
-    void renderVertical4(Context & state, int depth, Ap2 ap);
     void renderVertical5(Context & state, int depth, Ap3 ap);
     void drawVStrips(Context & state);
 
