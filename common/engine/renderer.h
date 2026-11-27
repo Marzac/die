@@ -97,6 +97,7 @@ public:
         FLAG_GAMMA              = 0x0400,
         FLAG_MULTITHREADING     = 0x1000,
         FLAG_MIPMAPPING         = 0x2000,   ///< sample the mipmap levels
+        FLAG_APERTURES          = 0x4000,   ///< experimental: renderVertical5() clipping
         FLAGS_DEFAULT           = FLAG_WALLS | FLAG_SURFACES | FLAG_LIGHTS | FLAG_AMBIENT_OCCLUSION | FLAG_GAMMA
                                 | FLAG_MULTITHREADING | FLAG_MIPMAPPING,
     } FLAGS;
@@ -311,6 +312,34 @@ private:
         const Cap & top() const {return caps[count - 1];}
     };
 
+    /// \brief Rays still open in a column: rows [yTop, yBot] and the planes they travel between
+    /// The rays passed below the edge (dTop, hTop) and above the edge (dBot, hBot), d = 0 for a frame border
+    typedef struct {
+        float yTop, yBot;
+        float dTop, hTop;
+        float dBot, hBot;
+        Cap up;                 ///< plane above the rays, {HeightMax, 0} if none
+        Cap lo;                 ///< plane below the rays, {HeightMin, 0} if none
+    } Aperture;
+
+    typedef struct _Ap2 {
+        float yTop, yBot;
+        Cap ceiling, floor;
+        _Ap2 * parent;
+    } Ap2;
+
+    /// \brief Persistent cap stack: each link lives in the frame of the recursion that pushed it
+    typedef struct _CapLink {
+        Cap cap;
+        const _CapLink * prev;
+    } CapLink;
+
+    typedef struct {
+        float yTop, yBot;
+        const CapLink * ceiling;
+        const CapLink * floor;
+    } Ap3;
+
     typedef struct {
         QVector3D casterPos;
         int casterColumn;
@@ -401,6 +430,10 @@ private:
     void castStrips(Context & state);
     Level capLevel(const Context & state, const Strip & strip, bool back, bool ceiling);
     void renderVertical(Context & state, int depth, CapStack upperBounds, CapStack lowerBounds, int scanTop, int scanBot);
+    //void renderVertical2(Context & state, int depth, Aperture ap);
+    void renderVertical3(Context & state, int depth, Ap2 ap);
+    void renderVertical4(Context & state, int depth, Ap2 ap);
+    void renderVertical5(Context & state, int depth, Ap3 ap);
     void drawVStrips(Context & state);
 
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
