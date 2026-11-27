@@ -102,7 +102,6 @@ public:
     QString askMapFile(const QString & caption, const QString & startFile);
     bool saveMap(const QString & file, bool submap);
     void setMapFile(const QString & file);
-    void updateWindowTitle();
 
 private:
     void resizeUI();
