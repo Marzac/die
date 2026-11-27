@@ -426,6 +426,11 @@ private:
     Cap2D capFloorHeight(const Context & state, const Strip & strip, bool back);
     Cap2D capCeilingHeight(const Context & state, const Strip & strip, bool back);
 
+    /// \brief Floor of the rays past an edge: pops the floor if it ends there, pushes link (if any) if it ends or is tighter
+    static const CapLink * linkFloor(const CapLink * floor, float hFloor, bool ends, CapLink * link, float d);
+    /// \brief Ceiling of the rays past an edge: pops the ceiling if it ends there, pushes link (if any) if it ends or is tighter
+    static const CapLink * linkCeiling(const CapLink * ceiling, float hCeiling, bool ends, CapLink * link, float d);
+
     /// \brief Bound for the rays passing over a wall top edge, false if nothing bounds them
     bool edgeLowerBound(const Context & state, const Strip & strip, Cap2D & bound);
     /// \brief Bound for the rays passing under a wall bottom edge, false if nothing bounds them
