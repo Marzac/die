@@ -132,6 +132,7 @@ public:
     void wallDeselectAll();
     bool wallFindInCircle(VIEW_MODES mode, QVector2D pos, int & wId);
     bool wallFindInRect(VIEW_MODES mode, QVector2D c1, QVector2D c2, int & wId);
+    QVector2D wallAnchor(VIEW_MODES mode, const Wall & w) const;
 
     void submapSelect(int mId);
     bool submapAdd(int node, int & mId);

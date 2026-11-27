@@ -18,6 +18,7 @@
 #include <QPainter>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QApplication>
 
 #include <math.h>
 #include <algorithm>
@@ -64,7 +65,8 @@ WdgMapEditor::WdgMapEditor(QWidget *parent) :
     selectRegionStart(false),
     selectRegionC1(), selectRegionC2(),
     mouseLeftWasPressed(false),
-    pressDeselected(false)
+    pressDeselected(false),
+    pressWall(-1)
 {
     setFocusPolicy(Qt::ClickFocus);
     if (pictoSubmap.isNull()) pictoSubmap = QImage(":/Icons/tools-submap.png");
@@ -451,6 +453,7 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
     selectRegionStart = true;
     selectRegionC1 = selectRegionC2 = click;
     pressDeselected = false;
+    pressWall = -1;
 
     if (editor.editMode == EDIT_MODE_NODES ||
         editor.editMode == EDIT_MODE_PATHS) {
@@ -477,8 +480,17 @@ void WdgMapEditor::mousePressSelect(QMouseEvent *event)
         bool nodeHover = editor.nodeFindInCircle(mode, pos, nIdHover);
 
         int wId = 0;
-        if (!nodeHover && editor.wallFindInCircle(mode, pos, wId)) {
-            bool inRegion = editor.editedMap->walls[wId].selected;
+        bool wallHover = !nodeHover && editor.wallFindInCircle(mode, pos, wId);
+        bool inRegion = wallHover && editor.editedMap->walls[wId].selected;
+
+    // Side views: an unselected face away from its anchor may start a region
+        bool onFace = wallHover && mode != VIEW_TOP && !inRegion &&
+            editor.wallAnchor(mode, editor.editedMap->walls[wId]).distanceToPoint(pos) > EDITOR_PICK_RADIUS / editor.getZoom();
+
+        if (onFace) {
+            pressWall = wId;
+
+        }else if (wallHover) {
             if (!shift && !inRegion) editor.wallDeselectAll();
             selectRegionStart = false;
             mainWindow->pushUndoState();
@@ -899,13 +911,22 @@ void WdgMapEditor::mouseReleaseEvent(QMouseEvent *event)
 {
     if (mouseLeftWasPressed) {
         bool shift = event->modifiers() & Qt::ShiftModifier;
-        if (selectRegion) mouseReleaseSelect(event);
+        bool dragged = (selectRegionC2 - selectRegionC1).length() >= QApplication::startDragDistance();
+        if (pressWall >= 0 && !dragged) {
+        // Face click without drag: pick that wall
+            if (!shift) editor.wallDeselectAll();
+            editor.selectedNode = EDIT_UNSELECTED;
+            editor.selectedWall = pressWall;
+            editor.editedMap->walls[pressWall].selected = true;
+            mainWindow->updateWallProperties();
+        }else if (selectRegion) mouseReleaseSelect(event);
         else if (!shift) mouseReleaseCreate(event);
         mainWindow->pushUndoState();
     }
     selectRegion = false;
     selectRegionStart = false;
     mouseLeftWasPressed = false;
+    pressWall = -1;
 }
 
 void WdgMapEditor::mouseMoveEvent(QMouseEvent *event)
