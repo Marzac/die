@@ -298,18 +298,18 @@ private:
     typedef struct {
         float h0;
         float slope;
-    } Cap;
+    } Cap2D;
 
     /// \brief Fixed-size stack of caps, copied by value into each recursion (no heap)
     static constexpr int CapStackMax = 16;
     struct CapStack {
-        Cap caps[CapStackMax];
+        Cap2D caps[CapStackMax];
         int count;
 
-        bool push(const Cap & cap) {if (count >= CapStackMax) return false; caps[count++] = cap; return true;}
+        bool push(const Cap2D & cap) {if (count >= CapStackMax) return false; caps[count++] = cap; return true;}
         void pop() {count--;}
-        void replace(const Cap & cap) {caps[count - 1] = cap;}
-        const Cap & top() const {return caps[count - 1];}
+        void replace(const Cap2D & cap) {caps[count - 1] = cap;}
+        const Cap2D & top() const {return caps[count - 1];}
     };
 
     /// \brief Rays still open in a column: rows [yTop, yBot] and the planes they travel between
@@ -318,19 +318,19 @@ private:
         float yTop, yBot;
         float dTop, hTop;
         float dBot, hBot;
-        Cap up;                 ///< plane above the rays, {HeightMax, 0} if none
-        Cap lo;                 ///< plane below the rays, {HeightMin, 0} if none
+        Cap2D up;                 ///< plane above the rays, {HeightMax, 0} if none
+        Cap2D lo;                 ///< plane below the rays, {HeightMin, 0} if none
     } Aperture;
 
     typedef struct _Ap2 {
         float yTop, yBot;
-        Cap ceiling, floor;
+        Cap2D ceiling, floor;
         _Ap2 * parent;
     } Ap2;
 
     /// \brief Persistent cap stack: each link lives in the frame of the recursion that pushed it
     typedef struct _CapLink {
-        Cap cap;
+        Cap2D cap;
         const _CapLink * prev;
     } CapLink;
 
@@ -439,13 +439,13 @@ private:
     void vstripAdd(Context & state, const Strip & strip, int scanTop, int scanBot);
     void vstripDraw(Context & state, const Strip & strip);
     void vplaneDraw(Context & state, const Strip & strip, uint16_t sID, int scanTop, int scanBot);
-    Cap capFloorHeight(const Context & state, const Strip & strip, bool back);
-    Cap capCeilingHeight(const Context & state, const Strip & strip, bool back);
+    Cap2D capFloorHeight(const Context & state, const Strip & strip, bool back);
+    Cap2D capCeilingHeight(const Context & state, const Strip & strip, bool back);
 
     /// \brief Bound for the rays passing over a wall top edge, false if nothing bounds them
-    bool edgeLowerBound(const Context & state, const Strip & strip, Cap & bound);
+    bool edgeLowerBound(const Context & state, const Strip & strip, Cap2D & bound);
     /// \brief Bound for the rays passing under a wall bottom edge, false if nothing bounds them
-    bool edgeUpperBound(const Context & state, const Strip & strip, Cap & bound);
+    bool edgeUpperBound(const Context & state, const Strip & strip, Cap2D & bound);
 
     void buildTables();
 

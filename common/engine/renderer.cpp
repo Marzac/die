@@ -597,8 +597,8 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         castStrips(state);
 
     // Floor / ceiling planes
-        Cap ceiling = {levels.ceiling.h0, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
-        Cap floor = {levels.floor.h0, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
+        Cap2D ceiling = {levels.ceiling.h0, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
+        Cap2D floor = {levels.floor.h0, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
 
     // Render surfaces
         state.vStripsClippedCount = 0;
@@ -777,7 +777,7 @@ Renderer::Cap3D Renderer::capPlane(const Context & state, const Strip & strip, b
 {
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
-    Cap cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
+    Cap2D cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
 
 // Plane gradient: rise along the wall, drop away from it on the surface side
     float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
@@ -804,8 +804,8 @@ void Renderer::renderVertical(Context & state, int depth,
     // Window bounds, compared at the wall distance
         float wallBot = strip.hBot;
         float wallTop = strip.hTop;
-        Cap upperCap = upperBounds.top();
-        Cap lowerCap = lowerBounds.top();
+        Cap2D upperCap = upperBounds.top();
+        Cap2D lowerCap = lowerBounds.top();
         float upperBound = upperCap.h0 + upperCap.slope * strip.dist;
         float lowerBound = lowerCap.h0 + lowerCap.slope * strip.dist;
 
@@ -813,7 +813,7 @@ void Renderer::renderVertical(Context & state, int depth,
     // Edge on the bound: its plane ends here, hand over to the wall's own bound
         if (wallTop < lowerBound) {
             if (lowerBounds.count > 1 && lowerBound - wallTop <= 2.0f * epsilon) {
-                Cap lower;
+                Cap2D lower;
                 if (edgeLowerBound(state, strip, lower)) lowerBounds.replace(lower);
                 else lowerBounds.pop();
             }
@@ -821,7 +821,7 @@ void Renderer::renderVertical(Context & state, int depth,
         }
         if (wallBot > upperBound) {
             if (upperBounds.count > 1 && wallBot - upperBound <= 2.0f * epsilon) {
-                Cap upper;
+                Cap2D upper;
                 if (edgeUpperBound(state, strip, upper)) upperBounds.replace(upper);
                 else upperBounds.pop();
             }
@@ -841,7 +841,7 @@ void Renderer::renderVertical(Context & state, int depth,
                     vplaneDraw(state, strip, WALL_SURFACE_FLOOR, scanTop, yBot);
             // Edge on the bound: hand over as in case 0
                 if (upperBounds.count > 1 && upperBound - wallBot <= 2.0f * epsilon) {
-                    Cap upper;
+                    Cap2D upper;
                     if (edgeUpperBound(state, strip, upper)) upperBounds.replace(upper);
                     else upperBounds.pop();
                 }
@@ -863,7 +863,7 @@ void Renderer::renderVertical(Context & state, int depth,
                     vplaneDraw(state, strip, WALL_SURFACE_CEILING, yTop, scanBot);
             // Edge on the bound: hand over as in case 0
                 if (lowerBounds.count > 1 && wallTop - lowerBound <= 2.0f * epsilon) {
-                    Cap lower;
+                    Cap2D lower;
                     if (edgeLowerBound(state, strip, lower)) lowerBounds.replace(lower);
                     else lowerBounds.pop();
                 }
@@ -879,14 +879,14 @@ void Renderer::renderVertical(Context & state, int depth,
         // Back ceiling / floor: the rays stay on that side of their plane
             if (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK)) {
                 if (wallTop < upperBound) {
-                    Cap upper = capCeilingHeight(state, strip, !strip.back);
+                    Cap2D upper = capCeilingHeight(state, strip, !strip.back);
                     upper.h0 += epsilon;
                     upperBounds.push(upper);
                 }
             }
             if (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK)) {
                 if (wallBot > lowerBound) {
-                    Cap lower = capFloorHeight(state, strip, !strip.back);
+                    Cap2D lower = capFloorHeight(state, strip, !strip.back);
                     lower.h0 -= epsilon;
                     lowerBounds.push(lower);
                 }
@@ -907,7 +907,7 @@ void Renderer::renderVertical(Context & state, int depth,
                     vplaneDraw(state, strip, WALL_SURFACE_CEILING, scanTop, yBot);
             } else {
             // Wall top edge: bound the rays passing over it
-                Cap lower;
+                Cap2D lower;
                 bool push = edgeLowerBound(state, strip, lower);
                 if (push) push = lowerBounds.push(lower);
                 renderVertical(state, i + 1, upperBounds, lowerBounds, scanTop, yBot);
@@ -928,7 +928,7 @@ void Renderer::renderVertical(Context & state, int depth,
                     vplaneDraw(state, strip, WALL_SURFACE_FLOOR, yTop, scanBot);
             } else {
             // Wall bottom edge: bound the rays passing under it
-                Cap upper;
+                Cap2D upper;
                 bool push = edgeUpperBound(state, strip, upper);
                 if (push) push = upperBounds.push(upper);
                 renderVertical(state, i + 1, upperBounds, lowerBounds, yTop, scanBot);
@@ -946,14 +946,14 @@ void Renderer::renderVertical(Context & state, int depth,
         // Back ceiling / floor: the rays stay on that side of their plane
             if (w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK)) {
                 if (wallTop < upperBound) {
-                    Cap upper = capCeilingHeight(state, strip, !strip.back);
+                    Cap2D upper = capCeilingHeight(state, strip, !strip.back);
                     upper.h0 += epsilon;
                     upperBounds.push(upper);
                 }
             }
             if (w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK)) {
                 if (wallBot > lowerBound) {
-                    Cap lower = capFloorHeight(state, strip, !strip.back);
+                    Cap2D lower = capFloorHeight(state, strip, !strip.back);
                     lower.h0 -= epsilon;
                     lowerBounds.push(lower);
                 }
@@ -992,7 +992,7 @@ void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
     // Wall Ceiling
         if (strip.hTop >= floorCap - epsilon) {
             if (hasFrontCeiling) {
-                Cap ceiling = capCeilingHeight(state, strip, !strip.back);
+                Cap2D ceiling = capCeilingHeight(state, strip, !strip.back);
                 if (ceiling.h0 > casterY) ceilingAbove = true;
                 else ceilingBelow = true;
             }
@@ -1001,7 +1001,7 @@ void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
     // Wall floor
         if (strip.hBot <= ceilCap + epsilon) {
             if (hasFrontFloor) {
-                Cap floor = capFloorHeight(state, strip, !strip.back);
+                Cap2D floor = capFloorHeight(state, strip, !strip.back);
                 if (floor.h0 < casterY) floorBelow = true;
                 else floorAbove = true;
             }
@@ -1506,7 +1506,7 @@ void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
         if (strip.hTop >= floorCap - epsilon) {
             bool hasFrontCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_BACK : WALL_FLAG_CEILING_FRONT);
             if (hasFrontCeiling) {
-                Cap ceiling = capCeilingHeight(state, strip, !strip.back);
+                Cap2D ceiling = capCeilingHeight(state, strip, !strip.back);
                 if (ceiling.h0 > casterY) { // Ceiling above camera
                     if (strip.yTop >= ap.yTop) {
                         int bot = std::min(ap.yBot, strip.yTop);
@@ -1546,7 +1546,7 @@ void Renderer::renderVertical3(Context & state, int depth, Ap2 ap)
         if (strip.hBot <= ceilCap + epsilon) {
             bool hasFrontFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_BACK : WALL_FLAG_FLOOR_FRONT);
             if (hasFrontFloor) {
-                Cap floor = capFloorHeight(state, strip, !strip.back);
+                Cap2D floor = capFloorHeight(state, strip, !strip.back);
                 if (floor.h0 < casterY) { // Floor below camera
                     if (strip.yBot < ap.yBot) {
                         int top = std::max(ap.yTop, strip.yBot);
@@ -1634,7 +1634,7 @@ void Renderer::renderVertical2(Context & state, int depth, Aperture ap)
         float eBot = botClipped ? hLo : strip.hBot;
 
         // Seen from above: some rays passed above it under the top cap edge, from below: mirrored
-        auto seen = [&](const Cap & p, bool fromAbove) {
+        auto seen = [&](const Cap2D & p, bool fromAbove) {
             if (fromAbove) return ap.dTop <= 0.0f || ap.hTop > p.h0 + p.slope * ap.dTop + epsilon;
             return ap.dBot <= 0.0f || ap.hBot < p.h0 + p.slope * ap.dBot - epsilon;
         };
@@ -1646,14 +1646,14 @@ void Renderer::renderVertical2(Context & state, int depth, Aperture ap)
         bool floorEndsUp = hasFloor && fabsf(strip.hBot - hUp) <= epsilon;
         bool ceilingFromAbove = false, floorFromBelow = false;
         if (hasCeiling) {
-            Cap c = capCeilingHeight(state, strip, strip.back);
+            Cap2D c = capCeilingHeight(state, strip, strip.back);
             ceilingFromAbove = casterY > c.h0;
             // The rays travel over lo: on it, it cannot be seen from below
             hasCeiling = seen(c, ceilingFromAbove) && (ceilingFromAbove || !ceilingEndsLo);
             ceilingFromAbove &= hasCeiling;
         }
         if (hasFloor) {
-            Cap c = capFloorHeight(state, strip, strip.back);
+            Cap2D c = capFloorHeight(state, strip, strip.back);
             floorFromBelow = casterY < c.h0;
             hasFloor = seen(c, !floorFromBelow) && (floorFromBelow || !floorEndsUp);
             floorFromBelow &= hasFloor;
@@ -1756,7 +1756,7 @@ inline __m128 Renderer::sampleGlowmap(float glowX, float glowZ)
 }
 
 /*****************************************************************************/
-Renderer::Cap Renderer::capFloorHeight(const Context & state, const Strip & strip, bool back)
+Renderer::Cap2D Renderer::capFloorHeight(const Context & state, const Strip & strip, bool back)
 {
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
@@ -1770,13 +1770,13 @@ Renderer::Cap Renderer::capFloorHeight(const Context & state, const Strip & stri
     float across = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
 
 // The surface passes through the wall edge at the hit distance
-    Cap cap;
+    Cap2D cap;
     cap.slope = rise * along + drop * across;
     cap.h0 = strip.hBot - strip.dist * cap.slope;
     return cap;
 }
 
-Renderer::Cap Renderer::capCeilingHeight(const Context & state, const Strip & strip, bool back)
+Renderer::Cap2D Renderer::capCeilingHeight(const Context & state, const Strip & strip, bool back)
 {
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
@@ -1790,14 +1790,14 @@ Renderer::Cap Renderer::capCeilingHeight(const Context & state, const Strip & st
     float across = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
 
 // The surface passes through the wall edge at the hit distance
-    Cap cap;
+    Cap2D cap;
     cap.slope = rise * along + drop * across;
     cap.h0 = strip.hTop - strip.dist * cap.slope;
     return cap;
 }
 
 /*****************************************************************************/
-bool Renderer::edgeLowerBound(const Context & state, const Strip & strip, Cap & bound)
+bool Renderer::edgeLowerBound(const Context & state, const Strip & strip, Cap2D & bound)
 {
     const Wall & w = walls[strip.wallId];
     bool backCap = w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK);
@@ -1821,7 +1821,7 @@ bool Renderer::edgeLowerBound(const Context & state, const Strip & strip, Cap & 
     return true;
 }
 
-bool Renderer::edgeUpperBound(const Context & state, const Strip & strip, Cap & bound)
+bool Renderer::edgeUpperBound(const Context & state, const Strip & strip, Cap2D & bound)
 {
     const Wall & w = walls[strip.wallId];
     bool backCap = w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK);
@@ -1855,7 +1855,7 @@ void Renderer::vplaneDraw(Context & state, const Strip & strip, uint16_t sID, in
     if (scanBot > frameResoY) scanBot = frameResoY;
 
     const Wall & w = walls[strip.wallId];
-    Cap cap = (sID == WALL_SURFACE_FLOOR) ? capFloorHeight(state, strip, strip.back)
+    Cap2D cap = (sID == WALL_SURFACE_FLOOR) ? capFloorHeight(state, strip, strip.back)
                                           : capCeilingHeight(state, strip, strip.back);
     float slope = cap.slope;
     float heightAbove = state.casterPos.y() - cap.h0;
