@@ -28,9 +28,11 @@ Except for walls and paths, every other map object is created from a node, in th
 
 ### Wall
 
-A wall is a one-sided flat surface, perpendicular to the floor. DIE does not support slanted walls. A wall is defined by its two end nodes
-(which give its position, length and base height) and a height, measured upward from the base. Walls define the playable space by blocking
-the view, and in DIE they also project floors and ceilings.
+A wall is a one-sided flat surface, perpendicular to the floor. DIE does not support leaning walls. A wall is defined by its two end nodes
+(which give its position, length and base height), a height, measured upward from the base, and a slant. The height is that of the taller
+end; the slant is how much the top edge rises from the first node to the second, between minus and plus the height. At 0 the top runs
+parallel to the base, at plus or minus the height the wall becomes a triangle. Walls define the playable space by blocking the view, and in
+DIE they also project floors and ceilings.
 
 By default a wall is one-sided: only its front face (the side its normal points to) is rendered, and the back is backculled, i.e. invisible
 and ignored entirely. Clearing the backculling flag turns the wall into a two-sided wall: its back face is then rendered too, using the back
@@ -42,8 +44,8 @@ ceiling it projects.
 
 ### Floors and ceilings
 
-Floors and ceilings are not separate objects: they are surfaces projected by the walls themselves. A wall's base height defines a floor plane,
-and its top height (base + height) defines a ceiling plane. Each wall can be flagged to project its floor and/or its ceiling, independently
+Floors and ceilings are not separate objects: they are surfaces projected by the walls themselves. A wall's base defines a floor plane,
+and its top edge defines a ceiling plane, sloping along the wall when the wall is slanted. Each wall can be flagged to project its floor and/or its ceiling, independently
 on its front side and on its back side. During rendering, these projected planes are what the renderer stacks and clips against each other
 to figure out, column by column, which floor and which ceiling are actually visible at a given height : this is the "topology evaluated on
 the fly" mentioned in the preface.
@@ -187,7 +189,11 @@ without ever having to look at neighbouring surfaces.
 Concretely, for every wall strip, a band of a fixed world-space depth is measured inward from its top and bottom edges.
 Within that band, the lit color is scaled down by a darkening factor that fades smoothly from full darkening right at the edge, to no darkening
 at all at the inner end of the band. The same band is applied symmetrically on the floor and ceiling surfaces themselves, darkening the strip
-of floor or ceiling closest to the wall that borders them. Outside these bands, surfaces are shaded normally.
+of floor or ceiling closest to the wall that borders them. Outside these bands, surfaces are shaded normally. On a wall shorter than twice
+the band, the top and bottom bands overlap and the darker of the two is used.
+
+Surfaces flagged no AO are never darkened. Walls flagged no shadow, and walls the view passes through (invisible, masked, or back-culled
+walls seen from behind), cast no band on the floor or ceiling next to them.
 
 The two parameters are occlusion length, how far the darkened band reaches from a wall/floor or wall/ceiling edge, and occlusion darken,
 how strong the darkening gets at the edge itself (0.0 = no effect, 1.0 = fully black at the edge). The effect is subtle but effective:
