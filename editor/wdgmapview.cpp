@@ -78,6 +78,7 @@ void ViewMouse::release(const QWidget * view, QMouseEvent * event)
     int y = event->pos().y() - (view->height() - frame->height()) / 2;
     renderer.clickRegister(x, y);
     mainWindow->wallPickPending = true;
+    mainWindow->wallPickAdd = event->modifiers() & Qt::ShiftModifier;
 }
 
 void ViewMouse::wheel(QWheelEvent * event)
