@@ -1194,40 +1194,18 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         }
 
     // Rays over the top edge: their floor only tightens, unless the current one ends at this wall
-        CapLink floorLink;
-        bool floorNew = true;
-        if (farCeiling) {
-            floorLink.cap = farCeilingCap;
-            nudgeUp(floorLink.cap);
-        } else if (farFloor) {
-            floorLink.cap = farFloorCap;
-            nudgeUp(floorLink.cap);
-        } else floorNew = false;
+        CapLink floorLink = {farCeiling ? farCeilingCap : farFloorCap, NULL};
+        nudgeUp(floorLink.cap);
     // The floor ends here: the top edge lies on it, or the camera side floor does
         bool floorEnds = onCap(strip.hTop, hFloor) || (nearFloor && onCap(strip.hBot, hFloor));
-        const CapLink * floorOver = floorEnds && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
-        if (floorNew && (floorEnds || floorLink.cap.h0 + d * floorLink.cap.slope > hFloor)) {
-            floorLink.prev = floorOver;
-            floorOver = &floorLink;
-        }
+        const CapLink * floorOver = linkFloor(ap.capFloor, hFloor, floorEnds, farCeiling || farFloor ? &floorLink : NULL, d);
 
     // Rays under the bottom edge: same for their ceiling
-        CapLink ceilingLink;
-        bool ceilingNew = true;
-        if (farFloor) {
-            ceilingLink.cap = farFloorCap;
-            nudgeDown(ceilingLink.cap);
-        } else if (farCeiling) {
-            ceilingLink.cap = farCeilingCap;
-            nudgeDown(ceilingLink.cap);
-        } else ceilingNew = false;
+        CapLink ceilingLink = {farFloor ? farFloorCap : farCeilingCap, NULL};
+        nudgeDown(ceilingLink.cap);
     // The ceiling ends here: the bottom edge lies on it, or the camera side ceiling does
         bool ceilingEnds = onCap(strip.hBot, hCeiling) || (nearCeiling && onCap(strip.hTop, hCeiling));
-        const CapLink * ceilingUnder = ceilingEnds && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
-        if (ceilingNew && (ceilingEnds || ceilingLink.cap.h0 + d * ceilingLink.cap.slope < hCeiling)) {
-            ceilingLink.prev = ceilingUnder;
-            ceilingUnder = &ceilingLink;
-        }
+        const CapLink * ceilingUnder = linkCeiling(ap.capCeiling, hCeiling, ceilingEnds, farFloor || farCeiling ? &ceilingLink : NULL, d);
 
         if (ceilingBelow) {
             Aperture newAp = ap;
@@ -1298,32 +1276,17 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
 
         vstripAdd(state, strip, top, bot);
         if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
+        // Through the wall, the caps also only tighten unless they end on its edges
+            CapLink throughCeiling = {farCeilingCap, NULL};
+            CapLink throughFloor = {farFloorCap, NULL};
+            nudgeDown(throughCeiling.cap);
+            nudgeUp(throughFloor.cap);
+
             Aperture newAp;
-            CapLink throughCeiling, throughFloor;
             newAp.yTop = top;
             newAp.yBot = bot;
-
-        // Through the wall, the caps also only tighten unless they end on its edges
-            bool topOnCeiling = onCap(strip.hTop, hCeiling);
-            newAp.capCeiling = topOnCeiling && ap.capCeiling->prev ? ap.capCeiling->prev : ap.capCeiling;
-            if (farCeiling) {
-                throughCeiling.cap = farCeilingCap;
-                nudgeDown(throughCeiling.cap);
-                if (topOnCeiling || throughCeiling.cap.h0 + d * throughCeiling.cap.slope < hCeiling) {
-                    throughCeiling.prev = newAp.capCeiling;
-                    newAp.capCeiling = &throughCeiling;
-                }
-            }
-            bool botOnFloor = onCap(strip.hBot, hFloor);
-            newAp.capFloor = botOnFloor && ap.capFloor->prev ? ap.capFloor->prev : ap.capFloor;
-            if (farFloor) {
-                throughFloor.cap = farFloorCap;
-                nudgeUp(throughFloor.cap);
-                if (botOnFloor || throughFloor.cap.h0 + d * throughFloor.cap.slope > hFloor) {
-                    throughFloor.prev = newAp.capFloor;
-                    newAp.capFloor = &throughFloor;
-                }
-            }
+            newAp.capCeiling = linkCeiling(ap.capCeiling, hCeiling, onCap(strip.hTop, hCeiling), farCeiling ? &throughCeiling : NULL, d);
+            newAp.capFloor = linkFloor(ap.capFloor, hFloor, onCap(strip.hBot, hFloor), farFloor ? &throughFloor : NULL, d);
             renderVertical6(state, i + 1, newAp);
         }
         return;
@@ -1391,6 +1354,27 @@ Renderer::Cap2D Renderer::capCeilingHeight(const Context & state, const Strip & 
     cap.slope = rise * along + drop * across;
     cap.h0 = strip.hTop - strip.dist * cap.slope;
     return cap;
+}
+
+/*****************************************************************************/
+const Renderer::CapLink * Renderer::linkFloor(const CapLink * floor, float hFloor, bool ends, CapLink * link, float d)
+{
+    const CapLink * result = ends && floor->prev ? floor->prev : floor;
+    if (link && (ends || link->cap.h0 + d * link->cap.slope > hFloor)) {
+        link->prev = result;
+        result = link;
+    }
+    return result;
+}
+
+const Renderer::CapLink * Renderer::linkCeiling(const CapLink * ceiling, float hCeiling, bool ends, CapLink * link, float d)
+{
+    const CapLink * result = ends && ceiling->prev ? ceiling->prev : ceiling;
+    if (link && (ends || link->cap.h0 + d * link->cap.slope < hCeiling)) {
+        link->prev = result;
+        result = link;
+    }
+    return result;
 }
 
 /*****************************************************************************/
