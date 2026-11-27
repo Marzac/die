@@ -1243,35 +1243,39 @@ void Renderer::vstripDraw(Context & state, const Strip & strip)
             vFixed += vStep;
         };
 
-    // AO zones, clamped to the drawn rows
+    // AO zones, clamped to the drawn rows; they overlap when the wall is shorter than twice the AO length
         bool occlusion = (flags & Renderer::FLAG_AMBIENT_OCCLUSION) && sl.occlusion;
         int topAoEnd = occlusion ? std::clamp((int)strip.yDarkenTop, scanTop, scanBot) : scanTop;
         int botAoStart = occlusion ? std::clamp((int)strip.yDarkenBot, scanTop, scanBot) : scanBot;
-        topAoEnd = std::min(topAoEnd, botAoStart);
+        int midTop = std::min(topAoEnd, botAoStart);
+        int midBot = std::max(topAoEnd, botAoStart);
 
     // Top gradient: (1-occlusionDarken) at yNoclipTop -> 1.0 at yDarkenTop
         float topLen = strip.yDarkenTop - strip.yNoclipTop;
         float topStep = topLen > 0.0f ? occlusionDarken / topLen : 0.0f;
-        float topStart = (1.0f - occlusionDarken) + (scanTop - strip.yNoclipTop) * topStep;
+        float topFactor = (1.0f - occlusionDarken) + (scanTop - strip.yNoclipTop) * topStep;
 
     // Bottom gradient: 1.0 at yDarkenBot -> (1-occlusionDarken) at yNoclipBot
         float botLen = strip.yNoclipBot - strip.yDarkenBot;
         float botStep = botLen > 0.0f ? -occlusionDarken / botLen : 0.0f;
-        float botStart = 1.0f + (botAoStart - strip.yDarkenBot) * botStep;
+        float botFactor = 1.0f + (botAoStart - strip.yDarkenBot) * botStep;
 
     // Top AO zone
-        float aoFactor = topStart;
-        for (int y = scanTop; y < topAoEnd; y++, aoFactor += topStep)
-            drawAmbientOcclusion(aoFactor);
+        for (int y = scanTop; y < midTop; y++, topFactor += topStep)
+            drawAmbientOcclusion(topFactor);
 
-    // Middle zone
-        for (int y = topAoEnd; y < botAoStart; y++)
-            drawPlain();
+    // Middle zone: the darker gradient where both overlap, else plain
+        if (topAoEnd > botAoStart) {
+            for (int y = midTop; y < midBot; y++, topFactor += topStep, botFactor += botStep)
+                drawAmbientOcclusion(std::min(topFactor, botFactor));
+        }else{
+            for (int y = midTop; y < midBot; y++)
+                drawPlain();
+        }
 
     // Bottom AO zone
-        aoFactor = botStart;
-        for (int y = botAoStart; y < scanBot; y++, aoFactor += botStep)
-            drawAmbientOcclusion(aoFactor);
+        for (int y = midBot; y < scanBot; y++, botFactor += botStep)
+            drawAmbientOcclusion(botFactor);
     }
 }
 
