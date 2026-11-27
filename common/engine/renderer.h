@@ -53,6 +53,7 @@ public:
 /// \brief World height (floor / ceiling) limits
     static constexpr float HeightMin = -16384.0f;
     static constexpr float HeightMax =  16384.0f;
+    static constexpr float Epsilon = 0x1p-6f;       ///< height tolerance for the walls and caps
 
 /// \brief Default sun lighting
     static constexpr uint32_t DefaultSunAmbient = 0xDDDDDD;

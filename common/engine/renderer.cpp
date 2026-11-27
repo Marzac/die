@@ -32,8 +32,6 @@
 Renderer renderer;
 WorkerPool renderWorkers;
 
-constexpr float epsilon = 0x1p-6f;
-
 /*****************************************************************************/
 Renderer::Renderer() :
     flags(FLAGS_DEFAULT),
@@ -280,7 +278,7 @@ void Renderer::glowmapChunk(__m128 * gm, bool still, int z1, int z2)
 
                     const Segment & s = segments[i];
                     float div = toLightX * s.deltaZ - toLightZ * s.deltaX;
-                    if (fabs(div) < epsilon) continue;
+                    if (fabs(div) < Epsilon) continue;
                     if ((w.flags & WALL_FLAG_BACKCULLED) && div < 0.0f) continue;
 
                     float scale = 1.0f / div;
@@ -691,7 +689,7 @@ Renderer::Levels Renderer::probeLevels(const QVector3D & pos, float pan)
         for (int i = foundCount - 1; i >= 0; i--) {
             const Cap3D & l = found[i];
             float h = l.h0 + strip.dist * (l.gx * state.casterRayX + l.gz * state.casterRayZ);
-            if (h >= strip.hBot - epsilon && h <= strip.hTop + epsilon)
+            if (h >= strip.hBot - Epsilon && h <= strip.hTop + Epsilon)
                 found[i] = found[--foundCount];
         }
         if (strip.flags & VSTRIP_FLAG_HASCEILING) found[foundCount++] = capPlane(state, strip, strip.back, true);
@@ -734,10 +732,10 @@ void Renderer::renderVertical(Context & state, int depth, Aperture ap)
     if (ap.yTop >= ap.yBot) return;
     float casterY = state.casterPos.y();
 
-// Move a cap 2 epsilon past its plane when the camera is on its hidden side
-    auto nudgeUp = [&](Cap2D & cap) {if (cap.h0 > casterY) cap.h0 += 2.0f * epsilon;};
-    auto nudgeDown = [&](Cap2D & cap) {if (cap.h0 < casterY) cap.h0 -= 2.0f * epsilon;};
-    auto onCap = [&](float h, float hCap) {return fabsf(h - hCap) <= 2.0f * epsilon;};
+// Move a cap 2 Epsilon past its plane when the camera is on its hidden side
+    auto nudgeUp = [&](Cap2D & cap) {if (cap.h0 > casterY) cap.h0 += 2.0f * Epsilon;};
+    auto nudgeDown = [&](Cap2D & cap) {if (cap.h0 < casterY) cap.h0 -= 2.0f * Epsilon;};
+    auto onCap = [&](float h, float hCap) {return fabsf(h - hCap) <= 2.0f * Epsilon;};
 
     for (int i = depth; i < state.vStripsCount; i++) {
         Strip & strip = state.vStrips[state.vStripsMap[i]];
@@ -747,8 +745,8 @@ void Renderer::renderVertical(Context & state, int depth, Aperture ap)
     // Cull walls outside the caps
         float hCeiling = ap.capCeiling->cap.h0 + d * ap.capCeiling->cap.slope;
         float hFloor = ap.capFloor->cap.h0 + d * ap.capFloor->cap.slope;
-        if (strip.hTop < hFloor - epsilon) continue;
-        if (strip.hBot > hCeiling + epsilon) continue;
+        if (strip.hTop < hFloor - Epsilon) continue;
+        if (strip.hBot > hCeiling + Epsilon) continue;
 
     // Caps of the rays over the top edge and under the bottom edge
         bool nearCeiling = strip.flags & VSTRIP_FLAG_HASCEILING;
@@ -773,7 +771,7 @@ void Renderer::renderVertical(Context & state, int depth, Aperture ap)
         bool floorBelow = nearFloor && capFloorHeight(state, strip, strip.back).h0 < casterY;
 
     // Ceiling seen from above, not lying on the cap: hides all below, only the rays over it go on
-        if (nearCeiling && !ceilingAbove && hCeiling - strip.hTop > 2.0f * epsilon) {
+        if (nearCeiling && !ceilingAbove && hCeiling - strip.hTop > 2.0f * Epsilon) {
             Aperture newAp = ap;
             newAp.capFloor = floorOver;
             if (strip.yTop < ap.yBot) {
@@ -786,7 +784,7 @@ void Renderer::renderVertical(Context & state, int depth, Aperture ap)
         }
 
     // Floor seen from below, not lying on the cap: hides all above, only the rays under it go on
-        if (nearFloor && !floorBelow && strip.hBot - hFloor > 2.0f * epsilon) {
+        if (nearFloor && !floorBelow && strip.hBot - hFloor > 2.0f * Epsilon) {
             Aperture newAp = ap;
             newAp.capCeiling = ceilingUnder;
             if (strip.yBot >= ap.yTop) {
