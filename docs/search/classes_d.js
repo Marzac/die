@@ -1,10 +1,7 @@
 var searchData=
 [
-  ['speaker_0',['Speaker',['../struct_speaker.html',1,'']]],
-  ['sprite_1',['Sprite',['../struct_sprite.html',1,'']]],
-  ['staircase_2',['Staircase',['../struct_staircase.html',1,'']]],
-  ['submap_3',['Submap',['../struct_submap.html',1,'']]],
-  ['sun_4',['Sun',['../struct_sun.html',1,'']]],
-  ['surface_5',['Surface',['../struct_surface.html',1,'']]],
-  ['surfacelighting_6',['SurfaceLighting',['../struct_surface_lighting.html',1,'']]]
+  ['renderer_0',['Renderer',['../class_renderer.html',1,'']]],
+  ['renderwindow_1',['RenderWindow',['../class_render_window.html',1,'']]],
+  ['rig_2',['Rig',['../class_rig.html',1,'']]],
+  ['rigger_3',['Rigger',['../class_rigger.html',1,'']]]
 ];

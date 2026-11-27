@@ -141,6 +141,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a17d1df3f2755d7378a74ec3e4297fa59" id="r_a17d1df3f2755d7378a74ec3e4297fa59"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a17d1df3f2755d7378a74ec3e4297fa59">setTexture</a> (uint16_t texId)</td></tr>
 <tr class="memitem:af214eb7123fb42630a24fd4087041e64" id="r_af214eb7123fb42630a24fd4087041e64"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#af214eb7123fb42630a24fd4087041e64">updateNodeProperties</a> ()</td></tr>
 <tr class="memitem:a46f4c98eacc6822a11ce53e16e49560f" id="r_a46f4c98eacc6822a11ce53e16e49560f"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a46f4c98eacc6822a11ce53e16e49560f">updateWallProperties</a> ()</td></tr>
+<tr class="memitem:af4d86f94224378e021677c3e8fd2b9b7" id="r_af4d86f94224378e021677c3e8fd2b9b7"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#af4d86f94224378e021677c3e8fd2b9b7">updateWallSlant</a> ()</td></tr>
 <tr class="memitem:a129f82a379ee963f81de17969a1cced3" id="r_a129f82a379ee963f81de17969a1cced3"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a129f82a379ee963f81de17969a1cced3">updateWallTexture</a> ()</td></tr>
 <tr class="memitem:a7c2014fb923f00226511dba97750e12a" id="r_a7c2014fb923f00226511dba97750e12a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a7c2014fb923f00226511dba97750e12a">updateSubmapProperties</a> ()</td></tr>
 <tr class="memitem:acfd927768dedb510942ee8546dd7f422" id="r_acfd927768dedb510942ee8546dd7f422"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#acfd927768dedb510942ee8546dd7f422">updateDoorProperties</a> ()</td></tr>
@@ -174,6 +175,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:abfedb41ca605471b8f00ffdfd0715858" id="r_abfedb41ca605471b8f00ffdfd0715858"><td class="memItemLeft">QString&#160;</td><td class="memItemRight"><a class="el" href="#abfedb41ca605471b8f00ffdfd0715858">askMapFile</a> (const QString &amp;caption, const QString &amp;startFile)</td></tr>
 <tr class="memitem:a39731eb5430f57e58ce6ff6b87f920bd" id="r_a39731eb5430f57e58ce6ff6b87f920bd"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a39731eb5430f57e58ce6ff6b87f920bd">saveMap</a> (const QString &amp;file, bool submap)</td></tr>
 <tr class="memitem:a825d99937d4352d00425d4daa0d79c71" id="r_a825d99937d4352d00425d4daa0d79c71"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a825d99937d4352d00425d4daa0d79c71">setMapFile</a> (const QString &amp;file)</td></tr>
+<tr class="memitem:a0824cd5bcf4736b16612cbdea29b012a" id="r_a0824cd5bcf4736b16612cbdea29b012a"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a0824cd5bcf4736b16612cbdea29b012a">mapChanged</a> (const QString &amp;file)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -187,6 +189,7 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a65ae991eb52cbb48ab73a8c3bd5fff33" id="r_a65ae991eb52cbb48ab73a8c3bd5fff33"><td class="memItemLeft">QTimer *&#160;</td><td class="memItemRight"><a class="el" href="#a65ae991eb52cbb48ab73a8c3bd5fff33">uiTimer</a></td></tr>
 <tr class="memitem:aabdf5aaf57876bfeaaef61d5024c0fc4" id="r_aabdf5aaf57876bfeaaef61d5024c0fc4"><td class="memItemLeft"><a class="el" href="class_render_window.html">RenderWindow</a> *&#160;</td><td class="memItemRight"><a class="el" href="#aabdf5aaf57876bfeaaef61d5024c0fc4">renderWindow</a></td></tr>
 <tr class="memitem:ae83f9c1661075be38ad09175e47b0020" id="r_ae83f9c1661075be38ad09175e47b0020"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ae83f9c1661075be38ad09175e47b0020">wallPickPending</a></td></tr>
+<tr class="memitem:a4434b50b2157ff5cc040d45bbaa9ea75" id="r_a4434b50b2157ff5cc040d45bbaa9ea75"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a4434b50b2157ff5cc040d45bbaa9ea75">wallPickAdd</a></td></tr>
 <tr class="memitem:ac906f30064664136e9455e6fdaf495a3" id="r_ac906f30064664136e9455e6fdaf495a3"><td class="memItemLeft">QElapsedTimer&#160;</td><td class="memItemRight"><a class="el" href="#ac906f30064664136e9455e6fdaf495a3">metricsClock</a></td></tr>
 <tr class="memitem:a2866eaba4dfed11ab1494e9517f6cefe" id="r_a2866eaba4dfed11ab1494e9517f6cefe"><td class="memItemLeft">qint64&#160;</td><td class="memItemRight"><a class="el" href="#a2866eaba4dfed11ab1494e9517f6cefe">metricsSum</a> = 0</td></tr>
 <tr class="memitem:a18a47243f911faa300d54a1eba75740a" id="r_a18a47243f911faa300d54a1eba75740a"><td class="memItemLeft">qint64&#160;</td><td class="memItemRight"><a class="el" href="#a18a47243f911faa300d54a1eba75740a">metricsMin</a> = 0</td></tr>
@@ -290,6 +293,23 @@ Protected Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const QString &amp;</td>          <td class="paramname"><span class="paramname"><em>startFile</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a0824cd5bcf4736b16612cbdea29b012a" name="a0824cd5bcf4736b16612cbdea29b012a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a0824cd5bcf4736b16612cbdea29b012a">&#9670;&#160;</a></span>mapChanged()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MainWindow::mapChanged </td>
+          <td>(</td>
+          <td class="paramtype">const QString &amp;</td>          <td class="paramname"><span class="paramname"><em>file</em></span></td><td>)</td>
+          <td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -1017,6 +1037,23 @@ Protected Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a id="af4d86f94224378e021677c3e8fd2b9b7" name="af4d86f94224378e021677c3e8fd2b9b7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af4d86f94224378e021677c3e8fd2b9b7">&#9670;&#160;</a></span>updateWallSlant()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void MainWindow::updateWallSlant </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a129f82a379ee963f81de17969a1cced3" name="a129f82a379ee963f81de17969a1cced3"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a129f82a379ee963f81de17969a1cced3">&#9670;&#160;</a></span>updateWallTexture()</h2>
 
@@ -1225,6 +1262,20 @@ Protected Member Functions</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">bool MainWindow::viewEnableTop</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a4434b50b2157ff5cc040d45bbaa9ea75" name="a4434b50b2157ff5cc040d45bbaa9ea75"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4434b50b2157ff5cc040d45bbaa9ea75">&#9670;&#160;</a></span>wallPickAdd</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool MainWindow::wallPickAdd</td>
         </tr>
       </table>
 </div><div class="memdoc">

@@ -11,6 +11,7 @@ var struct_renderer_1_1_wall =
     [ "offset", "struct_renderer_1_1_wall.html#ae32df19512975d4c8540ca87c05d42df", null ],
     [ "rayBack", "struct_renderer_1_1_wall.html#aa9e349155a55f88e8cb49365e8b12d2b", null ],
     [ "rayFront", "struct_renderer_1_1_wall.html#aa2785aa9dedef20047cdaeecbd414ca8", null ],
+    [ "slant", "struct_renderer_1_1_wall.html#af02462137807cc0487086a21b7ed5b70", null ],
     [ "surfaces", "struct_renderer_1_1_wall.html#afbaedcddedf70b5795b4f87d249ff04c", null ],
     [ "textureID", "struct_renderer_1_1_wall.html#ab64bd80413b187d9ccc2ea71fa24b1e3", null ]
 ];

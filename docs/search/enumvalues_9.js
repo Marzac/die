@@ -19,10 +19,11 @@ var searchData=
   ['staircase_5fsurfaces_5fcount_16',['STAIRCASE_SURFACES_COUNT',['../mapobjects_8h.html#a837b9d72174df87bace72e649cb5a09aa36c9e1e834ef53adf7b618e3c0174c6b',1,'mapobjects.h']]],
   ['surface_5fflag_5falpha_17',['SURFACE_FLAG_ALPHA',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a85cd8cfb111fa6d23a4b63193dbfa323',1,'mapobjects.h']]],
   ['surface_5fflag_5fno_5fambient_18',['SURFACE_FLAG_NO_AMBIENT',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a5bb86f0ee36aa05628df78715d010ac3',1,'mapobjects.h']]],
-  ['surface_5fflag_5fno_5fbleed_19',['SURFACE_FLAG_NO_BLEED',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a35a18f2812a1c9ec4e840181f8592cd2',1,'mapobjects.h']]],
-  ['surface_5fflag_5fno_5fenv_5flight_20',['SURFACE_FLAG_NO_ENV_LIGHT',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21aa6ee28eb9ecf038ad44345ead71b904f',1,'mapobjects.h']]],
-  ['surface_5fflag_5fno_5ffog_21',['SURFACE_FLAG_NO_FOG',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a298e733984bb56207f6877722f95b601',1,'mapobjects.h']]],
-  ['surface_5fflag_5fno_5fglow_22',['SURFACE_FLAG_NO_GLOW',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21ad0cf532a6b0bd4d2801c98bea03308a1',1,'mapobjects.h']]],
-  ['surface_5fflag_5fno_5fray_23',['SURFACE_FLAG_NO_RAY',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959',1,'mapobjects.h']]],
-  ['surface_5fflag_5fregular_24',['SURFACE_FLAG_REGULAR',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a46b2d3872029ff66b7f147e5d7ef02b3',1,'mapobjects.h']]]
+  ['surface_5fflag_5fno_5fao_19',['SURFACE_FLAG_NO_AO',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21add693da447580305707ce80e89a708a7',1,'mapobjects.h']]],
+  ['surface_5fflag_5fno_5fbleed_20',['SURFACE_FLAG_NO_BLEED',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a35a18f2812a1c9ec4e840181f8592cd2',1,'mapobjects.h']]],
+  ['surface_5fflag_5fno_5fenv_5flight_21',['SURFACE_FLAG_NO_ENV_LIGHT',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21aa6ee28eb9ecf038ad44345ead71b904f',1,'mapobjects.h']]],
+  ['surface_5fflag_5fno_5ffog_22',['SURFACE_FLAG_NO_FOG',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a298e733984bb56207f6877722f95b601',1,'mapobjects.h']]],
+  ['surface_5fflag_5fno_5fglow_23',['SURFACE_FLAG_NO_GLOW',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21ad0cf532a6b0bd4d2801c98bea03308a1',1,'mapobjects.h']]],
+  ['surface_5fflag_5fno_5fray_24',['SURFACE_FLAG_NO_RAY',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959',1,'mapobjects.h']]],
+  ['surface_5fflag_5fregular_25',['SURFACE_FLAG_REGULAR',['../mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21a46b2d3872029ff66b7f147e5d7ef02b3',1,'mapobjects.h']]]
 ];

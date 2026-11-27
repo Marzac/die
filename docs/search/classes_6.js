@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['joint_0',['Joint',['../struct_joint.html',1,'']]]
+  ['gamepad_0',['Gamepad',['../class_gamepad.html',1,'']]],
+  ['glowmap_1',['Glowmap',['../struct_glowmap.html',1,'']]]
 ];

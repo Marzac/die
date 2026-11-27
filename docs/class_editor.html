@@ -145,6 +145,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:afc8a08986b9e29d02b05866d4f62248b" id="r_afc8a08986b9e29d02b05866d4f62248b"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#afc8a08986b9e29d02b05866d4f62248b">wallDeselectAll</a> ()</td></tr>
 <tr class="memitem:a5b979e475b7f730be63157c8aa7b60f7" id="r_a5b979e475b7f730be63157c8aa7b60f7"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a5b979e475b7f730be63157c8aa7b60f7">wallFindInCircle</a> (<a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a> mode, QVector2D pos, int &amp;wId)</td></tr>
 <tr class="memitem:a2a62558490c5911dfa04f76f59d71ef5" id="r_a2a62558490c5911dfa04f76f59d71ef5"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a2a62558490c5911dfa04f76f59d71ef5">wallFindInRect</a> (<a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a> mode, QVector2D c1, QVector2D c2, int &amp;wId)</td></tr>
+<tr class="memitem:af3767474457e2b27e25e097474784cb3" id="r_af3767474457e2b27e25e097474784cb3"><td class="memItemLeft">QVector2D&#160;</td><td class="memItemRight"><a class="el" href="#af3767474457e2b27e25e097474784cb3">wallAnchor</a> (<a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a> mode, const <a class="el" href="struct_wall.html">Wall</a> &amp;w) const</td></tr>
 <tr class="memitem:a8358e774708aa743f888ef88e42fe512" id="r_a8358e774708aa743f888ef88e42fe512"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a8358e774708aa743f888ef88e42fe512">submapSelect</a> (int mId)</td></tr>
 <tr class="memitem:a26688add3d71aa60dc315cb3ae486f11" id="r_a26688add3d71aa60dc315cb3ae486f11"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a26688add3d71aa60dc315cb3ae486f11">submapAdd</a> (int node, int &amp;mId)</td></tr>
 <tr class="memitem:a1ddc4c829ef8592929e26f329fb6ca18" id="r_a1ddc4c829ef8592929e26f329fb6ca18"><td class="memItemLeft">void&#160;</td><td class="memItemRight"><a class="el" href="#a1ddc4c829ef8592929e26f329fb6ca18">submapDelete</a> (int mId)</td></tr>
@@ -208,8 +209,6 @@ Public Member Functions</h2></td></tr>
 Static Public Member Functions</h2></td></tr>
 <tr class="memitem:a4e25dcdd5a1d65a978cacaa10dfade1c" id="r_a4e25dcdd5a1d65a978cacaa10dfade1c"><td class="memItemLeft">static QVector2D&#160;</td><td class="memItemRight"><a class="el" href="#a4e25dcdd5a1d65a978cacaa10dfade1c">to2D</a> (<a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a> mode, const QVector3D &amp;pos)</td></tr>
 <tr class="memitem:a1dd23ccdc04a01dc6ee5bb63eeeec168" id="r_a1dd23ccdc04a01dc6ee5bb63eeeec168"><td class="memItemLeft">static QVector3D&#160;</td><td class="memItemRight"><a class="el" href="#a1dd23ccdc04a01dc6ee5bb63eeeec168">to3D</a> (<a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a> mode, const QVector2D &amp;pos, const QVector3D &amp;ref)</td></tr>
-<tr class="memitem:a4bf9a845a9059b07ef75fd7c748578bc" id="r_a4bf9a845a9059b07ef75fd7c748578bc"><td class="memItemLeft">static QImage&#160;</td><td class="memItemRight"><a class="el" href="#a4bf9a845a9059b07ef75fd7c748578bc">textureStripAppend</a> (const QImage &amp;strip, const QList&lt; QImage &gt; &amp;tiles)</td></tr>
-<tr class="memitem:aa4609265af48ecdbeb78e3249e7f5c6a" id="r_aa4609265af48ecdbeb78e3249e7f5c6a"><td class="memItemLeft">static bool&#160;</td><td class="memItemRight"><a class="el" href="#aa4609265af48ecdbeb78e3249e7f5c6a">textureStripFits</a> (const QImage &amp;strip)</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
@@ -242,6 +241,7 @@ Public Attributes</h2></td></tr>
 <tr class="memitem:a07bac8b92b4b98a3404ccdb92e500ff8" id="r_a07bac8b92b4b98a3404ccdb92e500ff8"><td class="memItemLeft">int&#160;</td><td class="memItemRight"><a class="el" href="#a07bac8b92b4b98a3404ccdb92e500ff8">zoomLevel</a></td></tr>
 <tr class="memitem:ab436a35a94c5297b5b83716e937fea2d" id="r_ab436a35a94c5297b5b83716e937fea2d"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab436a35a94c5297b5b83716e937fea2d">scissorMinY</a></td></tr>
 <tr class="memitem:a8a15f5f2d4f4ff68a11894c5afa901fd" id="r_a8a15f5f2d4f4ff68a11894c5afa901fd"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a8a15f5f2d4f4ff68a11894c5afa901fd">scissorMaxY</a></td></tr>
+<tr class="memitem:a5de8d338859819884b55c6855ed0d17c" id="r_a5de8d338859819884b55c6855ed0d17c"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a5de8d338859819884b55c6855ed0d17c">floorHeight</a></td></tr>
 <tr class="memitem:ad5cabbb654f75381615caf36412f7332" id="r_ad5cabbb654f75381615caf36412f7332"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ad5cabbb654f75381615caf36412f7332">gravity</a></td></tr>
 <tr class="memitem:aff1902f69c00e5b4d610c775458a58e7" id="r_aff1902f69c00e5b4d610c775458a58e7"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#aff1902f69c00e5b4d610c775458a58e7">collisions</a></td></tr>
 <tr class="memitem:ab3c7e09a4cbc9feb0e717f7b4f020ac9" id="r_ab3c7e09a4cbc9feb0e717f7b4f020ac9"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#ab3c7e09a4cbc9feb0e717f7b4f020ac9">wallSelector</a></td></tr>
@@ -1836,60 +1836,6 @@ Static Public Attributes</h2></td></tr>
 
 </div>
 </div>
-<a id="a4bf9a845a9059b07ef75fd7c748578bc" name="a4bf9a845a9059b07ef75fd7c748578bc"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a4bf9a845a9059b07ef75fd7c748578bc">&#9670;&#160;</a></span>textureStripAppend()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">QImage Editor::textureStripAppend </td>
-          <td>(</td>
-          <td class="paramtype">const QImage &amp;</td>          <td class="paramname"><span class="paramname"><em>strip</em></span>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const QList&lt; QImage &gt; &amp;</td>          <td class="paramname"><span class="paramname"><em>tiles</em></span>&#160;)</td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
-<a id="aa4609265af48ecdbeb78e3249e7f5c6a" name="aa4609265af48ecdbeb78e3249e7f5c6a"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa4609265af48ecdbeb78e3249e7f5c6a">&#9670;&#160;</a></span>textureStripFits()</h2>
-
-<div class="memitem">
-<div class="memproto">
-<table class="mlabels">
-  <tr>
-  <td class="mlabels-left">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool Editor::textureStripFits </td>
-          <td>(</td>
-          <td class="paramtype">const QImage &amp;</td>          <td class="paramname"><span class="paramname"><em>strip</em></span></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-  </td>
-  <td class="mlabels-right">
-<span class="mlabels"><span class="mlabel static">static</span></span>  </td>
-  </tr>
-</table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="a4e25dcdd5a1d65a978cacaa10dfade1c" name="a4e25dcdd5a1d65a978cacaa10dfade1c"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a4e25dcdd5a1d65a978cacaa10dfade1c">&#9670;&#160;</a></span>to2D()</h2>
 
@@ -1978,6 +1924,27 @@ Static Public Attributes</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int &amp;</td>          <td class="paramname"><span class="paramname"><em>wId</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af3767474457e2b27e25e097474784cb3" name="af3767474457e2b27e25e097474784cb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3767474457e2b27e25e097474784cb3">&#9670;&#160;</a></span>wallAnchor()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">QVector2D Editor::wallAnchor </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="editor_8h.html#ade00fbf792f87faddb77086173288a2d">VIEW_MODES</a></td>          <td class="paramname"><span class="paramname"><em>mode</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="struct_wall.html">Wall</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>w</em></span>&#160;) const</td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -2289,6 +2256,20 @@ Static Public Attributes</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname"><a class="el" href="class_env.html">Env</a> Editor::env</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5de8d338859819884b55c6855ed0d17c" name="a5de8d338859819884b55c6855ed0d17c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5de8d338859819884b55c6855ed0d17c">&#9670;&#160;</a></span>floorHeight</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">float Editor::floorHeight</td>
         </tr>
       </table>
 </div><div class="memdoc">

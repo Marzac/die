@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['gamepad_0',['Gamepad',['../class_gamepad.html',1,'']]],
-  ['glowmap_1',['Glowmap',['../struct_glowmap.html',1,'']]]
+  ['fog_0',['Fog',['../struct_fog.html',1,'']]],
+  ['frame_1',['Frame',['../struct_frame.html',1,'']]]
 ];

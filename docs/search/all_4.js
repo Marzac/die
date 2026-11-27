@@ -60,13 +60,14 @@ var searchData=
   ['editor_5fpick_5fradius_57',['EDITOR_PICK_RADIUS',['../editor_8h.html#a0f3e310735943d94529141093168da30',1,'editor.h']]],
   ['effectivegridsize_58',['effectiveGridSize',['../class_editor.html#a163098b53c08ba90180d27ea066042df',1,'Editor']]],
   ['effects_59',['Post effects',['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md22',1,'']]],
-  ['endx_60',['endX',['../struct_renderer_1_1_bounding_box.html#aeffd2e410930af1725e8bdb373489a6c',1,'Renderer::BoundingBox']]],
-  ['endz_61',['endZ',['../struct_renderer_1_1_bounding_box.html#ac32c7232798c40fd05c9f02e37f73649',1,'Renderer::BoundingBox']]],
-  ['engine_20waller_62',['DIE Engine &amp;amp; Waller',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md29',1,'']]],
-  ['enqueue_63',['enqueue',['../class_worker_pool.html#a138df5a56ddf685766e07d36dcdc040a',1,'WorkerPool']]],
-  ['env_64',['Env',['../class_env.html',1,'Env'],['../class_env.html#a60054c2be7d109a6d1b740af6896198b',1,'Env::Env()']]],
-  ['env_65',['env',['../struct_surface_lighting.html#ae624895697a3cf8447da67ac6a8f4ee5',1,'SurfaceLighting::env'],['../class_editor.html#a991b4e11ae8a891ff38be182c3e11f19',1,'Editor::env']]],
-  ['env_2ecpp_66',['env.cpp',['../env_8cpp.html',1,'']]],
-  ['env_2eh_67',['env.h',['../env_8h.html',1,'']]],
-  ['epsilon_68',['epsilon',['../renderer_8cpp.html#a552dc3787d7ea1675f3e4e8993501d58',1,'renderer.cpp']]]
+  ['encode_60',['encode',['../class_striper.html#a121d142dbf8fe448107ee6d9155537b3',1,'Striper']]],
+  ['endx_61',['endX',['../struct_renderer_1_1_bounding_box.html#aeffd2e410930af1725e8bdb373489a6c',1,'Renderer::BoundingBox']]],
+  ['endz_62',['endZ',['../struct_renderer_1_1_bounding_box.html#ac32c7232798c40fd05c9f02e37f73649',1,'Renderer::BoundingBox']]],
+  ['engine_20waller_63',['DIE Engine &amp;amp; Waller',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md29',1,'']]],
+  ['enqueue_64',['enqueue',['../class_worker_pool.html#a138df5a56ddf685766e07d36dcdc040a',1,'WorkerPool']]],
+  ['env_65',['Env',['../class_env.html',1,'Env'],['../class_env.html#a60054c2be7d109a6d1b740af6896198b',1,'Env::Env()']]],
+  ['env_66',['env',['../class_editor.html#a991b4e11ae8a891ff38be182c3e11f19',1,'Editor']]],
+  ['env_2ecpp_67',['env.cpp',['../env_8cpp.html',1,'']]],
+  ['env_2eh_68',['env.h',['../env_8h.html',1,'']]],
+  ['epsilon_69',['Epsilon',['../class_renderer.html#ada88c84dcb013f02d2c138044249603e',1,'Renderer']]]
 ];

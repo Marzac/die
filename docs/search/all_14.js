@@ -37,6 +37,7 @@ var searchData=
   ['updateviewnormals_34',['updateViewNormals',['../class_main_window.html#a6ddf7a73d4f22030342490feecde85a1',1,'MainWindow']]],
   ['updateviewpointproperties_35',['updateViewpointProperties',['../class_main_window.html#aab55cba62b7c805edbb8969df8247e63',1,'MainWindow']]],
   ['updatewallproperties_36',['updateWallProperties',['../class_main_window.html#a46f4c98eacc6822a11ce53e16e49560f',1,'MainWindow']]],
-  ['updatewalltexture_37',['updateWallTexture',['../class_main_window.html#a129f82a379ee963f81de17969a1cced3',1,'MainWindow']]],
-  ['us_38',['us',['../struct_quad.html#af5186d5e8d6660d5effe9608a2cf5487',1,'Quad::us'],['../struct_triangle.html#adbf628b46cb48a3b275289eea9cfdf6a',1,'Triangle::us']]]
+  ['updatewallslant_37',['updateWallSlant',['../class_main_window.html#af4d86f94224378e021677c3e8fd2b9b7',1,'MainWindow']]],
+  ['updatewalltexture_38',['updateWallTexture',['../class_main_window.html#a129f82a379ee963f81de17969a1cced3',1,'MainWindow']]],
+  ['us_39',['us',['../struct_quad.html#af5186d5e8d6660d5effe9608a2cf5487',1,'Quad::us'],['../struct_triangle.html#adbf628b46cb48a3b275289eea9cfdf6a',1,'Triangle::us']]]
 ];

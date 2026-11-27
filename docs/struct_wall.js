@@ -12,5 +12,6 @@ var struct_wall =
     [ "nodeID2", "struct_wall.html#ad0969659330c505653a83bb0fac03cf7", null ],
     [ "normal", "struct_wall.html#a63f48e2d0ffa61627cc860c0a69367b4", null ],
     [ "selected", "struct_wall.html#a37fe9626c52d4d94166e9960e99fbddf", null ],
+    [ "slant", "struct_wall.html#aae56d2b11f152bcf48ca719292e44a73", null ],
     [ "surfaces", "struct_wall.html#a17b1b3f27d1b2df1349704398f2ffc96", null ]
 ];

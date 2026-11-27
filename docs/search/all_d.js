@@ -23,6 +23,7 @@ var searchData=
   ['nodeselect_20',['nodeSelect',['../class_editor.html#a2b3551c8f8497fd0799500775ef2c82f',1,'Editor']]],
   ['nodeselectall_21',['nodeSelectAll',['../class_editor.html#a30acc7ff36c3af843f8feec28fa6d033',1,'Editor']]],
   ['normal_22',['normal',['../struct_wall.html#a63f48e2d0ffa61627cc860c0a69367b4',1,'Wall']]],
-  ['note_23',['A personal note',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md39',1,'']]],
-  ['nudge_24',['nudge',['../class_editor.html#a4bda7e754189fdff9b23cc814196302d',1,'Editor']]]
+  ['normalize_23',['normalize',['../class_striper.html#a4d57e06d46bc3355a6e281421453aef1',1,'Striper']]],
+  ['note_24',['A personal note',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md40',1,'']]],
+  ['nudge_25',['nudge',['../class_editor.html#a4bda7e754189fdff9b23cc814196302d',1,'Editor']]]
 ];

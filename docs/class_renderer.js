@@ -4,7 +4,7 @@ var class_renderer =
     [ "Wall", "struct_renderer_1_1_wall.html", "struct_renderer_1_1_wall" ],
     [ "BoundingBox", "struct_renderer_1_1_bounding_box.html", "struct_renderer_1_1_bounding_box" ],
     [ "Light", "struct_renderer_1_1_light.html", "struct_renderer_1_1_light" ],
-    [ "Level", "struct_renderer_1_1_level.html", "struct_renderer_1_1_level" ],
+    [ "Cap3D", "struct_renderer_1_1_cap3_d.html", "struct_renderer_1_1_cap3_d" ],
     [ "Levels", "struct_renderer_1_1_levels.html", "struct_renderer_1_1_levels" ],
     [ "FLAGS", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977", [
       [ "FLAG_WALLS", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977af086d50440f275dd0681b709e74f7283", null ],
@@ -17,7 +17,7 @@ var class_renderer =
       [ "FLAG_VIGNETTE", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977aea7d2d31c418ca6f35f444a61a59cfdd", null ],
       [ "FLAG_GAMMA", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977aaecebc3c5b11ebc0326e6d0090dc12ba", null ],
       [ "FLAG_MULTITHREADING", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977a5ca6492e2e84e0d6b8c97a932ef235d6", null ],
-      [ "FLAG_ALPHA_FEATURES", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977ac06d25ff4448c497ccc57d2e3fd69bbb", null ],
+      [ "FLAG_MIPMAPPING", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977a7ccbe54e9d8c58b23d1a918ebf73b876", null ],
       [ "FLAGS_DEFAULT", "class_renderer.html#a3875ff06d11d0333dfb1a125b48cb977aa47d034e175f862415e33ac805de8c40", null ]
     ] ],
     [ "Renderer", "class_renderer.html#a7ebf46f54dab9905f79b80f7fddb76a6", null ],

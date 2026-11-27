@@ -157,6 +157,8 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#a75701b423affd8fe4c5b5375e6445f21a35a18f2812a1c9ec4e840181f8592cd2">SURFACE_FLAG_NO_BLEED</a> = 0x0040
 , <a class="el" href="#a75701b423affd8fe4c5b5375e6445f21a5bb86f0ee36aa05628df78715d010ac3">SURFACE_FLAG_NO_AMBIENT</a> = 0x0080
 , <a class="el" href="#a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959">SURFACE_FLAG_NO_RAY</a> = 0x0100
+, <br />
+&#160;&#160;<a class="el" href="#a75701b423affd8fe4c5b5375e6445f21add693da447580305707ce80e89a708a7">SURFACE_FLAG_NO_AO</a> = 0x0200
 <br />
  }</td></tr>
 <tr class="memitem:af33d35b0cfe6a53779a90b25e48b0e3d" id="r_af33d35b0cfe6a53779a90b25e48b0e3d"><td class="memItemLeft">enum &#160;</td><td class="memItemRight"><a class="el" href="#af33d35b0cfe6a53779a90b25e48b0e3d">WALL_SURFACES</a> : uint16_t { <br />
@@ -268,6 +270,13 @@ Enumerations</h2></td></tr>
 , <a class="el" href="#ac928da8bedb0421ea398c10bcedd66c5a61f766b0c9a8ebdd5463ea622d805807">SPEAKER_FLAG_PLAYING</a> = 0x1000
 <br />
  }</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 id="header-func-members" class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a2d0f79d853bacd1e4f0132e54fc489d9" id="r_a2d0f79d853bacd1e4f0132e54fc489d9"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a2d0f79d853bacd1e4f0132e54fc489d9">wallHeight1</a> (const <a class="el" href="struct_wall.html">Wall</a> &amp;w)</td></tr>
+<tr class="memdesc:a2d0f79d853bacd1e4f0132e54fc489d9"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="struct_wall.html" title="Vertical wall between two nodes, with floor / ceiling extensions.">Wall</a> height above node 1.  <br /></td></tr>
+<tr class="memitem:ab96921620d4a2593d545063588124152" id="r_ab96921620d4a2593d545063588124152"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ab96921620d4a2593d545063588124152">wallHeight2</a> (const <a class="el" href="struct_wall.html">Wall</a> &amp;w)</td></tr>
+<tr class="memdesc:ab96921620d4a2593d545063588124152"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="struct_wall.html" title="Vertical wall between two nodes, with floor / ceiling extensions.">Wall</a> height above node 2.  <br /></td></tr>
 </table>
 <a name="doc-enum-members" id="doc-enum-members"></a><h2 id="header-doc-enum-members" class="groupheader">Enumeration Type Documentation</h2>
 <a id="a990d2e8f3fb0eb4bec23151a69884343" name="a990d2e8f3fb0eb4bec23151a69884343"></a>
@@ -561,6 +570,8 @@ Enumerations</h2></td></tr>
 </td></tr>
 <tr><td class="fieldname"><a id="a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959" name="a75701b423affd8fe4c5b5375e6445f21a6a2ff4dfc62a4b84d909649190087959"></a>SURFACE_FLAG_NO_RAY&#160;</td><td class="fielddoc"><p>ignore the sun ray light </p>
 </td></tr>
+<tr><td class="fieldname"><a id="a75701b423affd8fe4c5b5375e6445f21add693da447580305707ce80e89a708a7" name="a75701b423affd8fe4c5b5375e6445f21add693da447580305707ce80e89a708a7"></a>SURFACE_FLAG_NO_AO&#160;</td><td class="fielddoc"><p>no ambient occlusion </p>
+</td></tr>
 </table>
 
 </div>
@@ -608,6 +619,61 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="af33d35b0cfe6a53779a90b25e48b0e3daa9138e74579c2d60b202a8cdf1c8b270" name="af33d35b0cfe6a53779a90b25e48b0e3daa9138e74579c2d60b202a8cdf1c8b270"></a>WALL_SURFACE_CEILING&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="af33d35b0cfe6a53779a90b25e48b0e3daa3f9713b58ec33ec51c9e34bc882dba2" name="af33d35b0cfe6a53779a90b25e48b0e3daa3f9713b58ec33ec51c9e34bc882dba2"></a>WALL_SURFACES_COUNT&#160;</td><td class="fielddoc"></td></tr>
 </table>
+
+</div>
+</div>
+<a name="doc-func-members" id="doc-func-members"></a><h2 id="header-doc-func-members" class="groupheader">Function Documentation</h2>
+<a id="a2d0f79d853bacd1e4f0132e54fc489d9" name="a2d0f79d853bacd1e4f0132e54fc489d9"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2d0f79d853bacd1e4f0132e54fc489d9">&#9670;&#160;</a></span>wallHeight1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float wallHeight1 </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_wall.html">Wall</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>w</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="struct_wall.html" title="Vertical wall between two nodes, with floor / ceiling extensions.">Wall</a> height above node 1. </p>
+
+</div>
+</div>
+<a id="ab96921620d4a2593d545063588124152" name="ab96921620d4a2593d545063588124152"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab96921620d4a2593d545063588124152">&#9670;&#160;</a></span>wallHeight2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<table class="mlabels">
+  <tr>
+  <td class="mlabels-left">
+      <table class="memname">
+        <tr>
+          <td class="memname">float wallHeight2 </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="struct_wall.html">Wall</a> &amp;</td>          <td class="paramname"><span class="paramname"><em>w</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+  </td>
+  <td class="mlabels-right">
+<span class="mlabels"><span class="mlabel inline">inline</span></span>  </td>
+  </tr>
+</table>
+</div><div class="memdoc">
+
+<p><a class="el" href="struct_wall.html" title="Vertical wall between two nodes, with floor / ceiling extensions.">Wall</a> height above node 2. </p>
 
 </div>
 </div>

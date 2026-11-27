@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['editor_0',['Editor',['../class_editor.html',1,'']]],
-  ['env_1',['Env',['../class_env.html',1,'']]]
+  ['door_0',['Door',['../struct_door.html',1,'']]]
 ];

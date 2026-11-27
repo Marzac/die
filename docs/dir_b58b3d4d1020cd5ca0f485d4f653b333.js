@@ -24,6 +24,8 @@ var dir_b58b3d4d1020cd5ca0f485d4f653b333 =
     [ "rig.h", "rig_8h.html", "rig_8h" ],
     [ "rig_io.cpp", "rig__io_8cpp.html", null ],
     [ "rigobjects.h", "rigobjects_8h.html", "rigobjects_8h" ],
+    [ "striper.cpp", "striper_8cpp.html", null ],
+    [ "striper.h", "striper_8h.html", "striper_8h" ],
     [ "tags.cpp", "tags_8cpp.html", "tags_8cpp" ],
     [ "tags.h", "tags_8h.html", "tags_8h" ],
     [ "workerpool.cpp", "workerpool_8cpp.html", null ],

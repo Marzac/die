@@ -1,7 +1,7 @@
 var searchData=
 [
   ['objects_0',['objects',['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md10',1,'Advanced objects'],['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md6',1,'Simple objects']]],
-  ['occlusion_1',['occlusion',['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md20',1,'Ambient occlusion'],['../struct_surface_lighting.html#a2239ab1ded8479f1d0d479895dd34e70',1,'SurfaceLighting::occlusion']]],
+  ['occlusion_1',['Ambient occlusion',['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md20',1,'']]],
   ['occlusiondarken_2',['occlusionDarken',['../class_renderer.html#a32c9a45424437b7098f5e27c188433d4',1,'Renderer']]],
   ['occlusionlength_3',['occlusionLength',['../class_renderer.html#ae86f0fe6d6832bd4e57937f3b3d51723',1,'Renderer']]],
   ['offset_4',['offset',['../struct_viewpoint.html#adc7691eff4b7e05f8b8570af114d2b20',1,'Viewpoint::offset'],['../struct_renderer_1_1_wall.html#ae32df19512975d4c8540ca87c05d42df',1,'Renderer::Wall::offset'],['../struct_bone.html#a10905d10ef901c666bd66ccae28e5c0c',1,'Bone::offset']]],

@@ -41,6 +41,7 @@ var class_map =
     [ "lifts", "class_map.html#aac9c913715752de6f1654e07132987a1", null ],
     [ "lights", "class_map.html#a9761fef7ebefdbe6554fc21bd842f2b5", null ],
     [ "maps", "class_map.html#a8d5db9e5fd488b4ff2788f61c540471b", null ],
+    [ "mipmaps", "class_map.html#a69da0dd8543979e22cafde8bbb70617f", null ],
     [ "nodes", "class_map.html#af1d25d2b6b6c59fb056cfcac799d79d0", null ],
     [ "origin", "class_map.html#afa581d773d75cd7b2aed617bab3a396c", null ],
     [ "pan", "class_map.html#a5b8b54727cdb874009969c0563168f4e", null ],
@@ -53,6 +54,7 @@ var class_map =
     [ "staircases", "class_map.html#a921ba2b1a6c72b72f50c78d40d80fcdd", null ],
     [ "submaps", "class_map.html#a5b808cf30191c4d7dc78f9c0afff61c6", null ],
     [ "sun", "class_map.html#adf4d1137bcfce3845011b68af919cd75", null ],
+    [ "textureLayout", "class_map.html#a12fb27a648d26be9237b1660e5e5dffa", null ],
     [ "textures", "class_map.html#a3af301c42f694bf2a3e058d32957d2c5", null ],
     [ "walls", "class_map.html#ae487751b7e88be55948678ba7759fb8e", null ]
 ];

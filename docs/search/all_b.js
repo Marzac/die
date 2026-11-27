@@ -3,10 +3,10 @@ var searchData=
   ['leftx_0',['leftX',['../class_gamepad.html#a0b27c5602910ec65fe69b46aa6a5f0e9',1,'Gamepad']]],
   ['lefty_1',['leftY',['../class_gamepad.html#a3c95919546e0d7760dde0e583e43c15e',1,'Gamepad']]],
   ['length_2',['length',['../struct_wall.html#af55050a60101f81d6edcc0a8fede5b0a',1,'Wall::length'],['../struct_lift.html#a7ad98a38c87073900d6e9e4f94d0e5e6',1,'Lift::length'],['../struct_staircase.html#ae3c968efe9fb9397b5276c451d0236db',1,'Staircase::length'],['../struct_bone.html#ab7128f767dae0e0af9129bbdc7f26278',1,'Bone::length']]],
-  ['level_3',['Level',['../struct_renderer_1_1_level.html',1,'Renderer']]],
+  ['leveloffset_3',['levelOffset',['../class_striper.html#a6d35b6ed7a71bad7b4dabaae87c7e0f7',1,'Striper']]],
   ['levels_4',['Levels',['../struct_renderer_1_1_levels.html',1,'Renderer']]],
-  ['levels_5',['levels',['../class_renderer.html#ad050a5e6ad5c4868c12c355a09a21345',1,'Renderer']]],
-  ['license_6',['License',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md38',1,'']]],
+  ['levels_5',['levels',['../class_renderer.html#ad050a5e6ad5c4868c12c355a09a21345',1,'Renderer::levels'],['../class_striper.html#aa31fad9bd14cdb367f872b66d9199860',1,'Striper::levels()']]],
+  ['license_6',['License',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md39',1,'']]],
   ['lift_7',['Lift',['../struct_lift.html',1,'Lift'],['../md__c_1_2_users_2_marzac_music_2_documents_2_projects_2die_2_m_a_n_u_a_l.html#autotoc_md14',1,'Lift']]],
   ['lift_5fflag_5fcontinuous_8',['LIFT_FLAG_CONTINUOUS',['../mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba3b63d2bf16ecf749ddb6f143e8e8abef',1,'mapobjects.h']]],
   ['lift_5fflag_5ffree_9',['LIFT_FLAG_FREE',['../mapobjects_8h.html#a927be41de0ed2134137a23bdabfccb0ba91255881243cf843407214619d1b1fb4',1,'mapobjects.h']]],
@@ -62,6 +62,6 @@ var searchData=
   ['lightscount_59',['lightsCount',['../class_renderer.html#a38352a2c60c961a15efa7e5df599336b',1,'Renderer']]],
   ['lightselect_60',['lightSelect',['../class_editor.html#a8ebc814047d6bea10d1a816f1db43152',1,'Editor']]],
   ['lightselectall_61',['lightSelectAll',['../class_editor.html#a0caf30589dca866b5751407b02c9622c',1,'Editor']]],
-  ['linux_62',['Linux',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md35',1,'']]],
-  ['load_63',['load',['../class_map.html#a6235e2095db52bd289f802326be97b3a',1,'Map::load()'],['../class_rig.html#a837f0cc058932b5883090478c062c472',1,'Rig::load()'],['../class_tags.html#a7f9ac9420b368a633a83cb02fd642720',1,'Tags::load()']]]
+  ['linux_62',['Linux',['../C:/Users/MarzacMusic/Documents/Projects/die/README.md#autotoc_md36',1,'']]],
+  ['load_63',['load',['../class_map.html#a6235e2095db52bd289f802326be97b3a',1,'Map::load()'],['../class_rig.html#a837f0cc058932b5883090478c062c472',1,'Rig::load()'],['../class_striper.html#a114b19a5aad6b593021c2eadd9a79bd5',1,'Striper::load()'],['../class_tags.html#a7f9ac9420b368a633a83cb02fd642720',1,'Tags::load()']]]
 ];

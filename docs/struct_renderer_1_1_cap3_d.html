@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.18.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>DIE Engine: SurfaceLighting Struct Reference</title>
+<title>DIE Engine: Renderer::Cap3D Struct Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="codefolding.js"></script>
 <script type="text/javascript" src="clipboard.js"></script>
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', codefold.init);
   </div>
 </div>
 <script type="text/javascript">
-document.addEventListener('DOMContentLoaded',() => { initNavTree('struct_surface_lighting.html','','struct_surface_lighting-members'); });
+document.addEventListener('DOMContentLoaded',() => { initNavTree('struct_renderer_1_1_cap3_d.html','','struct_renderer_1_1_cap3_d-members'); });
 </script>
 <div id="container">
 <div id="doc-content">
@@ -108,111 +108,74 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('struct_surface
 </div>
 
 <div class="header">
-  <div class="headertitle"><div class="title">SurfaceLighting Struct Reference</div></div>
+  <div class="headertitle"><div class="title">Renderer::Cap3D Struct Reference</div></div>
 </div><!--header-->
 <div class="contents">
 
-<p>Per-surface lighting terms, from the <a class="el" href="mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21">SURFACE_FLAGS</a> The pixel is lit as: lit = texel * (env + glowmap) + (bleedEnv + glowmap)^2 * bleed The square only burns the brightly lit spots; bleedEnv is the env light with FLAG_SUN_BLEED, black otherwise.  
+<p>Floor or ceiling plane: height at the probed position and world gradient (h = h0 + gx * dx + gz * dz).  
  <a href="#details">More...</a></p>
+
+<p><code>#include &lt;<a class="el" href="renderer_8h_source.html">renderer.h</a>&gt;</code></p>
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
-<tr class="memitem:ae624895697a3cf8447da67ac6a8f4ee5" id="r_ae624895697a3cf8447da67ac6a8f4ee5"><td class="memItemLeft">__m128&#160;</td><td class="memItemRight"><a class="el" href="#ae624895697a3cf8447da67ac6a8f4ee5">env</a></td></tr>
-<tr class="memdesc:ae624895697a3cf8447da67ac6a8f4ee5"><td class="mdescLeft">&#160;</td><td class="mdescRight">environment light (sun ambient + ray), unit gain when fullbright  <br /></td></tr>
-<tr class="memitem:a17f4a9fbea88454bd1c505450cc1a3c3" id="r_a17f4a9fbea88454bd1c505450cc1a3c3"><td class="memItemLeft">__m128&#160;</td><td class="memItemRight"><a class="el" href="#a17f4a9fbea88454bd1c505450cc1a3c3">bleed</a></td></tr>
-<tr class="memdesc:a17f4a9fbea88454bd1c505450cc1a3c3"><td class="mdescLeft">&#160;</td><td class="mdescRight">bleed factor, zero when disabled  <br /></td></tr>
-<tr class="memitem:a9ec56afb1737b5ee7b0e1e68f7f7a402" id="r_a9ec56afb1737b5ee7b0e1e68f7f7a402"><td class="memItemLeft">__m128&#160;</td><td class="memItemRight"><a class="el" href="#a9ec56afb1737b5ee7b0e1e68f7f7a402">bleedEnv</a></td></tr>
-<tr class="memdesc:a9ec56afb1737b5ee7b0e1e68f7f7a402"><td class="mdescLeft">&#160;</td><td class="mdescRight">env light part that bleeds, black unless FLAG_SUN_BLEED  <br /></td></tr>
-<tr class="memitem:a14708b7ae6dfbb2c5d194e63f33d4d10" id="r_a14708b7ae6dfbb2c5d194e63f33d4d10"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a14708b7ae6dfbb2c5d194e63f33d4d10">glow</a></td></tr>
-<tr class="memdesc:a14708b7ae6dfbb2c5d194e63f33d4d10"><td class="mdescLeft">&#160;</td><td class="mdescRight">sample the glowmap (local / dynamic lights)  <br /></td></tr>
-<tr class="memitem:a2239ab1ded8479f1d0d479895dd34e70" id="r_a2239ab1ded8479f1d0d479895dd34e70"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a2239ab1ded8479f1d0d479895dd34e70">occlusion</a></td></tr>
-<tr class="memdesc:a2239ab1ded8479f1d0d479895dd34e70"><td class="mdescLeft">&#160;</td><td class="mdescRight">ambient occlusion allowed  <br /></td></tr>
+<tr class="memitem:ac2c648bed39d30266af485fa57191738" id="r_ac2c648bed39d30266af485fa57191738"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ac2c648bed39d30266af485fa57191738">h0</a></td></tr>
+<tr class="memdesc:ac2c648bed39d30266af485fa57191738"><td class="mdescLeft">&#160;</td><td class="mdescRight">height at the probed position  <br /></td></tr>
+<tr class="memitem:a311d794d5fee16528d70017506af0a68" id="r_a311d794d5fee16528d70017506af0a68"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a311d794d5fee16528d70017506af0a68">gx</a></td></tr>
+<tr class="memitem:a6bb0cb754257db055c7d788dd5070de3" id="r_a6bb0cb754257db055c7d788dd5070de3"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a6bb0cb754257db055c7d788dd5070de3">gz</a></td></tr>
+<tr class="memdesc:a6bb0cb754257db055c7d788dd5070de3"><td class="mdescLeft">&#160;</td><td class="mdescRight">height change per world unit along X / Z  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
-<div class="textblock"><p>Per-surface lighting terms, from the <a class="el" href="mapobjects_8h.html#a75701b423affd8fe4c5b5375e6445f21">SURFACE_FLAGS</a> The pixel is lit as: lit = texel * (env + glowmap) + (bleedEnv + glowmap)^2 * bleed The square only burns the brightly lit spots; bleedEnv is the env light with FLAG_SUN_BLEED, black otherwise. </p>
+<div class="textblock"><p>Floor or ceiling plane: height at the probed position and world gradient (h = h0 + gx * dx + gz * dz). </p>
 </div><a name="doc-variable-members" id="doc-variable-members"></a><h2 id="header-doc-variable-members" class="groupheader">Member Data Documentation</h2>
-<a id="a17f4a9fbea88454bd1c505450cc1a3c3" name="a17f4a9fbea88454bd1c505450cc1a3c3"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a17f4a9fbea88454bd1c505450cc1a3c3">&#9670;&#160;</a></span>bleed</h2>
+<a id="a311d794d5fee16528d70017506af0a68" name="a311d794d5fee16528d70017506af0a68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a311d794d5fee16528d70017506af0a68">&#9670;&#160;</a></span>gx</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">__m128 SurfaceLighting::bleed</td>
+          <td class="memname">float Renderer::Cap3D::gx</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>bleed factor, zero when disabled </p>
-
 </div>
 </div>
-<a id="a9ec56afb1737b5ee7b0e1e68f7f7a402" name="a9ec56afb1737b5ee7b0e1e68f7f7a402"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a9ec56afb1737b5ee7b0e1e68f7f7a402">&#9670;&#160;</a></span>bleedEnv</h2>
+<a id="a6bb0cb754257db055c7d788dd5070de3" name="a6bb0cb754257db055c7d788dd5070de3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6bb0cb754257db055c7d788dd5070de3">&#9670;&#160;</a></span>gz</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">__m128 SurfaceLighting::bleedEnv</td>
+          <td class="memname">float Renderer::Cap3D::gz</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>env light part that bleeds, black unless FLAG_SUN_BLEED </p>
+<p>height change per world unit along X / Z </p>
 
 </div>
 </div>
-<a id="ae624895697a3cf8447da67ac6a8f4ee5" name="ae624895697a3cf8447da67ac6a8f4ee5"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ae624895697a3cf8447da67ac6a8f4ee5">&#9670;&#160;</a></span>env</h2>
+<a id="ac2c648bed39d30266af485fa57191738" name="ac2c648bed39d30266af485fa57191738"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ac2c648bed39d30266af485fa57191738">&#9670;&#160;</a></span>h0</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">__m128 SurfaceLighting::env</td>
+          <td class="memname">float Renderer::Cap3D::h0</td>
         </tr>
       </table>
 </div><div class="memdoc">
 
-<p>environment light (sun ambient + ray), unit gain when fullbright </p>
-
-</div>
-</div>
-<a id="a14708b7ae6dfbb2c5d194e63f33d4d10" name="a14708b7ae6dfbb2c5d194e63f33d4d10"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a14708b7ae6dfbb2c5d194e63f33d4d10">&#9670;&#160;</a></span>glow</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool SurfaceLighting::glow</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>sample the glowmap (local / dynamic lights) </p>
-
-</div>
-</div>
-<a id="a2239ab1ded8479f1d0d479895dd34e70" name="a2239ab1ded8479f1d0d479895dd34e70"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a2239ab1ded8479f1d0d479895dd34e70">&#9670;&#160;</a></span>occlusion</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">bool SurfaceLighting::occlusion</td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-<p>ambient occlusion allowed </p>
+<p>height at the probed position </p>
 
 </div>
 </div>
 <hr/>The documentation for this struct was generated from the following file:<ul>
-<li>C:/Users/MarzacMusic/Documents/Projects/die/common/engine/<a class="el" href="renderer_8cpp.html">renderer.cpp</a></li>
+<li>C:/Users/MarzacMusic/Documents/Projects/die/common/engine/<a class="el" href="renderer_8h_source.html">renderer.h</a></li>
 </ul>
 </div><!-- contents -->
 </div><!-- doc-content -->
@@ -227,7 +190,7 @@ Public Attributes</h2></td></tr>
 <!-- start footer part -->
 <div id="nav-path" class="navpath"><!-- id is needed for treeview function! -->
   <ul>
-    <li class="navelem"><a href="struct_surface_lighting.html">SurfaceLighting</a></li>
+    <li class="navelem"><a href="class_renderer.html">Renderer</a></li><li class="navelem"><a href="struct_renderer_1_1_cap3_d.html">Cap3D</a></li>
     <li class="footer">Generated by <a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.18.0 </li>
   </ul>
 </div>

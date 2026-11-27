@@ -9,6 +9,6 @@ var searchData=
   ['editor_5fpick_5fradius_6',['EDITOR_PICK_RADIUS',['../editor_8h.html#a0f3e310735943d94529141093168da30',1,'editor.h']]],
   ['endx_7',['endX',['../struct_renderer_1_1_bounding_box.html#aeffd2e410930af1725e8bdb373489a6c',1,'Renderer::BoundingBox']]],
   ['endz_8',['endZ',['../struct_renderer_1_1_bounding_box.html#ac32c7232798c40fd05c9f02e37f73649',1,'Renderer::BoundingBox']]],
-  ['env_9',['env',['../struct_surface_lighting.html#ae624895697a3cf8447da67ac6a8f4ee5',1,'SurfaceLighting::env'],['../class_editor.html#a991b4e11ae8a891ff38be182c3e11f19',1,'Editor::env']]],
-  ['epsilon_10',['epsilon',['../renderer_8cpp.html#a552dc3787d7ea1675f3e4e8993501d58',1,'renderer.cpp']]]
+  ['env_9',['env',['../class_editor.html#a991b4e11ae8a891ff38be182c3e11f19',1,'Editor']]],
+  ['epsilon_10',['Epsilon',['../class_renderer.html#ada88c84dcb013f02d2c138044249603e',1,'Renderer']]]
 ];

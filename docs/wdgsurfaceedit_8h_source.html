@@ -149,18 +149,19 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('wdgsurfaceedit
 <div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span>    <span class="keywordtype">void</span> on_checkNoGlow_toggled(<span class="keywordtype">bool</span> checked);</div>
 <div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span>    <span class="keywordtype">void</span> on_checkNoBleed_toggled(<span class="keywordtype">bool</span> checked);</div>
 <div class="line"><a id="l00037" name="l00037"></a><span class="lineno">   37</span>    <span class="keywordtype">void</span> on_checkNoFog_toggled(<span class="keywordtype">bool</span> checked);</div>
-<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span> </div>
-<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span>    <span class="keywordtype">void</span> setFlag(uint16_t flag, <span class="keywordtype">bool</span> checked);</div>
-<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span>    Ui::WdgSurfaceEdit *ui;</div>
-<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    <a class="code hl_struct" href="struct_surface.html">Surface</a> surface;</div>
-<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <span class="keywordtype">bool</span> hasSurface;</div>
-<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>};</div>
+<div class="line"><a id="l00038" name="l00038"></a><span class="lineno">   38</span>    <span class="keywordtype">void</span> on_checkNoAO_toggled(<span class="keywordtype">bool</span> checked);</div>
+<div class="line"><a id="l00039" name="l00039"></a><span class="lineno">   39</span> </div>
+<div class="line"><a id="l00040" name="l00040"></a><span class="lineno">   40</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <span class="keywordtype">void</span> setFlag(uint16_t flag, <span class="keywordtype">bool</span> checked);</div>
+<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span> </div>
+<div class="line"><a id="l00043" name="l00043"></a><span class="lineno">   43</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00044" name="l00044"></a><span class="lineno">   44</span>    Ui::WdgSurfaceEdit *ui;</div>
+<div class="line"><a id="l00045" name="l00045"></a><span class="lineno">   45</span>    <a class="code hl_struct" href="struct_surface.html">Surface</a> surface;</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <span class="keywordtype">bool</span> hasSurface;</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>};</div>
 </div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span><span class="preprocessor">#endif </span><span class="comment">// WDGSURFACEEDIT_H</span></div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno">   49</span><span class="preprocessor">#endif </span><span class="comment">// WDGSURFACEEDIT_H</span></div>
 <div class="ttc" id="aclass_wdg_surface_edit_html_a16e57cdfd034c82255c606489650d18e"><div class="ttname"><a href="class_wdg_surface_edit.html#a16e57cdfd034c82255c606489650d18e">WdgSurfaceEdit::surfaceChanged</a></div><div class="ttdeci">void surfaceChanged(const Surface &amp;surface)</div></div>
 <div class="ttc" id="aclass_wdg_surface_edit_html_a2abbe02f32bd39d36c400f3626714710"><div class="ttname"><a href="class_wdg_surface_edit.html#a2abbe02f32bd39d36c400f3626714710">WdgSurfaceEdit::WdgSurfaceEdit</a></div><div class="ttdeci">WdgSurfaceEdit(QWidget *parent=nullptr)</div><div class="ttdef"><b>Definition</b> wdgsurfaceedit.cpp:6</div></div>
 <div class="ttc" id="aclass_wdg_surface_edit_html_a3069ad20429418d69692575811e020a7"><div class="ttname"><a href="class_wdg_surface_edit.html#a3069ad20429418d69692575811e020a7">WdgSurfaceEdit::setSurface</a></div><div class="ttdeci">void setSurface(const Surface *surface)</div><div class="ttdef"><b>Definition</b> wdgsurfaceedit.cpp:21</div></div>
@@ -168,7 +169,7 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('wdgsurfaceedit
 <div class="ttc" id="aclass_wdg_surface_edit_html_aaa9280bdef25cf4b032f4e932a668206"><div class="ttname"><a href="class_wdg_surface_edit.html#aaa9280bdef25cf4b032f4e932a668206">WdgSurfaceEdit::update</a></div><div class="ttdeci">void update()</div><div class="ttdef"><b>Definition</b> wdgsurfaceedit.cpp:33</div></div>
 <div class="ttc" id="amapobjects_8h_html"><div class="ttname"><a href="mapobjects_8h.html">mapobjects.h</a></div></div>
 <div class="ttc" id="anamespace_ui_html"><div class="ttname"><a href="namespace_ui.html">Ui</a></div><div class="ttdef"><b>Definition</b> mainwindow.h:11</div></div>
-<div class="ttc" id="astruct_surface_html"><div class="ttname"><a href="struct_surface.html">Surface</a></div><div class="ttdoc">Texture mapping of one face of a map object.</div><div class="ttdef"><b>Definition</b> mapobjects.h:58</div></div>
+<div class="ttc" id="astruct_surface_html"><div class="ttname"><a href="struct_surface.html">Surface</a></div><div class="ttdoc">Texture mapping of one face of a map object.</div><div class="ttdef"><b>Definition</b> mapobjects.h:59</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->
 </div><!-- container -->

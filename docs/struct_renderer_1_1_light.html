@@ -120,15 +120,24 @@ document.addEventListener('DOMContentLoaded',() => { initNavTree('struct_rendere
 <tr class="heading"><td colspan="2"><h2 id="header-pub-attribs" class="groupheader"><a id="pub-attribs" name="pub-attribs"></a>
 Public Attributes</h2></td></tr>
 <tr class="memitem:ab62d05d54a08d415103021764edd691b" id="r_ab62d05d54a08d415103021764edd691b"><td class="memItemLeft">uint16_t&#160;</td><td class="memItemRight"><a class="el" href="#ab62d05d54a08d415103021764edd691b">nodeID</a></td></tr>
+<tr class="memdesc:ab62d05d54a08d415103021764edd691b"><td class="mdescLeft">&#160;</td><td class="mdescRight">position node  <br /></td></tr>
 <tr class="memitem:a7b82d6a03b62941f36950ce74fb8f5ca" id="r_a7b82d6a03b62941f36950ce74fb8f5ca"><td class="memItemLeft">uint32_t&#160;</td><td class="memItemRight"><a class="el" href="#a7b82d6a03b62941f36950ce74fb8f5ca">color</a></td></tr>
+<tr class="memdesc:a7b82d6a03b62941f36950ce74fb8f5ca"><td class="mdescLeft">&#160;</td><td class="mdescRight">packed RGB  <br /></td></tr>
 <tr class="memitem:a36e0c1a78acd2e1b7fd9dd2179087d9f" id="r_a36e0c1a78acd2e1b7fd9dd2179087d9f"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a36e0c1a78acd2e1b7fd9dd2179087d9f">strength</a></td></tr>
+<tr class="memdesc:a36e0c1a78acd2e1b7fd9dd2179087d9f"><td class="mdescLeft">&#160;</td><td class="mdescRight">intensity, squared in argb  <br /></td></tr>
 <tr class="memitem:ae872922d65194887aa542c55c173cf02" id="r_ae872922d65194887aa542c55c173cf02"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#ae872922d65194887aa542c55c173cf02">falloff</a></td></tr>
+<tr class="memdesc:ae872922d65194887aa542c55c173cf02"><td class="mdescLeft">&#160;</td><td class="mdescRight">reach radius, in world units  <br /></td></tr>
 <tr class="memitem:a7447ba807b40f5780f881b6b11263ad8" id="r_a7447ba807b40f5780f881b6b11263ad8"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a7447ba807b40f5780f881b6b11263ad8">falloffInv2</a></td></tr>
+<tr class="memdesc:a7447ba807b40f5780f881b6b11263ad8"><td class="mdescLeft">&#160;</td><td class="mdescRight">1 / falloff^2  <br /></td></tr>
 <tr class="memitem:a78af4567208a0ef9ab9b05eb84316566" id="r_a78af4567208a0ef9ab9b05eb84316566"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a78af4567208a0ef9ab9b05eb84316566">x</a></td></tr>
 <tr class="memitem:a3ddfef4596960883e5c7fc25214bf8f2" id="r_a3ddfef4596960883e5c7fc25214bf8f2"><td class="memItemLeft">float&#160;</td><td class="memItemRight"><a class="el" href="#a3ddfef4596960883e5c7fc25214bf8f2">z</a></td></tr>
+<tr class="memdesc:a3ddfef4596960883e5c7fc25214bf8f2"><td class="mdescLeft">&#160;</td><td class="mdescRight">world position  <br /></td></tr>
 <tr class="memitem:a1863b6f2901341b53e177da13ff49bc4" id="r_a1863b6f2901341b53e177da13ff49bc4"><td class="memItemLeft"><a class="el" href="struct_renderer_1_1_bounding_box.html">BoundingBox</a>&#160;</td><td class="memItemRight"><a class="el" href="#a1863b6f2901341b53e177da13ff49bc4">boundingBox</a></td></tr>
+<tr class="memdesc:a1863b6f2901341b53e177da13ff49bc4"><td class="mdescLeft">&#160;</td><td class="mdescRight">glowmap cells reached  <br /></td></tr>
 <tr class="memitem:a42fe187ebcf4d5a763bf87a887ed6380" id="r_a42fe187ebcf4d5a763bf87a887ed6380"><td class="memItemLeft">__m128&#160;</td><td class="memItemRight"><a class="el" href="#a42fe187ebcf4d5a763bf87a887ed6380">argb</a></td></tr>
+<tr class="memdesc:a42fe187ebcf4d5a763bf87a887ed6380"><td class="mdescLeft">&#160;</td><td class="mdescRight">color * strength^2  <br /></td></tr>
 <tr class="memitem:a8f7c73858347db0d2b2af48064be0dbc" id="r_a8f7c73858347db0d2b2af48064be0dbc"><td class="memItemLeft">bool&#160;</td><td class="memItemRight"><a class="el" href="#a8f7c73858347db0d2b2af48064be0dbc">still</a></td></tr>
+<tr class="memdesc:a8f7c73858347db0d2b2af48064be0dbc"><td class="mdescLeft">&#160;</td><td class="mdescRight">drawn once into the still glowmap  <br /></td></tr>
 </table>
 <a name="details" id="details"></a><h2 id="header-details" class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Renderer-side light (compact variant). </p>
@@ -145,6 +154,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>color * strength^2 </p>
+
 </div>
 </div>
 <a id="a1863b6f2901341b53e177da13ff49bc4" name="a1863b6f2901341b53e177da13ff49bc4"></a>
@@ -158,6 +169,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>glowmap cells reached </p>
 
 </div>
 </div>
@@ -173,6 +186,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>packed RGB </p>
+
 </div>
 </div>
 <a id="ae872922d65194887aa542c55c173cf02" name="ae872922d65194887aa542c55c173cf02"></a>
@@ -186,6 +201,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>reach radius, in world units </p>
 
 </div>
 </div>
@@ -201,6 +218,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>1 / falloff^2 </p>
+
 </div>
 </div>
 <a id="ab62d05d54a08d415103021764edd691b" name="ab62d05d54a08d415103021764edd691b"></a>
@@ -214,6 +233,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>position node </p>
 
 </div>
 </div>
@@ -229,6 +250,8 @@ Public Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
+<p>drawn once into the still glowmap </p>
+
 </div>
 </div>
 <a id="a36e0c1a78acd2e1b7fd9dd2179087d9f" name="a36e0c1a78acd2e1b7fd9dd2179087d9f"></a>
@@ -242,6 +265,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>intensity, squared in argb </p>
 
 </div>
 </div>
@@ -270,6 +295,8 @@ Public Attributes</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+
+<p>world position </p>
 
 </div>
 </div>
