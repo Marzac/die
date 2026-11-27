@@ -296,6 +296,7 @@ private:
         float vBot;                 ///< texture v at yBot, in world units
         float u;                    ///< texture u, in world units along the wall
         float dist;                 ///< distance along the ray
+        float zOrder;               ///< sort key: dist^2, ties from the horizon outwards
         uint16_t wallId;            ///< index in walls and segments
         bool back;                  ///< the camera sees the back side
         uint16_t flags;             ///< VSTRIP_FLAGS
@@ -345,7 +346,6 @@ private:
 
         Strip vStrips[StripsMax];           ///< walls crossed by the ray
         uint16_t vStripsMap[StripsMax];     ///< vStrips indices, near to far
-        float vStripsZOrders[StripsMax];    ///< sort keys, dist^2
         int vStripsCount;                   ///< in vStrips
 
         Strip vStripsClipped[StripsMax];    ///< strips to draw, clipped to their rows
