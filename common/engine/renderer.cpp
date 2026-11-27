@@ -549,7 +549,7 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
 {
     const float angle = fovAngle * D2R;
 
-// Clamp the shift to half the frame height
+// Horizon row, shifted by the tilt by at most half the frame height
     state.casterVShift = frameResoY * viewPoint.tilt / angle;
     state.casterVShift = std::clamp(state.casterVShift, -0.5f * frameResoY, 0.5f * frameResoY);
     state.casterHorizon = frameResoY * 0.5f + state.casterVShift;
@@ -561,7 +561,6 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
     for (int i = 0; i < StripsMax; i++)
         state.vStripsMap[i] = i;
 
-// Render each column
     for (state.casterColumn = x1; state.casterColumn < x2; state.casterColumn++) {
         float pan = panTable[state.casterColumn];
         state.casterRayX = cosf(pan + viewPoint.pan);
@@ -569,11 +568,11 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         state.casterPC = 1.0f / cosf(pan);
         castStrips(state);
 
-    // Floor / ceiling planes
+    // Camera floor and ceiling along this ray
         Cap2D ceiling = {levels.ceiling.h0, levels.ceiling.gx * state.casterRayX + levels.ceiling.gz * state.casterRayZ};
         Cap2D floor = {levels.floor.h0, levels.floor.gx * state.casterRayX + levels.floor.gz * state.casterRayZ};
 
-    // Render surfaces, the rays start between the camera floor and ceiling
+    // The rays start between the camera floor and ceiling, the height limits under them
         CapLink ceilingOrigin = {{HeightMax, 0.0f}, NULL};
         CapLink floorOrigin = {{HeightMin, 0.0f}, NULL};
         CapLink ceilingLevel = {ceiling, &ceilingOrigin};
@@ -587,7 +586,7 @@ void Renderer::renderChunk(Context & state, int x1, int x2)
         state.vStripsClippedCount = 0;
         renderVertical(state, 0, ap);
 
-    // Render walls
+    // Walls, drawn far to near over the surfaces
         if (flags & Renderer::FLAG_WALLS) drawVStrips(state);
     }
 }
@@ -599,6 +598,8 @@ void Renderer::castStrips(Context & state)
     float casterX = state.casterPos.x();
     float casterY = state.casterPos.y();
     float casterZ = state.casterPos.z();
+
+// 1 / ray, large for a ray along an axis
     float invRayX = state.casterRayX != 0.0f ? 1.0f / state.casterRayX : 32768.0f;
     float invRayZ = state.casterRayZ != 0.0f ? 1.0f / state.casterRayZ : 32768.0f;
 
@@ -607,7 +608,7 @@ void Renderer::castStrips(Context & state)
         float dist = 0.0f;
         float k = 0.0f;
 
-    // Find intersection with wall
+    // Hit: k along the wall, dist along the ray, solved on the ray's major axis
         if (state.casterRayX * state.casterRayX > state.casterRayZ * state.casterRayZ) {
             float ratio = state.casterRayZ * invRayX;
             float delta = s.deltaX * ratio - s.deltaZ;
@@ -629,11 +630,11 @@ void Renderer::castStrips(Context & state)
             dist = ((s.beginZ - casterZ) + k * s.deltaZ) * invRayZ;
         }
 
-    // Clipping the intersection
+    // Within the clip distances
         if (dist < fovDistanceNear) continue;
         if (dist > fovDistanceFar) continue;
 
-    // Find wall height
+    // Wall heights at the hit
         Wall & w = walls[i];
         float rowsPerUnit = (state.casterPC * state.casterProjectionY) / dist;
         float bot1 = nodes[w.nodeID1].pos.y();
@@ -641,7 +642,7 @@ void Renderer::castStrips(Context & state)
         float bot = bot1 + (bot2 - bot1) * k;
         float top = bot + w.height;
 
-    // Create a strip object
+    // Rows, AO gradient ends, heights and texture coordinates
         Strip & strip = state.vStrips[state.vStripsCount];
         strip.k = k;
         strip.yTop = state.casterHorizon - (top - casterY) * rowsPerUnit;
@@ -683,12 +684,11 @@ void Renderer::castStrips(Context & state)
         if ((strip.flags & VSTRIP_FLAG_SEETHROUGH) || (w.flags & WALL_FLAG_NO_SHADOW))
             strip.flags |= VSTRIP_FLAG_NOSHADOW;
 
-    // Prepare the sorting
         state.vStripsMap[state.vStripsCount] = state.vStripsCount;
         state.vStripsZOrders[state.vStripsCount++] = dist * dist;
     }
 
-// Sort the strips per depth
+// Sort near to far
     std::sort(state.vStripsMap, state.vStripsMap + state.vStripsCount,
         [&](uint16_t a, uint16_t b) {
         float d1 = state.vStripsZOrders[a];
@@ -834,7 +834,7 @@ Renderer::Cap2D Renderer::capFloorHeight(const Context & state, const Strip & st
     float along = (state.casterRayX * s.deltaX + state.casterRayZ * s.deltaZ) * s.invLen;
     float across = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
 
-// The surface passes through the wall edge at the hit distance
+// Through the bottom edge at the hit distance
     Cap2D cap;
     cap.slope = rise * along + drop * across;
     cap.h0 = strip.hBot - strip.dist * cap.slope;
@@ -846,15 +846,14 @@ Renderer::Cap2D Renderer::capCeilingHeight(const Context & state, const Strip & 
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
 
-// Surface slope along the ray
-// Away from the wall is towards the camera on the near side, away from it on the far side
+// Same slope as capFloorHeight, from the ceiling drops
     float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
     float drop = (back ? w.ceilingBackDrop : w.ceilingFrontDrop) * 0x1p-3;
     if (back != strip.back) drop = -drop;
     float along = (state.casterRayX * s.deltaX + state.casterRayZ * s.deltaZ) * s.invLen;
     float across = fabsf(state.casterRayX * s.deltaZ - state.casterRayZ * s.deltaX) * s.invLen;
 
-// The surface passes through the wall edge at the hit distance
+// Through the top edge at the hit distance
     Cap2D cap;
     cap.slope = rise * along + drop * across;
     cap.h0 = strip.hTop - strip.dist * cap.slope;
