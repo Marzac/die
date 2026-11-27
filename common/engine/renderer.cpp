@@ -1150,7 +1150,7 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
     if (ap.yTop >= ap.yBot) return;
     float casterY = state.casterPos.y();
 
-// A cap from a surface seen from its hidden side moves past it, culling what lies on it
+// Move a cap 2 epsilon past its plane when the camera is on its hidden side
     auto nudgeUp = [&](Cap2D & cap) {if (cap.h0 > casterY) cap.h0 += 2.0f * epsilon;};
     auto nudgeDown = [&](Cap2D & cap) {if (cap.h0 < casterY) cap.h0 -= 2.0f * epsilon;};
     auto onCap = [&](float h, float hCap) {return fabsf(h - hCap) <= 2.0f * epsilon;};
@@ -1160,46 +1160,39 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
         Wall & w = walls[strip.wallId];
         float d = strip.dist;
 
-    // Clipping, a wall within epsilon still renders its surfaces lying on the cap
+    // Cull walls outside the caps
         float hCeiling = ap.capCeiling->cap.h0 + d * ap.capCeiling->cap.slope;
         float hFloor = ap.capFloor->cap.h0 + d * ap.capFloor->cap.slope;
         if (strip.hTop < hFloor - epsilon) continue;
         if (strip.hBot > hCeiling + epsilon) continue;
 
-    // Near is the camera side (strip.back), far is the other side (!strip.back)
+    // Caps of the rays over the top edge and under the bottom edge
         bool nearCeiling = strip.flags & VSTRIP_FLAG_HASCEILING;
         bool nearFloor = strip.flags & VSTRIP_FLAG_HASFLOOR;
         bool farCeiling = w.flags & (strip.back ? WALL_FLAG_CEILING_FRONT : WALL_FLAG_CEILING_BACK);
         bool farFloor = w.flags & (strip.back ? WALL_FLAG_FLOOR_FRONT : WALL_FLAG_FLOOR_BACK);
-        Cap2D nearCeilingCap = capCeilingHeight(state, strip, strip.back);
-        Cap2D nearFloorCap = capFloorHeight(state, strip, strip.back);
         Cap2D farCeilingCap = capCeilingHeight(state, strip, !strip.back);
         Cap2D farFloorCap = capFloorHeight(state, strip, !strip.back);
 
-    // Near surfaces above or below the camera, one lying on a cap is hidden from the side the rays are not on
-        bool ceilingAbove = nearCeiling && nearCeilingCap.h0 > casterY;
-        bool ceilingBelow = nearCeiling && !ceilingAbove && hCeiling - strip.hTop > 2.0f * epsilon;
-        bool floorBelow = nearFloor && nearFloorCap.h0 < casterY;
-        bool floorAbove = nearFloor && !floorBelow && strip.hBot - hFloor > 2.0f * epsilon;
-
-    // Rays over the top edge: their floor only tightens, unless the current one ends at this wall
-    // It ends here when the top edge lies on it, or the camera side floor does
         CapLink floorLink = {farCeiling ? farCeilingCap : farFloorCap, NULL};
         nudgeUp(floorLink.cap);
         bool floorEnds = onCap(strip.hTop, hFloor) || (nearFloor && onCap(strip.hBot, hFloor));
         const CapLink * floorOver = linkFloor(ap.capFloor, hFloor, floorEnds, farCeiling || farFloor ? &floorLink : NULL, d);
 
-    // Rays under the bottom edge: same for their ceiling
         CapLink ceilingLink = {farFloor ? farFloorCap : farCeilingCap, NULL};
         nudgeDown(ceilingLink.cap);
         bool ceilingEnds = onCap(strip.hBot, hCeiling) || (nearCeiling && onCap(strip.hTop, hCeiling));
         const CapLink * ceilingUnder = linkCeiling(ap.capCeiling, hCeiling, ceilingEnds, farFloor || farCeiling ? &ceilingLink : NULL, d);
 
-    // A ceiling seen from above hides the wall and all below it, only the rays over it go on
-        if (ceilingBelow) {
+    // Near surfaces, a ceiling above the camera is seen from below, a floor below it from above
+        bool ceilingAbove = nearCeiling && capCeilingHeight(state, strip, strip.back).h0 > casterY;
+        bool floorBelow = nearFloor && capFloorHeight(state, strip, strip.back).h0 < casterY;
+
+    // Ceiling seen from above, not lying on the cap: hides all below, only the rays over it go on
+        if (nearCeiling && !ceilingAbove && hCeiling - strip.hTop > 2.0f * epsilon) {
             Aperture newAp = ap;
             newAp.capFloor = floorOver;
-            if (strip.yTop < ap.yBot) { // Visible
+            if (strip.yTop < ap.yBot) {
                 int top = std::max(ap.yTop, strip.yTop);
                 vplaneDraw(state, strip, WALL_SURFACE_CEILING, top, ap.yBot);
                 newAp.yBot = top;
@@ -1208,11 +1201,11 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             return;
         }
 
-    // A floor seen from below hides the wall and all above it, only the rays under it go on
-        if (floorAbove) {
+    // Floor seen from below, not lying on the cap: hides all above, only the rays under it go on
+        if (nearFloor && !floorBelow && strip.hBot - hFloor > 2.0f * epsilon) {
             Aperture newAp = ap;
             newAp.capCeiling = ceilingUnder;
-            if (strip.yBot >= ap.yTop) { // Visible
+            if (strip.yBot >= ap.yTop) {
                 int bot = std::min(ap.yBot, strip.yBot);
                 vplaneDraw(state, strip, WALL_SURFACE_FLOOR, ap.yTop, bot);
                 newAp.yTop = bot;
@@ -1221,30 +1214,19 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             return;
         }
 
-    // A ceiling seen from below covers the rows above the wall, a floor seen from above the rows below it
-        if (ceilingAbove) {
-            if (strip.yTop >= ap.yTop) {
-                int bot = std::min(ap.yBot, strip.yTop);
-                vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, bot);
-            }
-        }
+    // Ceiling seen from below fills the rows above the wall, floor seen from above the rows below
+        if (ceilingAbove && strip.yTop >= ap.yTop)
+            vplaneDraw(state, strip, WALL_SURFACE_CEILING, ap.yTop, std::min(ap.yBot, strip.yTop));
+        if (floorBelow && strip.yBot < ap.yBot)
+            vplaneDraw(state, strip, WALL_SURFACE_FLOOR, std::max(ap.yTop, strip.yBot), ap.yBot);
 
-        if (floorBelow) {
-            if (strip.yBot < ap.yBot) {
-                int top = std::max(ap.yTop, strip.yBot);
-                vplaneDraw(state, strip, WALL_SURFACE_FLOOR, top, ap.yBot);
-            }
-        }
-
-    // Without a near ceiling the rays pass over the wall, without a near floor under it
-    // A hidden near surface still stops them
+    // No near ceiling: the rays go on over the wall, no near floor: under it
         if (!nearCeiling) {
             Aperture newAp = ap;
             newAp.yBot = std::min(ap.yBot, strip.yTop);
             newAp.capFloor = floorOver;
             renderVertical6(state, i + 1, newAp);
         }
-
         if (!nearFloor) {
             Aperture newAp = ap;
             newAp.yTop = std::max(ap.yTop, strip.yBot);
@@ -1252,13 +1234,13 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             renderVertical6(state, i + 1, newAp);
         }
 
-    // Wall coverage, the rows above and below it are done
+    // Rows of the wall
         int top = std::max(ap.yTop, strip.yTop);
         if (top >= ap.yBot) return;
         int bot = std::min(ap.yBot, strip.yBot);
         if (bot < ap.yTop) return;
 
-    // A wall lying on a cap is not drawn, the rays go on through its rows only
+    // Wall lying on a cap: not drawn, the rays go on through its rows
         if (strip.hTop < hFloor || strip.hBot > hCeiling) {
             ap.yTop = top;
             ap.yBot = bot;
@@ -1266,22 +1248,21 @@ void Renderer::renderVertical6(Context & state, int depth, Aperture ap)
             continue;
         }
 
-    // Draw the wall, the rays go on through it if it is see-through
         vstripAdd(state, strip, top, bot);
-        if (strip.flags & VSTRIP_FLAG_SEETHROUGH) {
-        // Through the wall, the caps also only tighten unless they end on its edges
-            CapLink throughCeiling = {farCeilingCap, NULL};
-            CapLink throughFloor = {farFloorCap, NULL};
-            nudgeDown(throughCeiling.cap);
-            nudgeUp(throughFloor.cap);
+        if (!(strip.flags & VSTRIP_FLAG_SEETHROUGH)) return;
 
-            Aperture newAp;
-            newAp.yTop = top;
-            newAp.yBot = bot;
-            newAp.capCeiling = linkCeiling(ap.capCeiling, hCeiling, onCap(strip.hTop, hCeiling), farCeiling ? &throughCeiling : NULL, d);
-            newAp.capFloor = linkFloor(ap.capFloor, hFloor, onCap(strip.hBot, hFloor), farFloor ? &throughFloor : NULL, d);
-            renderVertical6(state, i + 1, newAp);
-        }
+    // See-through: the rays go on through the wall
+        CapLink throughCeiling = {farCeilingCap, NULL};
+        CapLink throughFloor = {farFloorCap, NULL};
+        nudgeDown(throughCeiling.cap);
+        nudgeUp(throughFloor.cap);
+
+        Aperture newAp;
+        newAp.yTop = top;
+        newAp.yBot = bot;
+        newAp.capCeiling = linkCeiling(ap.capCeiling, hCeiling, onCap(strip.hTop, hCeiling), farCeiling ? &throughCeiling : NULL, d);
+        newAp.capFloor = linkFloor(ap.capFloor, hFloor, onCap(strip.hBot, hFloor), farFloor ? &throughFloor : NULL, d);
+        renderVertical6(state, i + 1, newAp);
         return;
     }
 }
