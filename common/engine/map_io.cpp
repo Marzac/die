@@ -90,7 +90,7 @@ bool Map::save(const QString & filename, bool submap)
 
     fprintf(file, "# == DIE MAP == \n");
     fprintf(file, "# Fred's Lab 2024-2026\n");
-    fprintf(file, "# 22.11.26 - V1.4\n");
+    fprintf(file, "# 27.11.26 - V1.5\n");
 
 // ==== NODES ====
     fprintf(file, "# == NODES ==\n");
