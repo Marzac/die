@@ -50,6 +50,7 @@ public:
     QTimer * uiTimer;
     RenderWindow * renderWindow;
     bool wallPickPending;
+    bool wallPickAdd;
 
 // Render metrics, reported once per second
     QElapsedTimer metricsClock;

@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     uiEditMode(EDIT_MODE_NODES), once(true),
     renderTimer(nullptr), uiTimer(nullptr),
-    renderWindow(nullptr), wallPickPending(false),
+    renderWindow(nullptr), wallPickPending(false), wallPickAdd(false),
     undoIndex(-1), undoDebounceTimer(nullptr),
     ui(new Ui::MainWindow)
 {
@@ -365,7 +365,7 @@ void MainWindow::resolveWallPick()
 {
     if (!wallPickPending) return;
     wallPickPending = false;
-    editor.wallDeselectAll();
+    if (!wallPickAdd) editor.wallDeselectAll();
 
     uint16_t wid = renderer.clickGetWallID();
     if (wid != Renderer::ClickNoWall) {
