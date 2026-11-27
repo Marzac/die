@@ -101,10 +101,10 @@ bool Map::save(const QString & filename, bool submap)
 
 // ==== WALLS ====
     fprintf(file, "# == WALLS ==\n");
-    fprintf(file, "# format: W nodeID1, nodeID2, height, flags, floorFrontDrop, floorBackDrop, ceilingFrontDrop, ceilingBackDrop\n");
+    fprintf(file, "# format: W nodeID1, nodeID2, height, flags, floorFrontDrop, floorBackDrop, ceilingFrontDrop, ceilingBackDrop, slant\n");
     fprintf(file, "# format: S surfaceID, textureID, scaleX, scaleY, shiftX, shiftY, flags\n");
     for (const Wall & w : walls) {
-        fprintf(file, "W %04hu, %04hu, %+4.4f, %04hx, %+4.4f, %+4.4f, %+4.4f, %+4.4f\n", w.nodeID1, w.nodeID2, w.height, w.flags, w.floorFrontDrop, w.floorBackDrop, w.ceilingFrontDrop, w.ceilingBackDrop);
+        fprintf(file, "W %04hu, %04hu, %+4.4f, %04hx, %+4.4f, %+4.4f, %+4.4f, %+4.4f, %+4.4f\n", w.nodeID1, w.nodeID2, w.height, w.flags, w.floorFrontDrop, w.floorBackDrop, w.ceilingFrontDrop, w.ceilingBackDrop, w.slant);
         for (int j = 0; j < WALL_SURFACES_COUNT; j++)
             writeSurface(file, j, w.surfaces[j]);
     } fprintf(file, "\n");
@@ -262,9 +262,11 @@ bool Map::load(const QString & filename)
         }else if (c == 'W') {
             lastC = 'W';
             Wall w{};
-        // V1.0 files end after the flags: the drops then stay at zero
+        // Older files end early: the missing drops / slant stay at zero
             fscanf(file, "%hu, %hu, %f, %hx", &w.nodeID1, &w.nodeID2, &w.height, &w.flags);
             fscanf(file, ", %f, %f, %f, %f", &w.floorFrontDrop, &w.floorBackDrop, &w.ceilingFrontDrop, &w.ceilingBackDrop);
+            fscanf(file, ", %f", &w.slant);
+            w.slant = qBound(-w.height, w.slant, w.height);
             if (w.nodeID1 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID2 >= nodes.count()) { lastC = ' '; continue; }
             if (w.nodeID1 == w.nodeID2)     { lastC = ' '; continue; }

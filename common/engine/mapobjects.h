@@ -92,7 +92,8 @@ typedef enum : uint16_t {
 typedef struct {
     uint16_t nodeID1;
     uint16_t nodeID2;
-    float height;
+    float height;           ///< at the taller end
+    float slant;            ///< top rise from node 1 to node 2, in [-height, height]
 
     float floorFrontDrop;
     float floorBackDrop;

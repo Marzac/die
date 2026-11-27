@@ -49,6 +49,7 @@ inline bool operator==(const Wall& a, const Wall& b)
 {
     if (a.nodeID1 != b.nodeID1 || a.nodeID2 != b.nodeID2) return false;
     if (a.height  != b.height  || a.flags   != b.flags)   return false;
+    if (a.slant != b.slant) return false;
     if (a.floorFrontDrop != b.floorFrontDrop || a.floorBackDrop != b.floorBackDrop) return false;
     if (a.ceilingFrontDrop != b.ceilingFrontDrop || a.ceilingBackDrop != b.ceilingBackDrop) return false;
     for (int i = 0; i < WALL_SURFACES_COUNT; ++i)

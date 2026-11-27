@@ -115,7 +115,8 @@ public:
     typedef struct {
         uint16_t nodeID1;           ///< start node
         uint16_t nodeID2;           ///< end node
-        float height;               ///< in world units, above the nodes
+        float height;               ///< at the taller end, in world units above the nodes
+        float slant;                ///< top rise from node 1 to node 2, in [-height, height]
         float floorFrontDrop;       ///< surface slope away from the wall, in 1/8 per unit
         float floorBackDrop;        ///< same, back side
         float ceilingFrontDrop;     ///< same, front ceiling

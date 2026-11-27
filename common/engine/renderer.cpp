@@ -637,7 +637,7 @@ void Renderer::castStrips(Context & state)
         float bot1 = nodes[w.nodeID1].pos.y();
         float bot2 = nodes[w.nodeID2].pos.y();
         float bot = bot1 + (bot2 - bot1) * k;
-        float top = bot + w.height;
+        float top = bot + w.height - fmaxf(w.slant, 0.0f) + w.slant * k;
 
     // Rows, AO gradient ends, heights and texture coordinates
         Strip & strip = state.vStrips[state.vStripsCount];
@@ -844,8 +844,8 @@ Renderer::Cap2D Renderer::capCeilingHeight(const Context & state, const Strip & 
     const Wall & w = walls[strip.wallId];
     const Segment & s = segments[strip.wallId];
 
-// Same slope as capFloorHeight, from the ceiling drops
-    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+// Same as capFloorHeight, along the top edge and from the ceiling drops
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y() + w.slant) * s.invLen;
     float drop = (back ? w.ceilingBackDrop : w.ceilingFrontDrop) * 0x1p-3;
     if (back != strip.back) drop = -drop;
     float along = (state.casterRayX * s.deltaX + state.casterRayZ * s.deltaZ) * s.invLen;
@@ -1388,8 +1388,8 @@ Renderer::Cap3D Renderer::capPlane(const Context & state, const Strip & strip, b
     const Segment & s = segments[strip.wallId];
     Cap2D cap = ceiling ? capCeilingHeight(state, strip, back) : capFloorHeight(state, strip, back);
 
-// Plane gradient: rise along the wall, drop away from it on the surface side
-    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y()) * s.invLen;
+// Plane gradient: rise along the wall edge, drop away from it on the surface side
+    float rise = (nodes[w.nodeID2].pos.y() - nodes[w.nodeID1].pos.y() + (ceiling ? w.slant : 0.0f)) * s.invLen;
     float drop = ceiling ? (back ? w.ceilingBackDrop : w.ceilingFrontDrop)
                          : (back ? w.floorBackDrop : w.floorFrontDrop);
     drop *= 0x1p-3f;
