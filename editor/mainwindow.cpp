@@ -1178,7 +1178,7 @@ void MainWindow::on_spinWallHeight_valueChanged(double arg1)
         Wall & w = editor.editedMap->walls[i];
         if (!w.selected) continue;
         w.height = arg1;
-        w.slant = qBound(-w.height, w.slant, w.height);
+        w.slant = qBound(-w.height, w.slant, w.height) + 0.0f;    // no -0 on flat walls
     }
     updateWallSlant();
 }
@@ -1190,7 +1190,7 @@ void MainWindow::on_spinWallSlant_valueChanged(double arg1)
     for (int i = 0; i < editor.editedMap->walls.count(); i++) {
         Wall & w = editor.editedMap->walls[i];
         if (!w.selected) continue;
-        w.slant = qBound(-w.height, (float)arg1, w.height);
+        w.slant = qBound(-w.height, (float)arg1, w.height) + 0.0f;
     }
 }
 
