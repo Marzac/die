@@ -28,6 +28,9 @@
 class Renderer
 {
 public:
+/// \brief Maximum walls crossed by one column ray
+    static constexpr int StripsMax = 512;
+
 /// \brief Default frame settings
     static constexpr int DefaultFrameResoX = 960;
     static constexpr int DefaultFrameResoY = 536;
@@ -262,8 +265,6 @@ public:
     Levels levels;
 
 private:
-    static constexpr int StripsMax = 512;
-
     /// \brief Strip flags, translated from WALL_FLAGS in castStrips()
     typedef enum : uint16_t {
         VSTRIP_FLAG_FREE        = 0x0000,
@@ -301,7 +302,7 @@ private:
         float slope;
     } Cap2D;
 
-    /// \brief Persistent cap stack: each link lives in the frame of the recursion that pushed it
+    /// \brief Linked list of caps, top first: each link lives in the frame of the recursion that pushed it
     typedef struct _CapLink {
         Cap2D cap;
         const _CapLink * prev;
